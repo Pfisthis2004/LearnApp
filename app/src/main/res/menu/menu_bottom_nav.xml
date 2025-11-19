@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Lesson"
+        android:icon="@drawable/lessonicon"
+        android:id="@+id/menu_home"/>
+    <item android:title="Vocabulary"
+        android:icon="@drawable/vocabularyicon"
+        android:id="@+id/menu_vocabulary"/>
+    <item android:title="Profile"
+        android:icon="@drawable/profileicon"
+        android:id="@+id/menu_profile"/>
+</menu>

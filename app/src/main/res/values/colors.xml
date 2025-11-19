@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Brand Colors -->
+    <color name="colorPrimary">#007AFF</color>
+    <color name="colorPrimaryVariant">#005FCC</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorCard">#99CAFF</color>
+    <!-- Success -->
+    <color name="colorSuccess">#2ECC71</color>
+    <color name="colorOnSuccess">#FFFFFF</color>
+
+    <!-- Error -->
+    <color name="colorError">#E94A47</color>
+    <color name="colorOnError">#FFFFFF</color>
+
+    <!-- Background / Surface -->
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorSurface">#F5F5F7</color>
+    <color name="colorOnBackground">#111111</color>
+    <color name="colorOnSurface">#111111</color>
+
+    <!-- Border & Divider -->
+    <color name="colorBorder">#D1D1D6</color>
+    <color name="colorDivider">#E5E5EA</color>
+
+    <!-- Text Colors -->
+    <color name="textPrimary">#111111</color>
+    <color name="textSecondary">#3C3C43</color>
+    <color name="textDisabled">#8E8E93</color>
+
+    <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/colorPrimary</item>
+    </style>
+</resources>

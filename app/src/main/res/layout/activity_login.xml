@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".View.LoginActivity"
+    android:padding="20dp">
+
+    <!-- Header với nút Back và Light Mode -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp">
+
+        <Button
+            android:id="@+id/btnback"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/outline_arrow_left_alt_24" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/lightMode"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/lightmode" />
+    </LinearLayout>
+
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/logohello"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Log in and continue your \nlearning"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/logo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <!-- Label Email -->
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <!-- Nhập Email -->
+    <EditText
+        android:id="@+id/edtemail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="user@gmail.com"
+        android:inputType="textEmailAddress"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:background="@drawable/bogoc"
+        android:textColor="@android:color/black"
+        android:textColorHint="#8E8E93"
+        app:layout_constraintTop_toBottomOf="@id/emailLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Label Password -->
+    <TextView
+        android:id="@+id/passwordLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        app:layout_constraintTop_toBottomOf="@id/edtemail"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <!-- Nhập Password -->
+    <EditText
+        android:id="@+id/edtpassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:background="@drawable/bogoc"
+        android:textColor="@android:color/black"
+        android:textColorHint="#8E8E93"
+        app:layout_constraintTop_toBottomOf="@id/passwordLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <Button
+        android:id="@+id/btnforget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quên mật khẩu"
+        android:textColor="@color/black"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/edtpassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="right"
+        />
+    <!-- Nút Continue -->
+    <Button
+        android:id="@+id/btncontinue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Continue"
+        android:textSize="20sp"
+        android:backgroundTint="@color/colorPrimary"
+        android:paddingVertical="10dp"
+        app:layout_constraintTop_toBottomOf="@id/btnforget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Divider "or" -->
+    <LinearLayout
+        android:id="@+id/orDivider"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginVertical="16dp"
+        app:layout_constraintTop_toBottomOf="@id/btncontinue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/colorBorder" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="or"
+            android:textSize="14sp"
+            android:textColor="@color/textSecondary"
+            android:paddingHorizontal="12dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/colorBorder" />
+    </LinearLayout>
+
+    <!-- Nút Google -->
+    <Button
+        android:id="@+id/btnGoogle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Log in with Google"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:backgroundTint="@color/colorDivider"
+        android:paddingVertical="10dp"
+        android:drawableLeft="@drawable/icongoogle"
+        android:drawablePadding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/orDivider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Điều khoản -->
+    <TextView
+        android:id="@+id/termText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="By joining, I declare that I have read and accept the\nTerms and Privacy Policy"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:textColor="@color/textDisabled"
+
+        app:layout_constraintTop_toBottomOf="@id/btnGoogle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Đăng ký -->
+    <LinearLayout
+        android:id="@+id/loginSection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/termText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have an account yet?"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btnsignup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign up"
+            android:textSize="16sp"
+            android:textColor="@color/colorPrimary"
+            android:background="@android:color/transparent"
+            android:paddingStart="4dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

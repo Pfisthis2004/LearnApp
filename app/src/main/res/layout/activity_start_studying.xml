@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/lightMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/lightmode"
+        android:layout_gravity="end"
+        android:layout_marginTop="50dp"
+        />
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logoname"
+        />
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="370dp"
+        android:src="@drawable/start_studying"
+        />
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Welcome to your\nfirst lessons!"
+        android:gravity="center"
+        android:textSize="32sp"
+        android:lineSpacingExtra="4dp"
+        android:textStyle="bold"
+        />
+    <TextView
+        android:id="@+id/titlestart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Let's start studying!"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:lineSpacingExtra="4dp"
+        android:textStyle="bold"
+        />
+    <Button
+        android:id="@+id/btnletgo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Let's Go!"
+        android:textSize="20sp"
+        android:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="10dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="2dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:layout_marginHorizontal="20dp"
+        />
+</LinearLayout>
