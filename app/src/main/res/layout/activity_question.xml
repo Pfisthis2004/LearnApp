@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".View.QuestionActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:id="@+id/main"
+       >
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_cancel_presentation_24"
+            android:layout_marginBottom="20dp"/>
+        <TextView
+            android:id="@+id/tvPromptTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hãy hoàn thành câu."
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginBottom="8dp" />
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:use_controller="true"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Câu hỏi -->
+        <TextView
+            android:id="@+id/tvPrompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="____!"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Các lựa chọn -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <Button
+                android:id="@+id/btnOption1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="Hello"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/colorBorder"
+                />
+
+            <Button
+                android:id="@+id/btnOption2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Halo"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/colorBorder"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/bottomFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bogoc"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvResult"
+                android:text="Chính xác"
+                android:textSize="18sp"
+                android:textColor="@color/colorSuccess"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvExplanation"
+                android:text="Giải thích "
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnNext"
+                android:text="Tiếp tục"
+                android:backgroundTint="@color/colorSuccess"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <include
+        android:id="@+id/includeResult"
+        layout="@layout/result_question"
+        android:visibility="gone"
+        />
+</FrameLayout>

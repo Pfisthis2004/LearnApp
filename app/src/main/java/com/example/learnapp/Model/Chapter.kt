@@ -1,6 +1,7 @@
 package com.example.learnapp.Model
 
 data class Chapter(
+    val id: String="",
     val title: String = "",
     val completedCount: Int = 0,
     val totalCount: Int = 0,

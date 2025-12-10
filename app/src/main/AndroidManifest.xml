@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,19 +14,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
         <activity
-            android:name=".View.start_studying"
+            android:name=".View.SpeakingQuestionActivity"
             android:exported="false" />
         <activity
-            android:name=".View.choose_level"
+            android:name=".View.QuestionActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".View.ui.begin.start_studying"
             android:exported="false" />
         <activity
-            android:name=".View.reasonstudying"
+            android:name=".View.ui.begin.choose_level"
             android:exported="false" />
         <activity
-            android:name=".View.welcome"
+            android:name=".View.ui.begin.reasonstudying"
             android:exported="false" />
         <activity
-            android:name=".View.language"
+            android:name=".View.ui.begin.welcome"
+            android:exported="false" />
+        <activity
+            android:name=".View.ui.begin.language"
             android:exported="false" />
         <activity
             android:name=".View.MainActivity"
@@ -36,7 +46,7 @@
             android:name=".View.SignUpActivity"
             android:exported="false" />
         <activity
-            android:name=".View.welcomehome"
+            android:name=".View.ui.begin.welcomehome"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -11,7 +11,7 @@ import com.example.learnapp.Model.Lesson
 import com.example.learnapp.R
 import com.example.learnapp.View.ui.fragment.LessonFragment
 
-class ChapterAdapter(private var chapters: List<Chapter>) : RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder>(){
+class ChapterAdapter(private var chapters: List<Chapter>,private val onClickLesson: (Lesson) -> Unit) : RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder>(){
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -34,7 +34,9 @@ class ChapterAdapter(private var chapters: List<Chapter>) : RecyclerView.Adapter
         // sap xep bai hoc
         val lessonList = chapter.lessons.entries.sortedBy { it.key }.map { it.value}
         holder.lessonrcv.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.lessonrcv.adapter = LessonAdapter(lessonList as MutableList<Lesson>)
+        holder.lessonrcv.adapter = LessonAdapter(lessonList.toMutableList()){lesson ->
+            onClickLesson(lesson)
+        }
     }
 
     override fun getItemCount(): Int= chapters.size

@@ -50,6 +50,10 @@ dependencies {
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
     kapt("androidx.room:room-compiler:2.7.2")
+    
+    implementation(libs.androidx.media3.exoplayer)
+    implementation("androidx.media3:media3-ui:1.3.1")
+
 
     implementation(libs.firebase.crashlytics)
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))

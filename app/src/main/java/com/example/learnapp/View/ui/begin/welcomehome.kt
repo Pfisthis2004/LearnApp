@@ -1,9 +1,11 @@
-package com.example.learnapp.View
+package com.example.learnapp.View.ui.begin
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.example.learnapp.View.LoginActivity
+import com.example.learnapp.View.SignUpActivity
 import com.example.learnapp.databinding.ActivityWelcomehomeBinding
 
 class welcomehome : AppCompatActivity() {
@@ -15,7 +17,7 @@ class welcomehome : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btndangnhap.setOnClickListener {
-            val intent = Intent(this,LoginActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
         binding.btndangky.setOnClickListener {

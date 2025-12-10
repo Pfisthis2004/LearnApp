@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.learnapp.R
+import com.example.learnapp.View.ui.begin.language
 import com.example.learnapp.ViewModel.LoginViewModel
 
 import com.example.learnapp.databinding.ActivityLoginBinding
@@ -74,7 +75,6 @@ class LoginActivity : AppCompatActivity() {
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         binding.btnGoogle.setOnClickListener {

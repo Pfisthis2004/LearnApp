@@ -1,6 +1,8 @@
 package com.example.learnapp.View.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,13 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.learnapp.Model.Chapter
-import com.example.learnapp.Model.Lesson
+import com.example.learnapp.View.QuestionActivity
 import com.example.learnapp.R
 import com.example.learnapp.View.ui.adapter.ChapterAdapter
 import com.example.learnapp.ViewModel.LessonViewModel
 import com.example.learnapp.databinding.FragmentLessonBinding
-import com.google.firebase.database.FirebaseDatabase
 
 class LessonFragment : Fragment() {
     private lateinit var adapter: ChapterAdapter
@@ -35,19 +35,30 @@ class LessonFragment : Fragment() {
                 .getString("selectedLevel", "Chưa chọn level")
         view.findViewById<TextView>(R.id.leveltv).text = level
 
-        adapter = ChapterAdapter(emptyList())
+        adapter = ChapterAdapter(emptyList()){lesson ->
+            val intent = Intent(requireContext(), QuestionActivity::class.java)
+            intent.putExtra("chapterId", lesson.chapterId)
+            intent.putExtra("id", lesson.id)
+            startActivity(intent)
+        }
         binding.rcvchapter.layoutManager = LinearLayoutManager(requireContext())
         binding.rcvchapter.adapter = adapter
 
+        binding.rcvchapter.visibility = View.GONE
         binding.loadingImage.visibility = View.VISIBLE
         Glide.with(this).asGif().load(R.raw.loading).into(binding.loadingImage)
 
         viewModel.chapters.observe(viewLifecycleOwner) { chapters ->
             adapter.updateData(chapters)
             binding.loadingImage.visibility = View.GONE
+            binding.rcvchapter.visibility = View.VISIBLE
         }
 
         viewModel.loadChapters()
         return binding.root
+    }
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadChapters()
     }
 }

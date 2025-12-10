@@ -1,4 +1,4 @@
-package com.example.learnapp.View
+package com.example.learnapp.View.ui.begin
 
 import android.content.Intent
 import android.os.Bundle
