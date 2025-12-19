@@ -17,9 +17,10 @@ class start_studying : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnletgo.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("fromWelcome", true) // để phân biệt quay về từ welcome
-            startActivity(intent)
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            prefs.edit().putBoolean("firstLoginCompleted", true).apply()
+
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
     }

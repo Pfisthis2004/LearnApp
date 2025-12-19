@@ -2,11 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
     tools:context=".View.SpeakingQuestionActivity">
+
+    <!-- Đây là phần học chính -->
+    <FrameLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <androidx.media3.ui.PlayerView
             android:id="@+id/videoView"
@@ -17,85 +21,86 @@
             app:use_controller="false"
             app:surface_type="surface_view"/>
 
+        <!-- Các overlay controls -->
+        <ImageButton
+            android:id="@+id/reloadButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="16dp"
+            android:background="@drawable/bogoctron"
+            android:src="@drawable/reload_icon" />
 
-    <!-- Overlay controls -->
-    <ImageButton
-        android:id="@+id/reloadButton"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom|start"
-        android:layout_margin="16dp"
-        android:background="@drawable/bogoctron"
-        android:contentDescription="Reload"
-        android:src="@drawable/reload_icon" />
-
-    <ImageButton
-        android:id="@+id/recordButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/bogoctron"
-        android:contentDescription="Record"
-        android:src="@drawable/mic_icon" />
-
-    <TextView
-        android:id="@+id/speakingPrompt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="How are you?"
-        android:textSize="28sp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:background="#80000000"
-        android:padding="16dp"
-        android:layout_gravity="center"/>
-
-    <TextView
-        android:id="@+id/instructionText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nhấn giữ và nhắc lại"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="100dp"/>
-
-    <LinearLayout
-        android:id="@+id/bottomFeedback"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bogoc"
-        android:orientation="vertical"
-        android:layout_gravity="bottom"
-        android:padding="16dp"
-        android:visibility="gone">
+        <ImageButton
+            android:id="@+id/recordButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bogoctron"
+            android:src="@drawable/mic_icon" />
 
         <TextView
-            android:id="@+id/tvResult"
+            android:id="@+id/speakingPrompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hoàn hảo"
-            android:textSize="18sp"
-            android:textColor="@color/colorSuccess"
-            android:layout_marginBottom="8dp" />
+            android:visibility="gone"
+            android:text="How are you?"
+            android:textSize="28sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:background="#80000000"
+            android:padding="16dp"
+            android:layout_marginTop="100dp"
+            android:layout_gravity="center"/>
 
         <TextView
-            android:id="@+id/prompFeedback"
+            android:id="@+id/instructionText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="....... "
+            android:text="Nhấn giữ và nhắc lại"
             android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            android:textColor="#FFFFFF"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="100dp"/>
 
-        <Button
-            android:id="@+id/btnNext"
+        <LinearLayout
+            android:id="@+id/bottomFeedback"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tiếp tục"
-            android:backgroundTint="@color/colorSuccess" />
-    </LinearLayout>
+            android:background="@drawable/bogoc"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            android:padding="16dp"
+            android:visibility="gone">
 
+            <TextView
+                android:id="@+id/tvResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hoàn hảo"
+                android:textSize="18sp"
+                android:textColor="@color/colorSuccess"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/prompFeedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="....... "
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tiếp tục"
+                android:backgroundTint="@color/colorSuccess" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Đây là màn hình kết quả, nằm ngoài main -->
     <include
         android:id="@+id/includeResult"
         layout="@layout/result_question"

@@ -1,15 +1,323 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context=".View.ui.fragment.ProfileFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarProfile"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Profile Fragment"
-        android:textSize="36dp"
-        android:gravity="center" />
-</FrameLayout>
+        android:layout_height="?attr/actionBarSize"
+        app:title="Hồ sơ"
+        android:gravity="left"
+        app:menu="@menu/menu_profile"
+        android:elevation="4dp"
+        android:background="@drawable/bogoc2"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+    <!-- Avatar -->
+    <ImageView
+        android:id="@+id/imgAvatar"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:src="@drawable/family"
+        android:contentDescription="Avatar"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Tên người dùng -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Đại Nguyễn"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/imgAvatar"
+        app:layout_constraintTop_toTopOf="@id/imgAvatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"/>
+
+    <!-- Quốc gia -->
+        <LinearLayout
+            android:id="@+id/locationLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/tvName"
+            app:layout_constraintTop_toBottomOf="@id/tvName">
+
+            <ImageView
+                android:id="@+id/imgLocation"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/location_icon"
+                android:contentDescription="Location"/>
+
+            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Việt Nam"
+                android:textSize="14sp"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:id="@+id/divider"
+            android:background="@color/colorBorder"
+            app:layout_constraintTop_toBottomOf="@id/imgAvatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <FrameLayout
+            android:id="@+id/progressContainer"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp"
+            android:clipToPadding="false">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressCircle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:indicatorColor="@color/colorPrimary"
+                app:indicatorSize="150dp"
+                app:trackColor="@color/colorSurface"
+                app:trackThickness="15dp" />
+
+            <TextView
+                android:id="@+id/tvProgressPercent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="0%"
+                android:layout_marginRight="7dp"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+        </FrameLayout>
+
+
+        <TextView
+                android:id="@+id/tvProgressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Language knowledge"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/progressContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        <!-- Words & Certificates chia đều -->
+        <LinearLayout
+            android:id="@+id/statsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/tvProgressText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp">
+
+            <!-- Words Learned -->
+            <LinearLayout
+                android:id="@+id/wordsLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bogoc">
+
+                <ImageView
+                    android:id="@+id/iconWords"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/progress_chart"
+                    android:contentDescription="Words Icon"/>
+
+                <TextView
+                    android:id="@+id/tvWordsLearned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 Words learned"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Divider dọc -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="48dp"
+                android:background="@color/colorBorder"
+                android:layout_marginHorizontal="8dp"/>
+
+            <!-- Certificates -->
+            <LinearLayout
+                android:id="@+id/certLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bogoc">
+
+                <ImageView
+                    android:id="@+id/iconCert"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/certificate_icon"
+                    android:contentDescription="Certificate Icon"/>
+
+                <TextView
+                    android:id="@+id/tvCertificates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 Certificate"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+        </LinearLayout>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:id="@+id/divider2"
+            android:background="@color/colorBorder"
+            app:layout_constraintTop_toBottomOf="@id/statsLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
+        <!-- Study Days Label -->
+        <TextView
+            android:id="@+id/tvStudyDays"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Study days"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/divider2"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="24dp"/>
+
+        <!-- Day Selector -->
+        <LinearLayout
+            android:id="@+id/daySelector"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/tvStudyDays"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            >
+
+            <!-- Example Day -->
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="2"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="3"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="4"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="4"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="5"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="6"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="7"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="Cn"
+                android:gravity="center"
+                android:background="@drawable/day_selected"
+                android:textColor="@android:color/white"
+                android:layout_margin="4dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toBottomOf="@id/daySelector"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/calendar_icon"
+                android:contentDescription="Calendar"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 Active day"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

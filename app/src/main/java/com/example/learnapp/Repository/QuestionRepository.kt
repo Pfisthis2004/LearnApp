@@ -29,11 +29,9 @@ class QuestionRepository {
             .get()
             .addOnSuccessListener { snapshot ->
                 val count = snapshot.getValue(Int::class.java) ?: 0
-                Log.d("FirebaseDebug", "Tổng số bài học trong $chapterId là: $count")
                 callback(count)
             }
             .addOnFailureListener {
-                Log.e("FirebaseDebug", "Không thể lấy totalCount cho $chapterId")
                 callback(0)
             }
     }
@@ -42,9 +40,7 @@ class QuestionRepository {
         lessonRef.get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
                 lessonRef.child("isLocked").setValue(false)
-                Log.d("FirebaseDebug", "Đã mở khóa $lessonId trong $chapterId")
             } else {
-                Log.w("FirebaseDebug", "Không tìm thấy $lessonId trong $chapterId")
             }
         }
     }

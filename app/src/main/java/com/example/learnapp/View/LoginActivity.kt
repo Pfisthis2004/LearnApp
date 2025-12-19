@@ -30,16 +30,6 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
-
-        if (currentUser != null) {
-            // Đã đăng nhập → chuyển đến màn hình chính
-            startActivity(Intent(this, MainActivity::class.java))
-        } else {
-            // Chưa đăng nhập → chuyển đến màn hình đăng nhập
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
-        finish()
         // Quan sát ViewModel
         viewModel.loginSuccess.observe(this) {
             if (it) startActivity(Intent(this, language::class.java))

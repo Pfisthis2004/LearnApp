@@ -1,6 +1,8 @@
 package com.example.learnapp.View
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -12,6 +14,8 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -46,9 +50,11 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         // Quan sát câu hỏi
         viewModel.currentIndex.observe(this) { index ->
             val questions = viewModel.questions.value ?: emptyList()
-            if (questions.isNotEmpty() && index < questions.size) {
+            if (questions.isNotEmpty() && index <= questions.size - 1) {
+                // index còn nằm trong phạm vi câu hỏi
                 showQuestion(questions[index])
-            } else {
+            } else if (questions.isNotEmpty() && index == questions.size) {
+                // đã làm xong hết câu hỏi
                 showFinalResult()
             }
         }
@@ -76,12 +82,13 @@ class SpeakingQuestionActivity : AppCompatActivity() {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     binding.instructionText.text = "Đang nghe..."
-                    startSpeechRecognition()
+                    requestMicPermission() // xin quyền và bắt đầu ghi âm nếu được cấp
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     binding.instructionText.text = "Đang xử lý..."
-                    stopSpeechRecognition()
+                    // KHÔNG gọi stopSpeechRecognition ngay lập tức
+                    // để recognizer tự gọi onEndOfSpeech và sau đó onResults
                     true
                 }
                 else -> false
@@ -105,7 +112,6 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         }
     }
 
-    /** ====================== HIỆN CÂU HỎI ====================== **/
     private fun showQuestion(q: SpeakingQuestion) {
 
         hideAllInputUI() // Ẩn record + reload cho tới khi video chạy xong
@@ -123,26 +129,34 @@ class SpeakingQuestionActivity : AppCompatActivity() {
 
             player?.addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_ENDED) {
-                        binding.recordButton.visibility = View.VISIBLE
-                        binding.reloadButton.visibility = View.VISIBLE
-                        binding.instructionText.visibility = View.VISIBLE
+                    when (state) {
+                        Player.STATE_READY -> {
+                            // Video đã load xong, bắt đầu hiển thị prompt
+                        }
+                        Player.STATE_ENDED -> {
+                            // Khi video kết thúc thì hiện nút record/reload
+                            binding.speakingPrompt.text = q.prompt
+                            binding.speakingPrompt.visibility = View.VISIBLE
+                            binding.recordButton.visibility = View.VISIBLE
+                            binding.reloadButton.visibility = View.VISIBLE
+                            binding.instructionText.visibility = View.VISIBLE
+                        }
                     }
                 }
             })
         }
     }
 
-    /** ====================== FINAL RESULT ====================== **/
     private fun showFinalResult() {
 
         hideAllInputUI()
 
         // Ẩn toàn bộ phần học
-        binding.main.visibility = View.VISIBLE
+        binding.main.visibility = View.GONE
 
         // Hiện kết quả
         binding.includeResult.root.visibility = View.VISIBLE
+        binding.includeResult.tvScore.visibility = View.GONE
         binding.includeResult.tvStars.text = "Sao: +5 ⭐"
 
         val chapterId = intent.getStringExtra("chapterId") ?: return
@@ -150,16 +164,26 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         viewModel.unlockNextLesson(chapterId, lessonId)
     }
 
-    /** ====================== ẨN input khi mới vào / load câu ====================== **/
+    private fun requestMicPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                100 // requestCode tuỳ bạn đặt
+            )
+        } else {
+            // Nếu đã có quyền thì bắt đầu ghi âm
+            startSpeechRecognition()
+        }
+    }
     private fun hideAllInputUI() {
         binding.recordButton.visibility = View.GONE
         binding.reloadButton.visibility = View.GONE
         binding.instructionText.visibility = View.GONE
         binding.bottomFeedback.visibility = View.GONE
-        binding.includeResult.root.visibility = View.GONE
     }
 
-    /** ====================== SPEECH RECOGNITION ====================== **/
     private fun startSpeechRecognition() {
         if (speechRecognizer == null) {
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
@@ -167,28 +191,36 @@ class SpeakingQuestionActivity : AppCompatActivity() {
 
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US") // tiếng Anh - Mỹ
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)     // lấy nhiều kết quả để so khớp
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 0)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 0)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 0)
         }
 
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
-
             override fun onResults(results: Bundle?) {
-                val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
-                viewModel.checkAnswer(text ?: "")
+                val texts = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) ?: arrayListOf()
+
+                if (texts.isEmpty()) {
+                    binding.instructionText.text = "Không nhận diện được, thử lại nhé!"
+                    viewModel.checkAnswer("") // để tránh crash
+                    return
+                }
+
+                val combined = texts.joinToString("|")
+                viewModel.checkAnswer(combined)
             }
 
             override fun onPartialResults(partial: Bundle?) {
-                // Nếu muốn hiện text tạm thời cho user
                 val partialText = partial?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
                 binding.instructionText.text = partialText ?: "Đang nghe..."
             }
 
             override fun onError(error: Int) {
-                viewModel.checkAnswer("")
+                when (error) {
+                    SpeechRecognizer.ERROR_NO_MATCH -> binding.instructionText.text = "Không nhận diện được giọng nói"
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> binding.instructionText.text = "Bạn chưa nói gì!"
+                    else -> binding.instructionText.text = "Lỗi ghi âm. Vui lòng thử lại."
+                }
             }
 
             override fun onReadyForSpeech(params: Bundle?) {}
@@ -202,11 +234,24 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         speechRecognizer?.startListening(recognizerIntent)
     }
 
-    private fun stopSpeechRecognition() {
-        speechRecognizer?.stopListening()
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 100) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Được cấp quyền → bắt đầu ghi âm
+                startSpeechRecognition()
+            } else {
+                // Bị từ chối
+                binding.instructionText.text = "Bạn cần cấp quyền micro để sử dụng chức năng này"
+            }
+        }
     }
 
-    /** ====================== LIFECYCLE ====================== **/
     override fun onStop() {
         super.onStop()
         player?.pause()

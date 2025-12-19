@@ -49,10 +49,8 @@ class LessonAdapter(private var lesson: MutableList<Lesson>,private val onLesson
             holder.itemView.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = if (lesson.questionType == "speaking") {
-                    Log.d("LessonClick", "Navigating to SpeakingQuestionActivity with lessonId=${lesson.id}")
                     Intent(context, SpeakingQuestionActivity::class.java)
                 } else {
-                    Log.d("LessonClick", "Navigating to QuestionActivity with lessonId=${lesson.id}")
                     Intent(context, QuestionActivity::class.java)
                 }
                 intent.putExtra("chapterId", lesson.chapterId)
