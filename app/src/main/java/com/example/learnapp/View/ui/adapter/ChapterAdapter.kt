@@ -11,12 +11,16 @@ import com.example.learnapp.Model.Lesson
 import com.example.learnapp.R
 import com.example.learnapp.View.ui.fragment.LessonFragment
 
-class ChapterAdapter(private var chapters: List<Chapter>,private val onClickLesson: (Lesson) -> Unit) : RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder>(){
+class ChapterAdapter(
+    private var chapters: List<Chapter>,
+    private val onClickLesson: (Lesson) -> Unit)
+    : RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder>(){
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): ChapterViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_chapter,parent,false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_chapter,parent,false)
         return ChapterViewHolder(view)
     }
 
@@ -24,7 +28,7 @@ class ChapterAdapter(private var chapters: List<Chapter>,private val onClickLess
         holder: ChapterViewHolder,
         position: Int
     ) {
-       val chapter = chapters[position]
+        val chapter = chapters[position]
         holder.chaptertv.text = "Chapter - ${position + 1}"
         holder.title.text = chapter.title
         //tinh so bai hoan thanh
@@ -50,5 +54,6 @@ class ChapterAdapter(private var chapters: List<Chapter>,private val onClickLess
         val title = view.findViewById<TextView>(R.id.chapterTitle)
         val process = view.findViewById<TextView>(R.id.lessonCount)
         val lessonrcv= view.findViewById<RecyclerView>(R.id.rcvlesson)
+
     }
 }
