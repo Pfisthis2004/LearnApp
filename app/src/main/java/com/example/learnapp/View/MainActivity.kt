@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.learnapp.ArticlesFragment
 import com.example.learnapp.View.ui.fragment.LessonFragment
 import com.example.learnapp.View.ui.fragment.ProfileFragment
 import com.example.learnapp.R
@@ -45,6 +46,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.menu_vocabulary->{
                     replaceFragment(VocabularyFragment())
+                    true
+                }
+                R.id.menu_articles->{
+                    replaceFragment(ArticlesFragment())
                     true
                 }
                 R.id.menu_profile->{

@@ -1,41 +1,72 @@
 package com.example.learnapp.Repository
 
+import android.util.Log
 import com.example.learnapp.Model.Chapter
 import com.example.learnapp.Model.Lesson
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class LessonRepository {
-    private val database = FirebaseDatabase.getInstance()
-    private val chaptersRef = database.getReference("lessons")
 
+    private val firestore = FirebaseFirestore.getInstance()
 
-    fun fetchChapters(callback: (List<Chapter>) -> Unit) {
-        chaptersRef.get().addOnSuccessListener { snapshot ->
-            val chapterList = mutableListOf<Chapter>()
-            snapshot.children.forEach { chapterSnap ->
-                val id = chapterSnap.child("id").getValue(String::class.java) ?: ""
-                val title = chapterSnap.child("title").getValue(String::class.java) ?: ""
-                val completedCount = chapterSnap.child("completedCount").getValue(Int::class.java) ?: 0
-                val totalCount = chapterSnap.child("totalCount").getValue(Int::class.java) ?: 0
+    // Lấy chapter theo levelId
+//    fun fetchChaptersByLevel(levelId: String, callback: (List<Chapter>) -> Unit) {
+//
+//        Log.d(TAG, "Lấy chapter theo levelId: $levelId")
+//
+//        firestore.collection("chapters")
+//            .whereEqualTo("levelId", levelId)
+//            .orderBy("order")
+//            .get()
+//            .addOnSuccessListener { snapshot ->
+//
+//                Log.d(TAG, "Số chapter tìm được: ${snapshot.size()}")
+//
+//                val chapters = snapshot.documents.mapNotNull { doc->
+//                    val chapter =doc.toObject(Chapter::class.java)
+//                    chapter?.copy(id = doc.id)
+//                }
+//
+//                Log.d(TAG, "Sau khi chuyển sang object: ${chapters.size}")
+//
+//                callback(chapters)
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Lỗi khi lấy chapter theo level", e)
+//            }
+//    }
 
-                val lessonsMap = mutableMapOf<String, Lesson>()
-                chapterSnap.child("lessons").children.forEach { lessonSnap ->
-                    val id = lessonSnap.child("id").getValue(String::class.java) ?: ""
-                    val chapterId = lessonSnap.child("chapterId").getValue(String::class.java) ?: ""
-                    val lessonTitle = lessonSnap.child("title").getValue(String::class.java) ?: ""
-                    val icon = lessonSnap.child("icon").getValue(String::class.java) ?: ""
-                    val questionType = lessonSnap.child("questionType").getValue(String::class.java) ?: ""
-                    val isCompleted = lessonSnap.child("isCompleted").getValue(Boolean::class.java) ?: false
-                    val isLocked = lessonSnap.child("isLocked").getValue(Boolean::class.java) ?: false
+    // Lấy lesson theo chapterId
+    suspend fun fetchChaptersWithLessons(levelId: String): List<Chapter> {
+        return try {
+            // 1. Lấy Chapters theo Level
+            val chapterSnapshot = firestore.collection("chapters")
+                .whereEqualTo("levelId", levelId)
+                .orderBy("order")
+                .get()
+                .await()
 
-                    val lesson = Lesson(id,chapterId,lessonTitle, icon,questionType ,isCompleted, isLocked)
-                    lessonsMap[lessonSnap.key ?: ""] = lesson
-                }
-
-                val chapter = Chapter(id,title, completedCount, totalCount, lessonsMap)
-                chapterList.add(chapter)
+            val chapters = chapterSnapshot.documents.mapNotNull { doc ->
+                doc.toObject(Chapter::class.java)?.apply { id = doc.id }
             }
-            callback(chapterList)
+
+            // 2. Lấy Lessons cho từng Chapter
+            for (chapter in chapters) {
+                val lessonSnapshot = firestore.collection("lessons")
+                    .whereEqualTo("chapterId", chapter.id)
+                    .orderBy("order")
+                    .get()
+                    .await()
+
+                chapter.lessons = lessonSnapshot.documents.mapNotNull { doc ->
+                    doc.toObject(Lesson::class.java)?.apply { id = doc.id }
+                }
+            }
+            chapters
+        } catch (e: Exception) {
+            Log.e("LessonRepository", "Error: ${e.message}")
+            emptyList()
         }
     }
 }

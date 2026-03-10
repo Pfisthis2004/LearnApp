@@ -48,6 +48,7 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             viewModel.loginWithEmail(email, password)
+
         }
 
         // Quên mật khẩu
@@ -72,6 +73,10 @@ class LoginActivity : AppCompatActivity() {
                 val signInIntent = googleSignInClient.signInIntent
                 startActivityForResult(signInIntent, RC_SIGN_IN)
             }
+        }
+        binding.btnsignup.setOnClickListener {
+            startActivity(Intent(this, SignUpActivity::class.java))
+            finish()
         }
     }
 

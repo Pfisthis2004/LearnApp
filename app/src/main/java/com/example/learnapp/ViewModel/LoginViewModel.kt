@@ -6,11 +6,12 @@ import androidx.lifecycle.ViewModel
 import com.example.learnapp.Model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class LoginViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
-    private val database = FirebaseDatabase.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val _loginSuccess = MutableLiveData<Boolean>()
     val loginSuccess: LiveData<Boolean> get() = _loginSuccess
@@ -23,7 +24,20 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    saveUser(User(user!!.uid, user.email ?: ""))
+                    if (user != null) {
+                        val userData = User(
+                            uid = user.uid,
+                            email = user.email ?: "",
+                            displayName = user.displayName ?: email.substringBefore("@"),
+                            photoURL = user.photoUrl?.toString() ?: "",
+                            createdAt = System.currentTimeMillis(),
+                            totalXP = 0,
+                            streak = 0,
+                            lastLoginAt = System.currentTimeMillis(),
+                            isPremium = false // mặc định false
+                        )
+                        saveUser(userData)
+                    }
                     _loginSuccess.value = true
                 } else {
                     _errorMessage.value = "Sai tài khoản hoặc mật khẩu"
@@ -37,7 +51,20 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    saveUser(User(user!!.uid, user.email ?: ""))
+                    if (user != null) {
+                        val userData = User(
+                            uid = user.uid,
+                            email = user.email ?: "",
+                            displayName = user.displayName ?: user.email?.substringBefore("@") ?: "",
+                            photoURL = user.photoUrl?.toString() ?: "",
+                            createdAt = System.currentTimeMillis(),
+                            totalXP = 0,
+                            streak = 0,
+                            lastLoginAt = System.currentTimeMillis(),
+                            isPremium = false // mặc định false
+                        )
+                        saveUser(userData)
+                    }
                     _loginSuccess.value = true
                 } else {
                     _errorMessage.value = "Xác thực Firebase thất bại"
@@ -56,6 +83,12 @@ class LoginViewModel : ViewModel() {
     }
 
     private fun saveUser(user: User) {
-        database.getReference("users").child(user.uid).setValue(user)
+        val docRef = firestore.collection("users").document(user.uid)
+
+        // Dùng merge để không ghi đè dữ liệu cũ (ví dụ isPremium)
+        docRef.set(user, SetOptions.merge())
+            .addOnFailureListener { e ->
+                _errorMessage.value = "Lỗi Firestore: ${e.message}"
+            }
     }
 }

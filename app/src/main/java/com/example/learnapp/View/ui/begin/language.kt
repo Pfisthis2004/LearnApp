@@ -17,20 +17,29 @@ class language : AppCompatActivity() {
         binding = ActivityLanguageBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val currentUser = FirebaseAuth.getInstance().currentUser
+        val prefs = getSharedPreferences("AppPrefs_${currentUser?.uid}", MODE_PRIVATE)
+        val firstLoginCompleted = prefs.getBoolean("firstLoginCompleted", false)
         if (currentUser != null) {
-            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-            val firstLoginCompleted = prefs.getBoolean("firstLoginCompleted", false)
-
             if (firstLoginCompleted) {
+                // Người dùng cũ, đã chọn level
                 startActivity(Intent(this, MainActivity::class.java))
             } else {
+                // Người dùng mới hoặc chưa hoàn thành giới thiệu
                 startActivity(Intent(this, welcome::class.java))
             }
             finish()
-        } else {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
         }
+//        if (currentUser != null) {
+//            if (firstLoginCompleted) {
+//                startActivity(Intent(this, MainActivity::class.java))
+//            } else {
+//                startActivity(Intent(this, welcome::class.java))
+//            }
+//            finish()
+//        } else {
+//            startActivity(Intent(this, LoginActivity::class.java))
+//            finish()
+//        }
 
         binding.btnnext.setOnClickListener {
             val intent = Intent(this, welcome::class.java)
