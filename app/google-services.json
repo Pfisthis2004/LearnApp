@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "85642422657",
+    "firebase_url": "https://learnapp-6cf0d-default-rtdb.firebaseio.com",
     "project_id": "learnapp-6cf0d",
     "storage_bucket": "learnapp-6cf0d.firebasestorage.app"
   },

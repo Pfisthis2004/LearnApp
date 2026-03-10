@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.learnapp.View.MainActivity
 import com.example.learnapp.databinding.ActivityStartStudyingBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class start_studying : AppCompatActivity() {
     lateinit var binding: ActivityStartStudyingBinding
@@ -17,9 +18,11 @@ class start_studying : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnletgo.setOnClickListener {
-            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-            prefs.edit().putBoolean("firstLoginCompleted", true).apply()
-
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                val prefs = getSharedPreferences("AppPrefs_$uid", MODE_PRIVATE)
+                prefs.edit().putBoolean("firstLoginCompleted", true).apply()
+            }
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

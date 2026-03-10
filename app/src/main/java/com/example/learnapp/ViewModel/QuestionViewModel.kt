@@ -5,84 +5,96 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.learnapp.Model.Question
-import com.example.learnapp.Repository.QuestionRepository
+import com.example.learnapp.Model.QuestionType
+import com.example.learnapp.Model.ResultState
+import com.example.learnapp.Model.handler.FillBlankHandler
+import com.example.learnapp.Model.handler.QuestionHandler
+import com.example.learnapp.Model.handler.QuizHandler
+import com.example.learnapp.Model.handler.SpeakingHandler
+import com.example.learnapp.Repository.BaseRepository
 
-class QuestionViewModel: ViewModel() {
-    private val repository = QuestionRepository()
+
+class QuestionViewModel(
+    private val repository: BaseRepository
+) : ViewModel() {
+
+    private val TAG = "QuestionViewModel"
+
     private val _questions = MutableLiveData<List<Question>>()
     val questions: LiveData<List<Question>> get() = _questions
+
     private val _currentIndex = MutableLiveData(0)
     val currentIndex: LiveData<Int> get() = _currentIndex
 
-    private val _result = MutableLiveData<Pair<Int,Int>>() // correctCount, totalCount
-    val result: LiveData<Pair<Int, Int>> get() = _result
-    private val _finalVocabulary = MutableLiveData<String>()
-    val finalVocabulary: LiveData<String> get() = _finalVocabulary
-    private var correctCount = 0
-    fun loadQuestions(chapterId: String, lessonId: String) {
-        repository.getQuestions(chapterId, lessonId) { list ->
+    private val _result = MutableLiveData<ResultState?>()
+    val result: LiveData<ResultState?> get() = _result
+
+    private var _correctCount = 0
+    val correctCount: Int get() = _correctCount
+
+    fun loadQuestions( lessonId: String) {
+        Log.d(TAG, "Loading questions for lessonId=$lessonId")
+        repository.getQuestions( lessonId) { list ->
+            Log.d(TAG, "Loaded ${list.size} questions")
             _questions.value = list
+            _currentIndex.value = 0
+            _correctCount = 0
+            Log.d(TAG, "Reset currentIndex=0, correctCount=0")
         }
     }
-    private fun scorePercent(correctCount: Int, totalCount: Int): Int {
-        return if (totalCount == 0) 0 else (correctCount * 100) / totalCount
-    }
+
     fun nextQuestion() {
-        _currentIndex.value = (_currentIndex.value ?: 0) + 1
+        val newIndex = (_currentIndex.value ?: 0) + 1
+        Log.d(TAG, "Moving to next question: index=$newIndex")
+        _currentIndex.value = newIndex
     }
-    fun saveResult(chapterId: String, lessonId: String, correctCount: Int, totalCount: Int,lessonCount: Int) {
-        _result.value = Pair(correctCount, totalCount)
-        Log.d("ResultDebug", "Đã hoàn thành bài học: $lessonId trong chapter: $chapterId | Điểm: $correctCount/$totalCount")
 
-        if (!isLastLesson(lessonId, lessonCount)) {
-            val vocabList = _questions.value?.map { q ->
-                "${q.correctAnswer} - ${q.explanation}\n"
-            } ?: emptyList()
+    fun checkAnswer(userInput: String) {
+        val index = _currentIndex.value ?: 0
+        val question = _questions.value?.getOrNull(index)
 
-            val vocabText = vocabList.joinToString("\n") + "\n\nKết quả: $correctCount / $totalCount"
-            _finalVocabulary.value = vocabText
-            Log.d("ResultDebug","tu vung ${vocabText}")
-            Log.d("ResultDebug", "Không phải bài cuối. Mở khóa bài tiếp theo...")
-            unlockNextLesson(chapterId, lessonId)
-        } else {
-            _finalVocabulary.value = ""
+        Log.d(TAG, "Checking answer for question index=$index, userInput=$userInput")
 
-            val score = scorePercent(correctCount, totalCount)
-            Log.d("ResultDebug", "Là bài cuối. Điểm đạt: $score%")
-            if (score >= 80) {
-                val nextChapterId = "chapter${chapterId.filter { it.isDigit() }.toInt() + 1}"
-                Log.d("ResultDebug", "Điểm đủ cao. Mở khóa chapter tiếp theo: $nextChapterId")
-                unlockNextChapter(nextChapterId)
-            } else {
-                Log.d("ResultDebug", "Điểm chưa đủ để mở khóa chapter tiếp theo.")
+        question?.let {
+            val handler = getHandlerForType(it.type)
+            val res: ResultState = handler.checkAnswer(userInput, it)
+            _result.value = res
+
+            Log.d(TAG, "Result for question ${it.id}: $res")
+
+            when (res) {
+                is ResultState.QuizResult -> {
+                    if (res.correct > 0) {
+                        _correctCount++
+                        Log.d(TAG, "QuizResult correct. Total correctCount=$_correctCount")
+                    }
+                }
+                is ResultState.SpeakingResult -> {
+                    if (res.isCorrect) {
+                        _correctCount++
+                        Log.d(TAG, "SpeakingResult correct. Total correctCount=$_correctCount")
+                    }
+                }
+                is ResultState.FillBlankResult -> {
+                    if (res.isCorrect) {
+                        _correctCount++
+                        Log.d(TAG, "FillBlankResult correct. Total correctCount=$_correctCount")
+                    }
+                }
+            }
+        } ?: Log.w(TAG, "No question found at index=$index")
+    }
+
+    private fun getHandlerForType(type: QuestionType?): QuestionHandler {
+        Log.d(TAG, "Getting handler for type=$type")
+        return when (type) {
+            QuestionType.MULTIPLE_CHOICE -> QuizHandler()
+            QuestionType.SPEAKING -> SpeakingHandler()
+            QuestionType.FILL_IN_THE_BLANK -> FillBlankHandler()
+            null -> {
+                Log.e(TAG, "Unknown QuestionType=null")
+                throw IllegalArgumentException("Unknown QuestionType")
             }
         }
-    }
-    fun fetchLessonCountAndSaveResult(chapterId: String, lessonId: String, correctCount: Int, totalCount: Int) {
-        repository.getLessonCount(chapterId) { lessonCount ->
-            saveResult(chapterId, lessonId, correctCount, totalCount, lessonCount)
-        }
-    }
-    fun increaseCorrect(totalCount: Int) {
-        correctCount++
-        _result.value = Pair(correctCount, totalCount)
-    }
-    fun unlockNextLesson(chapterId: String, lessonId: String) {
-        val nextLessonId = getNextLessonId(lessonId)
-        // Cập nhật trạng thái bài học trong repository
-        repository.updateLessonStatus(chapterId, lessonId, nextLessonId)
-    }
-    fun unlockNextChapter(nextChapterId: String) {
-        Log.d("UnlockDebug", "Đang mở khóa bài học đầu tiên của chapter mới: $nextChapterId")
-        val firstLessonId = "lesson1"
-        repository.unlockLesson(nextChapterId, firstLessonId)
-    }
-    private fun getNextLessonId(currentLessonId: String): String {
-        val number = currentLessonId.filter { it.isDigit() }.toIntOrNull() ?: 1
-        return "lesson${number + 1}"
-    }
-    fun isLastLesson(lessonId: String, totalCount: Int): Boolean {
-        val number = lessonId.filter { it.isDigit() }.toIntOrNull() ?: 1
-        return number == totalCount
     }
 }

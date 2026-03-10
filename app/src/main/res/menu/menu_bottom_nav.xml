@@ -7,7 +7,11 @@
     <item android:title="Vocabulary"
         android:icon="@drawable/vocabularyicon"
         android:id="@+id/menu_vocabulary"/>
+    <item android:title="articles"
+        android:icon="@drawable/profileicon"
+        android:id="@+id/menu_articles"/>
     <item android:title="Profile"
         android:icon="@drawable/profileicon"
         android:id="@+id/menu_profile"/>
+
 </menu>

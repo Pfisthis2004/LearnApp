@@ -25,7 +25,7 @@
         android:id="@+id/imgAvatar"
         android:layout_width="88dp"
         android:layout_height="88dp"
-        android:src="@drawable/family"
+        android:src="@drawable/user_avt"
         android:contentDescription="Avatar"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"

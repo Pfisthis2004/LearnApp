@@ -49,6 +49,8 @@ dependencies {
 
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     kapt("androidx.room:room-compiler:2.7.2")
     
     implementation(libs.androidx.media3.exoplayer)
@@ -59,6 +61,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-database:20.3.0")
+    implementation("com.google.firebase:firebase-firestore")
     implementation(libs.firebase.auth)
 
     implementation ("com.github.bumptech.glide:glide:4.16.0")
