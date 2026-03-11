@@ -32,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Quan sát ViewModel
         viewModel.loginSuccess.observe(this) {
+            Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
             if (it) startActivity(Intent(this, language::class.java))
         }
 

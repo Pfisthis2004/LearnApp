@@ -83,9 +83,10 @@ class QuestionRepository : BaseRepository {
 
                 batch.set(resultRef, resultData)
 
+                batch.update(userRef, "completedLessons", FieldValue.arrayUnion(lesson.id))
+
                 if (isFirstTime) {
                     batch.update(userRef, "totalXP", FieldValue.increment(lesson.xpReward.toLong()))
-                    batch.update(userRef, "completedLessons", FieldValue.arrayUnion(lesson.id))
                 }
             }.addOnSuccessListener {
                 Log.d("DEBUG_SAVE", "✅ Ghi dữ liệu thành công cho: ${lesson.id}")

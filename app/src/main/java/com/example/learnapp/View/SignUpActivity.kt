@@ -41,11 +41,11 @@ class SignUpActivity : AppCompatActivity() {
                         val user = auth.currentUser
                         val uid = user?.uid ?: return@addOnCompleteListener
 
-                        // Ghi dữ liệu vào Realtime Database
-                        val database = FirebaseDatabase.getInstance()
-                        val ref = database.getReference("users")
+//                        // Ghi dữ liệu vào Realtime Database
+//                        val database = FirebaseDatabase.getInstance()
+//                        val ref = database.getReference("users")
 
-                        val userData = mapOf(
+                        val userData = hashMapOf(
                             "email" to email,
                             "displayName" to email.substringBefore("@"),
                             "photoURL" to "https://res.cloudinary.com/djwpvlu9t/image/upload/user-round_1_cx3qfc.png",
@@ -53,7 +53,8 @@ class SignUpActivity : AppCompatActivity() {
                             "streak" to 0,
                             "totalXP" to 0,
                             "lastLoginAt" to System.currentTimeMillis(),
-                            "isPremium" to false
+                            "isPremium" to false,
+                            "completedLessons" to emptyList<String>()
                         )
 
 

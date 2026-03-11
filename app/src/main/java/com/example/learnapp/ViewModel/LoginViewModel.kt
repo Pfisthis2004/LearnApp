@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.learnapp.Model.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -23,21 +24,7 @@ class LoginViewModel : ViewModel() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null) {
-                        val userData = User(
-                            uid = user.uid,
-                            email = user.email ?: "",
-                            displayName = user.displayName ?: email.substringBefore("@"),
-                            photoURL = user.photoUrl?.toString() ?: "",
-                            createdAt = System.currentTimeMillis(),
-                            totalXP = 0,
-                            streak = 0,
-                            lastLoginAt = System.currentTimeMillis(),
-                            isPremium = false // mặc định false
-                        )
-                        saveUser(userData)
-                    }
+                    auth.currentUser?.let { saveUser(it) }
                     _loginSuccess.value = true
                 } else {
                     _errorMessage.value = "Sai tài khoản hoặc mật khẩu"
@@ -50,24 +37,10 @@ class LoginViewModel : ViewModel() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null) {
-                        val userData = User(
-                            uid = user.uid,
-                            email = user.email ?: "",
-                            displayName = user.displayName ?: user.email?.substringBefore("@") ?: "",
-                            photoURL = user.photoUrl?.toString() ?: "",
-                            createdAt = System.currentTimeMillis(),
-                            totalXP = 0,
-                            streak = 0,
-                            lastLoginAt = System.currentTimeMillis(),
-                            isPremium = false // mặc định false
-                        )
-                        saveUser(userData)
-                    }
+                    auth.currentUser?.let { saveUser(it) }
                     _loginSuccess.value = true
                 } else {
-                    _errorMessage.value = "Xác thực Firebase thất bại"
+                    _errorMessage.value = "Xác thực Google thất bại"
                 }
             }
     }
@@ -82,13 +55,32 @@ class LoginViewModel : ViewModel() {
             }
     }
 
-    private fun saveUser(user: User) {
-        val docRef = firestore.collection("users").document(user.uid)
+    private fun saveUser(firebaseUser: FirebaseUser) {
+        val docRef = firestore.collection("users").document(firebaseUser.uid)
 
-        // Dùng merge để không ghi đè dữ liệu cũ (ví dụ isPremium)
-        docRef.set(user, SetOptions.merge())
-            .addOnFailureListener { e ->
-                _errorMessage.value = "Lỗi Firestore: ${e.message}"
+        // Kiểm tra xem user đã tồn tại chưa để tránh ghi đè dữ liệu học tập
+        docRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // NẾU ĐÃ CÓ: Chỉ cập nhật thời gian đăng nhập cuối
+                docRef.update("lastLoginAt", System.currentTimeMillis())
+            } else {
+                // NẾU CHƯA CÓ: Tạo mới hoàn toàn
+                val userData = User(
+                    uid = firebaseUser.uid,
+                    email = firebaseUser.email ?: "",
+                    displayName = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "User",
+                    photoURL = firebaseUser.photoUrl?.toString() ?: "",
+                    createdAt = System.currentTimeMillis(),
+                    totalXP = 0,
+                    streak = 0,
+                    lastLoginAt = System.currentTimeMillis(),
+                    isPremium = false,
+                    completedLessons = emptyList()
+                )
+                docRef.set(userData)
             }
+        }.addOnFailureListener { e ->
+            _errorMessage.value = "Lỗi kết nối Firestore: ${e.message}"
+        }
     }
 }
