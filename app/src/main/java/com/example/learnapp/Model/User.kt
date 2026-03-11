@@ -9,5 +9,6 @@ data class User(
     val isPremium: Boolean,
     val totalXP: Int = 0,
     val streak: Int = 0,
-    val lastLoginAt: Long = 0L
+    val lastLoginAt: Long = 0L,
+    val completedLessons : List<String> = emptyList()
 )

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.QuestionType
 import com.example.learnapp.Model.ResultState
@@ -34,20 +35,21 @@ class QuestionActivity : AppCompatActivity() {
         binding.videoView.player = player
 
         val lessonId = intent.getStringExtra("id") ?: ""
-        viewModel.loadQuestions(lessonId)
+
+        if (savedInstanceState == null) {
+            viewModel.loadQuestions(lessonId)
+        }
 
         // Quan sát danh sách câu hỏi
         viewModel.questions.observe(this) { list ->
-            if (list.isNotEmpty()) {
-                val currentQ = list[viewModel.currentIndex.value ?: 0]
-                if (currentQ.type == QuestionType.SPEAKING) {
-                    val intent = Intent(this, SpeakingQuestionActivity::class.java)
-                    intent.putExtras(this.intent)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    showQuestion(currentQ)
+            if (list.isEmpty()) return@observe
+
+            if (viewModel.currentIndex.value == 0 && list[0].type == QuestionType.SPEAKING) {
+                val intent = Intent(this, SpeakingQuestionActivity::class.java).apply {
+                    putExtras(this@QuestionActivity.intent)
                 }
+                startActivity(intent)
+                finish()
             }
         }
 
@@ -56,7 +58,7 @@ class QuestionActivity : AppCompatActivity() {
             val list = viewModel.questions.value ?: return@observe
             if (index < list.size) {
                 showQuestion(list[index])
-            } else {
+            } else if (list.isNotEmpty()) { // Tránh gọi khi list rỗng
                 showFinalResult()
             }
         }
@@ -93,7 +95,6 @@ class QuestionActivity : AppCompatActivity() {
         }
 
         binding.btnBack.setOnClickListener { finish() }
-        binding.includeResult.btnContinueLesson.setOnClickListener{finish()}
     }
 
     private fun showQuestion(q: Question, selected: String? = null) {
@@ -171,14 +172,32 @@ class QuestionActivity : AppCompatActivity() {
         val total = viewModel.questions.value?.size ?: 0
         val scorePercent = if (total > 0) (correct * 100) / total else 0
 
+        val lessonId = intent.getStringExtra("id") ?: ""
+        val nextLessonId = intent.getStringExtra("nextLessonId") ?: ""
+        val xp = intent.getIntExtra("xpReward", 0)
+        val chapterId = intent.getStringExtra("chapterId") ?: ""
+        val levelId = intent.getStringExtra("levelId") ?: ""
+
+        // Cập nhật thông tin vào ViewModel
+        val currentLesson = Lesson(
+            id = lessonId,
+            xpReward = xp,
+            chapterId = chapterId,
+            levelId = levelId
+        )
+        viewModel.setLessonInfo(currentLesson)
+
+        // Thực thi lưu trữ (Ghi đè kết quả + Cộng XP nếu cần)
+        viewModel.finishLesson(nextLessonId)
+
         binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
-        binding.includeResult.tvStars.text = "Phần thưởng: +5 ⭐"
+        binding.includeResult.tvStars.text = "Phần thưởng: +$xp XP"
 
         val vocabList = viewModel.questions.value?.joinToString("\n") { q ->
             "${q.correctAnswer}: ${q.explanation}"
         } ?: ""
         binding.includeResult.tvVocabulary.text = vocabList
-
+        binding.includeResult.btnContinueLesson.setOnClickListener{finish()}
     }
 
     override fun onDestroy() {

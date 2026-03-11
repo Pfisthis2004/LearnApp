@@ -40,10 +40,12 @@ class LessonFragment : Fragment() {
         binding.leveltv.text = levelTitle
 
         // 2. Thiết lập ChapterAdapter (LessonAdapter sẽ chạy bên trong Adapter này)
-        chapterAdapter = ChapterAdapter(emptyList()) { lesson ->
+        chapterAdapter = ChapterAdapter(emptyList(), emptyList()) { lesson ->
             val intent = Intent(requireContext(), QuestionActivity::class.java)
             intent.putExtra("chapterId", lesson.chapterId)
             intent.putExtra("id", lesson.id)
+            intent.putExtra("levelId", lesson.levelId)
+            intent.putExtra("xpReward", lesson.xpReward) // Truyền thêm XP nếu cần
             startActivity(intent)
         }
 
@@ -51,14 +53,19 @@ class LessonFragment : Fragment() {
         binding.rcvchapter.adapter = chapterAdapter
 
         // 3. Hiệu ứng Loading
-        showLoading()
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            if (loading) showLoading() else hideLoading()
+        }
 
-        // 4. Quan sát LiveData từ ViewModel
+        // 4.Quan sát cả 2 LiveData để cập nhật Adapter chính xác
         viewModel.chapters.observe(viewLifecycleOwner) { chapters ->
-            if (chapters != null) {
-                chapterAdapter.updateData(chapters)
-                hideLoading()
-            }
+            val completed = viewModel.completedLessons.value ?: emptyList()
+            chapterAdapter.updateData(chapters ?: emptyList(), completed)
+        }
+
+        viewModel.completedLessons.observe(viewLifecycleOwner) { completed ->
+            val chapters = viewModel.chapters.value ?: emptyList()
+            chapterAdapter.updateData(chapters, completed ?: emptyList())
         }
 
         // 5. Xử lý sự kiện chọn lại Level

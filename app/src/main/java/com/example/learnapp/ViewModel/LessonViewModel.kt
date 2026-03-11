@@ -15,7 +15,8 @@ class LessonViewModel : ViewModel() {
     // LiveData cho chapters
     private val _chapters = MutableLiveData<List<Chapter>>()
     val chapters: LiveData<List<Chapter>> get() = _chapters
-
+    private val _completedLessons = MutableLiveData<List<String>>(emptyList())
+    val completedLessons: LiveData<List<String>> get() = _completedLessons
     // LiveData cho lessons
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -25,15 +26,22 @@ class LessonViewModel : ViewModel() {
      * Hàm duy nhất cần dùng để load toàn bộ dữ liệu theo Level
      * Kết quả trả về là list Chapters, mỗi Chapter đã nạp đầy đủ list Lessons
      */
-    fun loadChaptersByLevel(levelId: String) {
+    fun loadData(levelId: String) {
         viewModelScope.launch {
-            _isLoading.postValue(true) // Bật loading
+            _isLoading.postValue(true)
 
-            // Gọi hàm suspend mạnh nhất trong Repository
+            // 2. Lấy danh sách hoàn thành từ Repository (Giả định hàm lấy từ Firestore)
+            val completedList = repository.getCompletedLessons()
+            _completedLessons.postValue(completedList)
+
+            // 3. Load chapters như cũ
             val result = repository.fetchChaptersWithLessons(levelId)
-
             _chapters.postValue(result)
-            _isLoading.postValue(false) // Tắt loading
+
+            _isLoading.postValue(false)
         }
+    }
+    fun loadChaptersByLevel(levelId: String) {
+        loadData(levelId)
     }
 }

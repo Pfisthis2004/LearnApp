@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.QuestionType
 import com.example.learnapp.Model.ResultState
@@ -32,13 +33,23 @@ class QuestionViewModel(
     private var _correctCount = 0
     val correctCount: Int get() = _correctCount
 
-    fun loadQuestions( lessonId: String) {
+    private var lessonData: Lesson? = null
+    private var lastLessonId: String? = null
+    private var isProcessingFinish = false
+    fun loadQuestions(lessonId: String) {
+        // KIỂM TRA: Nếu đã load đúng Lesson này rồi và danh sách câu hỏi không rỗng thì KHÔNG load nữa
+        if (lessonId == lastLessonId && _questions.value != null && _questions.value!!.isNotEmpty()) {
+            Log.d(TAG, "Questions for $lessonId already loaded. Skipping.")
+            return
+        }
+
         Log.d(TAG, "Loading questions for lessonId=$lessonId")
-        repository.getQuestions( lessonId) { list ->
+        repository.getQuestions(lessonId) { list ->
             Log.d(TAG, "Loaded ${list.size} questions")
             _questions.value = list
             _currentIndex.value = 0
             _correctCount = 0
+            lastLessonId = lessonId // Cập nhật ID bài học vừa load thành công
             Log.d(TAG, "Reset currentIndex=0, correctCount=0")
         }
     }
@@ -48,7 +59,15 @@ class QuestionViewModel(
         Log.d(TAG, "Moving to next question: index=$newIndex")
         _currentIndex.value = newIndex
     }
+    fun setLessonInfo(lesson: Lesson) {
+        this.lessonData = lesson
+    }
 
+    fun finishLesson(nextLessonId: String) {
+        lessonData?.let {
+            repository.updateLessonStatus(it, nextLessonId)
+        }
+    }
     fun checkAnswer(userInput: String) {
         val index = _currentIndex.value ?: 0
         val question = _questions.value?.getOrNull(index)

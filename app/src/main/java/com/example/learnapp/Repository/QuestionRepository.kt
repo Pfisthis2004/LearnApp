@@ -1,13 +1,17 @@
 package com.example.learnapp.Repository
 
 import android.util.Log
+import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.QuestionType
 import com.example.learnapp.Repository.BaseRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class QuestionRepository : BaseRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun getQuestions(lessonId: String, callback: (List<Question>) -> Unit) {
         Log.d("QuestionRepository", "Fetching questions for, lessonId=$lessonId")
@@ -46,27 +50,49 @@ class QuestionRepository : BaseRepository {
             }
     }
 
-    override fun updateLessonStatus( lessonId: String, nextLessonId: String) {
-        Log.d("QuestionRepository", "Updating lesson $lessonId to completed, next=$nextLessonId")
+    // QuestionRepository.kt
+    override fun updateLessonStatus(lesson: Lesson, nextLessonId: String) {
+        val uid = auth.currentUser?.uid ?: return
+        val userRef = db.collection("users").document(uid)
 
-        db.collection("lessons")
-            .document(lessonId)
-            .update("status", "completed")
-            .addOnSuccessListener {
-                Log.d("QuestionRepository", "Lesson $lessonId marked completed")
-                db.collection("lessons")
-                    .document(nextLessonId)
-                    .update("status", "unlocked")
-                    .addOnSuccessListener {
-                        Log.d("QuestionRepository", "Next lesson $nextLessonId unlocked")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("QuestionRepository", "Failed to unlock next lesson $nextLessonId", e)
-                    }
+        // Log kiểm tra dữ liệu từ object lesson truyền vào
+        Log.d("DEBUG_SAVE", "--- Bắt đầu lưu kết quả bài học ---")
+        Log.d("DEBUG_SAVE", "Lesson ID: ${lesson.id}")
+        Log.d("DEBUG_SAVE", "Chapter ID: '${lesson.chapterId}'") // Dùng dấu ' ' để dễ thấy nếu bị rỗng
+        Log.d("DEBUG_SAVE", "Level ID: '${lesson.levelId}'")
+
+        val resultId = "${uid}_${lesson.id}"
+        val resultRef = db.collection("user_lesson_results").document(resultId)
+
+        userRef.get().addOnSuccessListener { document ->
+            val completedLessons = document.get("completedLessons") as? List<String> ?: emptyList()
+            val isFirstTime = !completedLessons.contains(lesson.id)
+
+            db.runBatch { batch ->
+                val resultData = hashMapOf(
+                    "userId" to uid,
+                    "lessonId" to lesson.id,
+                    "chapterId" to lesson.chapterId,
+                    "levelId" to lesson.levelId,
+                    "completed" to true,
+                    "completedAt" to FieldValue.serverTimestamp()
+                )
+
+                // Log object cuối cùng sẽ gửi lên Firestore
+                Log.d("DEBUG_SAVE", "Dữ liệu Map gửi lên: $resultData")
+
+                batch.set(resultRef, resultData)
+
+                if (isFirstTime) {
+                    batch.update(userRef, "totalXP", FieldValue.increment(lesson.xpReward.toLong()))
+                    batch.update(userRef, "completedLessons", FieldValue.arrayUnion(lesson.id))
+                }
+            }.addOnSuccessListener {
+                Log.d("DEBUG_SAVE", "✅ Ghi dữ liệu thành công cho: ${lesson.id}")
+            }.addOnFailureListener { e ->
+                Log.e("DEBUG_SAVE", "❌ Lỗi khi ghi Batch: ${e.message}")
             }
-            .addOnFailureListener { e ->
-                Log.e("QuestionRepository", "Failed to update lesson $lessonId", e)
-            }
+        }
     }
 
 }

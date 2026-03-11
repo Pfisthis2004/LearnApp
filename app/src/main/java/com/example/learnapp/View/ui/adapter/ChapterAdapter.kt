@@ -12,6 +12,7 @@ import com.example.learnapp.R
 
 class ChapterAdapter(
     private var chapters: List<Chapter>,
+    private var completedLessons: List<String> = emptyList(),
     private val onClickLesson: (Lesson) -> Unit
 ) : RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder>() {
 
@@ -23,12 +24,17 @@ class ChapterAdapter(
 
     override fun onBindViewHolder(holder: ChapterViewHolder, position: Int) {
         val chapter = chapters[position]
+        val isFirstChapter = (position == 0)
         holder.chaptertv.text = "Chapter - ${position + 1}"
         holder.title.text = chapter.title
         holder.process.text = "${chapter.lessonCount} bài học"
 
         // Lấy lessons từ Firestore theo chapterId (truyền từ ViewModel/Fragment)
-        val lessonAdapter = LessonAdapter(chapter.lessons.toMutableList()) { lesson ->
+        val lessonAdapter = LessonAdapter(
+            chapter.lessons.toMutableList(),
+            completedLessons = completedLessons,
+            isFirstInLevel = isFirstChapter
+        ) { lesson ->
             onClickLesson(lesson)
         }
         holder.lessonrcv.layoutManager = LinearLayoutManager(holder.itemView.context)
@@ -37,8 +43,9 @@ class ChapterAdapter(
 
     override fun getItemCount(): Int = chapters.size
 
-    fun updateData(newChapters: List<Chapter>) {
+    fun updateData(newChapters: List<Chapter>, newCompleted: List<String>) {
         chapters = newChapters
+        completedLessons = newCompleted
         notifyDataSetChanged()
     }
 
