@@ -5,9 +5,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.example.learnapp.R
-class ArticlesFragment : Fragment() {
+import com.example.learnapp.View.ui.adapter.ArticleAdapter
+import com.example.learnapp.ViewModel.ArticleViewModel
+import com.example.learnapp.databinding.FragmentArticlesBinding
+import kotlin.getValue
 
+class ArticlesFragment : Fragment() {
+    private lateinit var articleAdapter: ArticleAdapter
+    private val viewModel: ArticleViewModel by viewModels()
+    private lateinit var binding: FragmentArticlesBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

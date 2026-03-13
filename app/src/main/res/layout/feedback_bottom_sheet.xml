@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/bottomFeedbackk"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:background="@drawable/bg_feedback_header"
+android:orientation="vertical"
+    android:layout_marginTop="20dp"
+android:padding="16dp"
+    >
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/tvResult"
+    android:text="Chính xác"
+    android:textSize="18sp"
+    android:textColor="@color/colorSuccess"
+    android:layout_marginBottom="20dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Giải thích:"
+        android:layout_marginBottom="8dp"
+        android:textSize="14sp"
+         />
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/tvExplanation"
+    android:text="Giải thích "
+    android:textSize="16sp"
+    android:layout_marginBottom="16dp" />
+
+<Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/btnNext"
+    android:text="Tiếp tục"
+    android:backgroundTint="@color/colorSuccess"
+    />
+</LinearLayout>

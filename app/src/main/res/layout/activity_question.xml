@@ -68,40 +68,7 @@
                 android:backgroundTint="@color/colorBorder"
                 />
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/bottomFeedback"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bogoc"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:visibility="gone"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tvResult"
-                android:text="Chính xác"
-                android:textSize="18sp"
-                android:textColor="@color/colorSuccess"
-                android:layout_marginBottom="8dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tvExplanation"
-                android:text="Giải thích "
-                android:textSize="16sp"
-                android:layout_marginBottom="16dp" />
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/btnNext"
-                android:text="Tiếp tục"
-                android:backgroundTint="@color/colorSuccess"
-                />
-        </LinearLayout>
     </LinearLayout>
     <include
         android:id="@+id/includeResult"

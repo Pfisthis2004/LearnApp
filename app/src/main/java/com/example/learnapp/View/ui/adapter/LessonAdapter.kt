@@ -19,6 +19,7 @@ class LessonAdapter(
     private var lessons: MutableList<Lesson>,
     private var completedLessons: List<String>,
     private val isFirstInLevel: Boolean,
+    private var lastLessonOfPrevChapterId: String? = null,
     private val onLessonClick: (Lesson) -> Unit
 ) : RecyclerView.Adapter<LessonAdapter.LessonViewHolder>() {
 
@@ -34,16 +35,17 @@ class LessonAdapter(
         val isUnlocked = when {
             // 1. Nếu là BÀI ĐẦU TIÊN của CHƯƠNG ĐẦU TIÊN trong Level -> Luôn mở
             position == 0 && isFirstInLevel -> true
-
-            // 2. Nếu là các bài tiếp theo trong cùng một chương
+            // 2. Bài đầu tiên của các Chương 2, 3, 4...
+            position == 0 && !isFirstInLevel -> {
+                // Kiểm tra xem bài cuối của chương trước đã hoàn thành chưa
+                lastLessonOfPrevChapterId != null && completedLessons.contains(lastLessonOfPrevChapterId)
+            }
+            // 3. Nếu là các bài tiếp theo trong cùng một chương
             position > 0 -> {
                 val previousLessonId = lessons[position - 1].id
                 completedLessons.contains(previousLessonId)
             }
 
-            // 3. Nếu là bài đầu tiên (pos 0) của các chương sau (isFirst = false)
-            // Cần logic kiểm tra bài cuối của chương trước, hoặc tạm thời để false
-            // nếu bạn muốn người dùng phải học tuần tự qua từng Chapter.
             else -> false
         }
         // Cập nhật giao diện dựa trên trạng thái mở khóa
@@ -66,6 +68,7 @@ class LessonAdapter(
                 val intent = Intent(context, QuestionActivity::class.java).apply {
                     putExtra("id", lesson.id)
                     putExtra("chapterId", lesson.chapterId)
+                    putExtra("order", lesson.order)
                     putExtra("levelId", lesson.levelId)
                     putExtra("xpReward", lesson.xpReward) // Truyền XP sang để cộng khi xong
 
@@ -90,9 +93,10 @@ class LessonAdapter(
     override fun getItemCount(): Int {
         return lessons.size
     }
-    fun updateData(newLessons: List<Lesson>, newCompleted: List<String>) {
+    fun updateData(newLessons: List<Lesson>, newCompleted: List<String>,newLastLessonPrevId: String?) {
         this.lessons = newLessons.toMutableList()
         this.completedLessons = newCompleted
+        this.lastLessonOfPrevChapterId = newLastLessonPrevId
         notifyDataSetChanged()
     }
 

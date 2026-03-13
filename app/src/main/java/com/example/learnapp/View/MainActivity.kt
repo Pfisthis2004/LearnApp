@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.learnapp.ArticlesFragment
+import com.example.learnapp.View.ui.fragment.ArticlesFragment
 import com.example.learnapp.View.ui.fragment.LessonFragment
 import com.example.learnapp.View.ui.fragment.ProfileFragment
 import com.example.learnapp.R

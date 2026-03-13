@@ -25,15 +25,27 @@ class ChapterAdapter(
     override fun onBindViewHolder(holder: ChapterViewHolder, position: Int) {
         val chapter = chapters[position]
         val isFirstChapter = (position == 0)
+
         holder.chaptertv.text = "Chapter - ${position + 1}"
         holder.title.text = chapter.title
         holder.process.text = "${chapter.lessonCount} bài học"
+
+        //Tìm ID bài cuối của chương trước
+        val lastLessonOfPrevChapterId = if (position > 0) {
+            // Lấy chương ngay trước chương hiện tại
+            val prevChapter = chapters[position - 1]
+            // Lấy ID của bài cuối cùng trong chương đó
+            prevChapter.lessons.lastOrNull()?.id
+        } else {
+            null
+        }
 
         // Lấy lessons từ Firestore theo chapterId (truyền từ ViewModel/Fragment)
         val lessonAdapter = LessonAdapter(
             chapter.lessons.toMutableList(),
             completedLessons = completedLessons,
-            isFirstInLevel = isFirstChapter
+            isFirstInLevel = isFirstChapter,
+            lastLessonOfPrevChapterId = lastLessonOfPrevChapterId
         ) { lesson ->
             onClickLesson(lesson)
         }

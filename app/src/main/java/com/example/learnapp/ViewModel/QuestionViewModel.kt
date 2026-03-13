@@ -35,7 +35,7 @@ class QuestionViewModel(
 
     private var lessonData: Lesson? = null
     private var lastLessonId: String? = null
-    private var isProcessingFinish = false
+    private var nextLessonId: String = ""
     fun loadQuestions(lessonId: String) {
         // KIỂM TRA: Nếu đã load đúng Lesson này rồi và danh sách câu hỏi không rỗng thì KHÔNG load nữa
         if (lessonId == lastLessonId && _questions.value != null && _questions.value!!.isNotEmpty()) {

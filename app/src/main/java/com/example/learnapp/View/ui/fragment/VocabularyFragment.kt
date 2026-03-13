@@ -5,11 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.example.learnapp.R
-import com.example.learnapp.databinding.FragmentLessonBinding
+import com.example.learnapp.View.ui.adapter.VocabAdapter
+import com.example.learnapp.ViewModel.VocabViewModel
 import com.example.learnapp.databinding.FragmentVocabularyBinding
+import kotlin.getValue
 
 class VocabularyFragment : Fragment() {
+    private lateinit var adapter: VocabAdapter
+    private val viewModel: VocabViewModel by viewModels()
     private lateinit var binding: FragmentVocabularyBinding
 
     override fun onCreateView(

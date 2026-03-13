@@ -18,6 +18,7 @@ import com.example.learnapp.Repository.QuestionRepository
 import com.example.learnapp.ViewModel.QuestionViewModel
 import com.example.learnapp.ViewModel.QuestionViewModelFactory
 import com.example.learnapp.databinding.ActivityQuestionBinding
+import com.example.learnapp.databinding.FeedbackBottomSheetBinding
 
 class QuestionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityQuestionBinding
@@ -88,12 +89,6 @@ class QuestionActivity : AppCompatActivity() {
             showFeedback(res) // vẫn giữ phần feedback như cũ
         }
 
-
-        binding.btnNext.setOnClickListener {
-            binding.bottomFeedback.visibility = View.GONE
-            viewModel.nextQuestion()
-        }
-
         binding.btnBack.setOnClickListener { finish() }
     }
 
@@ -137,30 +132,36 @@ class QuestionActivity : AppCompatActivity() {
         }
     }
     private fun showFeedback(res: ResultState?) {
-        binding.bottomFeedback.visibility = View.VISIBLE
-        when (res) {
-            is ResultState.QuizResult -> {
-                val isCorrect = res.correct > 0
-                binding.tvResult.text = if (isCorrect) "Chính xác!" else "Sai rồi"
-                binding.tvResult.setTextColor(
-                    ContextCompat.getColor(this,
-                        if (isCorrect) R.color.colorSuccess else R.color.colorError
-                    )
-                )
-                binding.tvExplanation.text = viewModel.questions.value?.get(viewModel.currentIndex.value ?: 0)?.explanation
+        if (res == null) return
 
-            }
-            is ResultState.FillBlankResult -> {
-                binding.tvResult.text = if (res.isCorrect) "Đúng rồi!" else "Sai rồi"
-                binding.tvResult.setTextColor(
-                    ContextCompat.getColor(this,
-                        if (res.isCorrect) R.color.colorSuccess else R.color.colorError
-                    )
-                )
-                binding.tvExplanation.text = viewModel.questions.value?.get(viewModel.currentIndex.value ?: 0)?.explanation
-            }
-            else -> {}
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+
+        // Sử dụng Binding dành riêng cho file layout của BottomSheet
+        val sheetBinding = FeedbackBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        val isCorrect = when (res) {
+            is ResultState.QuizResult -> res.correct > 0
+            is ResultState.FillBlankResult -> res.isCorrect
+            else -> false
         }
+
+        // Dùng sheetBinding để truy cập các View cực kỳ an toàn
+        sheetBinding.tvResult.text = if (isCorrect) "Chính xác!" else "Sai rồi"
+        sheetBinding.tvResult.setTextColor(
+            ContextCompat.getColor(this, if (isCorrect) R.color.colorSuccess else R.color.colorError)
+        )
+
+        val currentQuestion = viewModel.questions.value?.get(viewModel.currentIndex.value ?: 0)
+        sheetBinding.tvExplanation.text = currentQuestion?.explanation
+
+        sheetBinding.btnNext.setOnClickListener {
+            dialog.dismiss()
+            viewModel.nextQuestion()
+        }
+
+        dialog.setCancelable(false)
+        dialog.show()
     }
 
     private fun showFinalResult() {

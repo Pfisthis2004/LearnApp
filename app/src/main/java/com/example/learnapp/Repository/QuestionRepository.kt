@@ -14,16 +14,14 @@ class QuestionRepository : BaseRepository {
     private val auth = FirebaseAuth.getInstance()
 
     override fun getQuestions(lessonId: String, callback: (List<Question>) -> Unit) {
-        Log.d("QuestionRepository", "Fetching questions for, lessonId=$lessonId")
 
         db.collection("questions")
             .whereEqualTo("lessonId", lessonId)
             .get()
             .addOnSuccessListener { result ->
-                Log.d("QuestionRepository", "Query success, total docs=${result.size()}")
+
 
                 val questions = result.documents.mapNotNull { doc ->
-                    Log.d("QuestionRepository", "Processing docId=${doc.id}")
 
                     val typeValue = doc.getString("type") ?: "MULTIPLE_CHOICE"
                     val type = QuestionType.fromValue(typeValue) ?: QuestionType.MULTIPLE_CHOICE
@@ -41,25 +39,15 @@ class QuestionRepository : BaseRepository {
                         expectedText = doc.getString("expectedText") ?: ""
                     )
                 }
-                Log.d("QuestionRepository", "Mapped ${questions.size} questions")
                 callback(questions)
             }
-            .addOnFailureListener { e ->
-                Log.e("QuestionRepository", "Failed to fetch questions", e)
-                callback(emptyList())
-            }
+
     }
 
     // QuestionRepository.kt
     override fun updateLessonStatus(lesson: Lesson, nextLessonId: String) {
         val uid = auth.currentUser?.uid ?: return
         val userRef = db.collection("users").document(uid)
-
-        // Log kiểm tra dữ liệu từ object lesson truyền vào
-        Log.d("DEBUG_SAVE", "--- Bắt đầu lưu kết quả bài học ---")
-        Log.d("DEBUG_SAVE", "Lesson ID: ${lesson.id}")
-        Log.d("DEBUG_SAVE", "Chapter ID: '${lesson.chapterId}'") // Dùng dấu ' ' để dễ thấy nếu bị rỗng
-        Log.d("DEBUG_SAVE", "Level ID: '${lesson.levelId}'")
 
         val resultId = "${uid}_${lesson.id}"
         val resultRef = db.collection("user_lesson_results").document(resultId)
@@ -78,9 +66,6 @@ class QuestionRepository : BaseRepository {
                     "completedAt" to FieldValue.serverTimestamp()
                 )
 
-                // Log object cuối cùng sẽ gửi lên Firestore
-                Log.d("DEBUG_SAVE", "Dữ liệu Map gửi lên: $resultData")
-
                 batch.set(resultRef, resultData)
 
                 batch.update(userRef, "completedLessons", FieldValue.arrayUnion(lesson.id))
@@ -88,10 +73,6 @@ class QuestionRepository : BaseRepository {
                 if (isFirstTime) {
                     batch.update(userRef, "totalXP", FieldValue.increment(lesson.xpReward.toLong()))
                 }
-            }.addOnSuccessListener {
-                Log.d("DEBUG_SAVE", "✅ Ghi dữ liệu thành công cho: ${lesson.id}")
-            }.addOnFailureListener { e ->
-                Log.e("DEBUG_SAVE", "❌ Lỗi khi ghi Batch: ${e.message}")
             }
         }
     }

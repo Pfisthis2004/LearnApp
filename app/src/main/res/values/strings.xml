@@ -46,5 +46,5 @@
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <!-- TODO: Remove or change this placeholder text -->
-
+<string name="doanvan">My name is Sarah. I wake up at 7 AM\nevery day. First, I brush my teeth and\nwash my face. Then, I have breakfast\nwith my family. I usually eat cereal and\ndrink orange juice.\n\nAt 8 AM, I go to school. I study\nEnglish, Math, and Science. My\nfavorite subject is English! I have lunch\nat noon with my friends. We talk and\nlaugh together.\n\nAfter school, I go home at 3 PM. I do\nmy homework and play with my dog.\nAt 7 PM, we have dinner. Then I\nwatch TV or read a book. I go to bed\nat 10 PM.</string>
 </resources>
