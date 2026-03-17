@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.ResultState
 import com.example.learnapp.R
@@ -191,7 +192,31 @@ class SpeakingQuestionActivity : AppCompatActivity() {
     private fun showFinalResult() {
         binding.main.visibility = View.GONE
         binding.includeResult.root.visibility = View.VISIBLE
-        binding.includeResult.tvStars.text = "Sao: +5 ⭐"
+        val correct = viewModel.correctCount
+        val total = viewModel.questions.value?.size ?: 0
+        val scorePercent = if (total > 0) (correct * 100) / total else 0
+
+        val lessonId = intent.getStringExtra("id") ?: ""
+        val nextLessonId = intent.getStringExtra("nextLessonId") ?: ""
+        val xp = intent.getIntExtra("xpReward", 0)
+        val chapterId = intent.getStringExtra("chapterId") ?: ""
+        val levelId = intent.getStringExtra("levelId") ?: ""
+
+        // Cập nhật thông tin vào ViewModel
+        val currentLesson = Lesson(
+            id = lessonId,
+            xpReward = xp,
+            chapterId = chapterId,
+            levelId = levelId
+        )
+        viewModel.setLessonInfo(currentLesson)
+
+        // Thực thi lưu trữ (Ghi đè kết quả + Cộng XP nếu cần)
+        viewModel.finishLesson(nextLessonId)
+
+        binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
+        binding.includeResult.tvStars.text = "Phần thưởng: +$xp XP"
+
     }
 
     override fun onDestroy() {

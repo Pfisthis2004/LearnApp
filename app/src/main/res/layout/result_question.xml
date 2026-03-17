@@ -61,14 +61,12 @@
             android:textStyle="bold"
             android:layout_marginBottom="20dp"
            />
-        <TextView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvVocabularyResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tvVocabulary"
-            android:text="Hi!\nChào!"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bogoc"/>
+            android:overScrollMode="never"
+            android:scrollbars="none"/>
     </LinearLayout>
 
     <Button

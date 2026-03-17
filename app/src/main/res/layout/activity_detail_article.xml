@@ -23,6 +23,7 @@
             android:layout_marginBottom="20dp"/>
 
         <TextView
+            android:id="@+id/tvTitle"
             android:text="A Day in My Life"
             android:textSize="22sp"
             android:textStyle="bold"

@@ -1,14 +1,22 @@
 package com.example.learnapp.Model
 
+import com.google.firebase.firestore.PropertyName
+
 data class Question(
-    val id: String,
-    val lessonId: String,
-    val articleId: String = "",
-    val type: QuestionType? =null,
-    val prompt: String = "",
-    val options: List<String> = listOf(),
-    val correctAnswer: String = "",
-    val explanation: String = "",
-    val videoUrl: String="",
-    val expectedText: String = ""
+    var id: String,
+    var lessonId: String,
+    var articleId: String = "",
+    var type: QuestionType? =null,
+    var prompt: String = "",
+    var options: List<String> = listOf(),
+    var correctAnswer: String = "",
+    var explanation: String = "",
+    var translation: String = "",
+
+    @get:PropertyName("vocab")
+    @set:PropertyName("vocab")
+    var vocab: String = "",
+
+    var videoUrl: String="",
+    var expectedText: String = ""
 )

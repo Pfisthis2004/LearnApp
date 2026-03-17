@@ -2,34 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="350dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_gravity="center"
     android:layout_marginRight="5dp"
     android:padding="16dp"
     android:background="@drawable/bg_vocab_tab"
-    android:backgroundTint="@color/colorBorder"
     tools:context=".View.DetailVocabActivity">
   <Button
       android:id="@+id/btnback"
       android:layout_width="40dp"
       android:layout_height="40dp"
-      android:layout_marginLeft="280dp"
+      android:layout_gravity="left"
       android:background="@drawable/outline_arrow_left_alt_24" />
 
   <TextView
       android:id="@+id/tvcontext"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="24sp"
       android:text="Hello"
-      android:padding="10dp"
       android:gravity="center"
       />
   <TextView
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:text="Chi tiết về từ vựng"
       android:textSize="16sp"
       android:padding="10dp"
@@ -37,14 +35,15 @@
       />
   <TextView
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="16sp"
       android:text="Phát âm"
       android:layout_marginBottom="10dp"
       />
   <TextView
+      android:id="@+id/tvSpeak"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="16sp"
       android:textStyle="bold"
       android:text="/həˈləʊ/"
@@ -52,14 +51,15 @@
       />
   <TextView
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="16sp"
       android:layout_marginBottom="10dp"
       android:text="Bản dịch"
       />
   <TextView
+      android:id="@+id/tvTrans"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="16sp"
       android:textStyle="bold"
       android:text="xin chào"
@@ -67,14 +67,15 @@
       />
   <TextView
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="16sp"
       android:text="Ví dụ"
       android:layout_marginBottom="10dp"
       />
   <TextView
+      android:id="@+id/tvExample"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:textSize="16sp"
       android:textStyle="italic"
       android:text="''Hello! How are you today?''"

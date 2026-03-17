@@ -35,8 +35,11 @@ class QuestionRepository : BaseRepository {
                         options = doc.get("options") as? List<String> ?: emptyList(),
                         correctAnswer = doc.getString("correctAnswer") ?: "",
                         explanation = doc.getString("explanation") ?: "",
+                        vocab = doc.getString("vocab") ?: "",
+                        translation = doc.getString("translation") ?: "",
                         videoUrl = doc.getString("videoUrl") ?: "",
                         expectedText = doc.getString("expectedText") ?: ""
+
                     )
                 }
                 callback(questions)

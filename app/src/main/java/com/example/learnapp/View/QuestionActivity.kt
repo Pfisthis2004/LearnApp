@@ -3,28 +3,35 @@ package com.example.learnapp.View
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.QuestionType
 import com.example.learnapp.Model.ResultState
+import com.example.learnapp.Model.Vocabulary
 import com.example.learnapp.R
 import com.example.learnapp.Repository.QuestionRepository
+import com.example.learnapp.View.ui.adapter.VocabResultAdapter
 import com.example.learnapp.ViewModel.QuestionViewModel
 import com.example.learnapp.ViewModel.QuestionViewModelFactory
+import com.example.learnapp.ViewModel.VocabViewModel
 import com.example.learnapp.databinding.ActivityQuestionBinding
 import com.example.learnapp.databinding.FeedbackBottomSheetBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class QuestionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityQuestionBinding
     private val viewModel: QuestionViewModel by viewModels {
         QuestionViewModelFactory(QuestionRepository())
     }
+    private val vocabViewModel: VocabViewModel by viewModels()
     private lateinit var player: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,6 +180,7 @@ class QuestionActivity : AppCompatActivity() {
         val total = viewModel.questions.value?.size ?: 0
         val scorePercent = if (total > 0) (correct * 100) / total else 0
 
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val lessonId = intent.getStringExtra("id") ?: ""
         val nextLessonId = intent.getStringExtra("nextLessonId") ?: ""
         val xp = intent.getIntExtra("xpReward", 0)
@@ -194,10 +202,40 @@ class QuestionActivity : AppCompatActivity() {
         binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
         binding.includeResult.tvStars.text = "Phần thưởng: +$xp XP"
 
-        val vocabList = viewModel.questions.value?.joinToString("\n") { q ->
-            "${q.correctAnswer}: ${q.explanation}"
-        } ?: ""
-        binding.includeResult.tvVocabulary.text = vocabList
+        val questions = viewModel.questions.value ?: emptyList()
+        Log.d("QuestionActivity", "Tổng số câu hỏi nhận được: ${questions.size}")
+        Log.d("DEBUG_DATA", "--- KIỂM TRA MAPPING FIRESTORE ---")
+        questions.forEachIndexed { index, q ->
+            Log.d("DEBUG_DATA", "Câu số ${index + 1}:")
+            Log.d("DEBUG_DATA", " > ID: ${q.id}") // Xem ID có lấy được không
+            Log.d("DEBUG_DATA", " > Vocab thô: '${q.vocab}'") // Đây là điểm mấu chốt
+            Log.d("DEBUG_DATA", " > Is Vocab Empty: ${q.vocab.isEmpty()}")
+        }
+        val listVocabToSave = viewModel.questions.value?.filter { it.vocab.isNotEmpty() }?.map { q ->
+            Vocabulary(
+                vocab = q.vocab,
+                example = q.explanation,
+                translation = q.translation,
+                lessonId = q.lessonId,
+                chapterId = currentLesson.chapterId,
+                levelId = currentLesson.levelId,
+                createdAt = System.currentTimeMillis()
+            )
+        } ?: emptyList()
+        Log.d("DEBUG_DATA", "Kết quả lọc được: ${listVocabToSave.size} từ")
+        // Thực hiện lưu vào Subcollection thông qua ViewModel
+        if (listVocabToSave.isNotEmpty()) {
+            // Thiết lập RecyclerView
+            val rv = binding.includeResult.rvVocabularyResult
+            rv.layoutManager = LinearLayoutManager(this)
+            rv.adapter = VocabResultAdapter(listVocabToSave)
+
+            // Thực hiện lưu vào DB
+            vocabViewModel.saveVocabFromLesson(userId, listVocabToSave)
+        }else {
+            binding.includeResult.vocabularylist.visibility = View.GONE
+            Log.w("QuestionActivity", "Không có từ vựng mới nào.")
+        }
         binding.includeResult.btnContinueLesson.setOnClickListener{finish()}
     }
 
