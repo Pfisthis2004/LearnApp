@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".View.ArticleQuizActivity">
+
+    <!-- LinearLayout gốc được đưa vào trong FrameLayout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:id="@+id/layoutquiz">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="30dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/outline_arrow_left_alt_24" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/btnBack"
+                android:layout_marginStart="16dp"
+                android:layout_toStartOf="@id/tvStep"
+                android:progress="100"
+                android:progressTint="#000000" />
+
+            <TextView
+                android:id="@+id/tvStep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:text="3/3"
+                android:textColor="#808080" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btnpeek"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:backgroundTint="#08A7FD"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:text="Xem lại bài đọc"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+
+        <TextView
+            android:id="@+id/txtPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="32dp"
+            android:text="What does Sarah do after school?"
+            android:textColor="#1A237E"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/options"
+            android:padding="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/op1"
+                style="@style/OptionButtonStyle"
+                android:text="Play sports" />
+
+            <TextView
+                android:id="@+id/op2"
+                style="@style/OptionButtonStyle"
+                android:text="Do homework" />
+
+            <TextView
+                android:id="@+id/op3"
+                style="@style/OptionButtonStyle"
+                android:text="Watch TV" />
+
+            <TextView
+                android:id="@+id/op4"
+                style="@style/OptionButtonStyle"
+                android:text="Cook dinner" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/btnCheck"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="80dp"
+            android:backgroundTint="#B39DDB"
+            android:text="Check"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+    <include
+        android:id="@+id/includeResult"
+        layout="@layout/result_question"
+        android:visibility="gone" />
+</FrameLayout>

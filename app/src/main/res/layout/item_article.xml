@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardCornerRadius="16dp"
-    app:cardElevation="10dp">
+    app:cardElevation="10dp"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:orientation="vertical"
@@ -24,7 +25,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
-
+            <TextView
+                android:id="@+id/txtComplete"
+                android:text="Hoàn thành"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_margin="18dp"
+                android:background="@drawable/bogoc_completed"
+                android:layout_gravity="top"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
             <TextView
                 android:id="@+id/txtLevel"
                 android:text="A1"
