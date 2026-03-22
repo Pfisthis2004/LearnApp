@@ -30,13 +30,13 @@ class ArticleQuizRepository {
             )
             batch.set(resultRef, resultData)
 
-            // Bước 2: Chỉ cộng XP nếu tài liệu chưa tồn tại (Lần đầu làm bài)
             if (!document.exists()) {
                 val userRef = db.collection("users").document(userId)
-                batch.update(userRef, "xp", FieldValue.increment(fixedXP.toLong()))
-                Log.d("QUIZ_DEBUG", "Lần đầu hoàn thành: Cộng $fixedXP XP")
-            } else {
-                Log.d("QUIZ_DEBUG", "Đã làm trước đó: Không cộng thêm XP")
+
+                // ĐỔI "xp" THÀNH "totalXP" (hoặc tên field bạn muốn tích lũy điểm)
+                batch.update(userRef, "totalXP", FieldValue.increment(fixedXP.toLong()))
+
+                Log.d("QUIZ_DEBUG", "Lần đầu hoàn thành: Cộng $fixedXP vào totalXP")
             }
 
             // Bước 3: Thực thi

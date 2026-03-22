@@ -15,6 +15,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
         <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity_splash"
+            android:exported="true"
+            android:theme="@style/Theme.LearnApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".View.SettingActivity"
+            android:exported="false" />
+        <activity
             android:name=".View.ArticleQuizActivity"
             android:exported="false" />
         <activity
@@ -59,13 +75,7 @@
             android:exported="false" />
         <activity
             android:name=".View.ui.begin.welcomehome"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"></activity>
     </application>
 
 </manifest>

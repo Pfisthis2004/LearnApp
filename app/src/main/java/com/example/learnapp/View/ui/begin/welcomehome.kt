@@ -17,10 +17,14 @@ class welcomehome : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btndangnhap.setOnClickListener {
+            val prefs = getSharedPreferences("LearnAppPrefs", MODE_PRIVATE)
+            prefs.edit().putBoolean("isFirstTime", false).apply()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
         binding.btndangky.setOnClickListener {
+            val prefs = getSharedPreferences("LearnAppPrefs", MODE_PRIVATE)
+            prefs.edit().putBoolean("isFirstTime", false).apply()
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
         }

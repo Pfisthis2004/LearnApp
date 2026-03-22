@@ -1,3 +1,4 @@
+
 package com.example.learnapp.View
 
 import android.content.Intent
@@ -26,14 +27,27 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 1. KIỂM TRA AUTO LOGIN (Phải làm trước khi inflate layout để tránh nháy màn hình)
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            // Nếu đã có User, đi thẳng vào App
+            val intent = Intent(this, language::class.java)
+            // Xóa Login khỏi Stack để không quay lại được
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return // Dừng các lệnh bên dưới lại
+        }
         enableEdgeToEdge()
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Quan sát ViewModel
-        viewModel.loginSuccess.observe(this) {
-            Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
-            if (it) startActivity(Intent(this, language::class.java))
+        viewModel.loginSuccess.observe(this) { success ->
+            if (success) {
+                Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
+                navigateToHome()
+            }
         }
 
         viewModel.errorMessage.observe(this) {
@@ -63,6 +77,29 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Cấu hình Google Sign-In
+        setupGoogleSignIn()
+
+        binding.btnGoogle.setOnClickListener {
+            googleSignInClient.signOut().addOnCompleteListener {
+                val signInIntent = googleSignInClient.signInIntent
+                startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
+        }
+        binding.btnsignup.setOnClickListener {
+            startActivity(Intent(this, SignUpActivity::class.java))
+            finish()
+        }
+    }
+    private fun navigateToHome() {
+        val intent = Intent(this, language::class.java)
+        // FLAG_ACTIVITY_NEW_TASK và CLEAR_TASK sẽ xóa sạch(Stack)
+        // Đảm bảo User không thể nhấn nút Back để quay lại màn hình Login
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish() // Đóng LoginActivity
+    }
+
+    private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -74,10 +111,6 @@ class LoginActivity : AppCompatActivity() {
                 val signInIntent = googleSignInClient.signInIntent
                 startActivityForResult(signInIntent, RC_SIGN_IN)
             }
-        }
-        binding.btnsignup.setOnClickListener {
-            startActivity(Intent(this, SignUpActivity::class.java))
-            finish()
         }
     }
 
