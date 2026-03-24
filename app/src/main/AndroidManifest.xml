@@ -15,10 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
         <activity
-            android:name=".EditProfileActivity"
+            android:name=".ChooseScenarioActivity"
             android:exported="false" />
         <activity
-            android:name=".activity_splash"
+            android:name=".SreenChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".View.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".View.ui.begin.activity_splash"
             android:exported="true"
             android:theme="@style/Theme.LearnApp">
             <intent-filter>
@@ -75,7 +81,7 @@
             android:exported="false" />
         <activity
             android:name=".View.ui.begin.welcomehome"
-            android:exported="false"></activity>
+            android:exported="false" />
     </application>
 
 </manifest>

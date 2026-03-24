@@ -1,15 +1,12 @@
-package com.example.learnapp
+package com.example.learnapp.View
 
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Status
+import com.example.learnapp.R
 import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivityEditProfileBinding
 import com.google.firebase.auth.FirebaseAuth

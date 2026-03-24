@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.learnapp.EditProfileActivity
+import com.example.learnapp.View.EditProfileActivity
 import com.example.learnapp.Model.Status
 import com.example.learnapp.R
 import com.example.learnapp.ViewModel.AuthViewModel

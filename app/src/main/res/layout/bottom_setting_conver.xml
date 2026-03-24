@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Nội dung chính -->
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/bg_feedback_header">
+
+        <!-- Tiêu đề -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thiết lập tình huống"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Chọn nhân vật -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn nhân vật"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbBotrole1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giáo viên"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbBotrole2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Học sinh"
+                android:layout_marginStart="24dp"/>
+        </RadioGroup>
+
+        <!-- Chọn phong cách Bee AI -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn phong cách Bee AI"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Tính cách -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tính cách"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"/>
+
+        <RadioGroup
+            android:id="@+id/rgPersonality"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbBotCheerful"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vui vẻ 😎"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbBotSerious"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nghiêm túc 🧐"
+                android:layout_marginStart="24dp"/>
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/tvPersonalityDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bee AI sẽ sử dụng tông giọng hài hước, vui tươi để cuộc trò chuyện thêm thú vị"
+            android:textSize="13sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Thái độ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thái độ"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"/>
+
+        <RadioGroup
+            android:id="@+id/rgAttitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbBotAgree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đồng thuận"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbBotDebate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tranh luận"
+                android:layout_marginStart="24dp"/>
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/tvAttitudeDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bee AI sẽ ủng hộ và đồng tình với ý kiến hoặc câu nói của bạn"
+            android:textSize="13sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Nút Khởi tạo -->
+        <Button
+            android:id="@+id/btnCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Khởi tạo"
+            android:backgroundTint="#2196F3"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+
+    <!-- Overlay màn hình khởi tạo -->
+    <LinearLayout
+        android:id="@+id/loading_setting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/white"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleLarge"
+            android:indeterminate="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đang khởi tạo tình huống"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hãy chờ chút nhé!"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+</FrameLayout>

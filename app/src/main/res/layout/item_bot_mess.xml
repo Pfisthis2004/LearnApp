@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Avatar bot -->
+    <ImageView
+        android:id="@+id/imgBotAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/bot"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- Bong bóng hội thoại bot + icon loa -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <!-- Nội dung tin nhắn bot -->
+        <TextView
+            android:id="@+id/tvBotMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/item_conver_background"
+            android:padding="12dp"
+            android:text="Bot message here..."
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Icon loa ở góc dưới bên phải -->
+        <ImageView
+            android:id="@+id/imgSpeaker"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/volume2"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="4dp"/>
+    </FrameLayout>
+</LinearLayout>

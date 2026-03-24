@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_marginBottom="12dp">
+
+    <!-- Tiêu đề mô tả tình huống -->
+    <TextView
+        android:id="@+id/tvsituation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mô tả tình huống"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginBottom="4dp"/>
+
+    <!-- Nội dung mô tả -->
+    <TextView
+        android:id="@+id/tvHeaderDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nhằm tiết kiệm thời gian để còn đi mua sắm..."
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Tiêu đề mục tiêu -->
+    <TextView
+        android:id="@+id/tvobjectivesTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mục tiêu cần đạt"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- RecyclerView con hiển thị danh sách mục tiêu -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvobjectives"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        android:scrollbars="none"/>
+</LinearLayout>
