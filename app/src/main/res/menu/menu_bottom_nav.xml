@@ -7,8 +7,11 @@
     <item android:title="Vocabulary"
         android:icon="@drawable/vocabularyicon"
         android:id="@+id/menu_vocabulary"/>
+    <item android:title="AI Conversation"
+        android:icon="@drawable/bot_message"
+        android:id="@+id/menu_ai"/>
     <item android:title="articles"
-        android:icon="@drawable/profileicon"
+        android:icon="@drawable/newspaper"
         android:id="@+id/menu_articles"/>
     <item android:title="Profile"
         android:icon="@drawable/profileicon"

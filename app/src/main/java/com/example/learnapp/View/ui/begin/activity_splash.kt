@@ -1,4 +1,4 @@
-package com.example.learnapp
+package com.example.learnapp.View.ui.begin
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,17 +6,12 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.animation.AnimationUtils
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.learnapp.R
 import com.example.learnapp.View.LoginActivity
 import com.example.learnapp.View.MainActivity
-import com.example.learnapp.View.ui.begin.welcomehome
 import com.example.learnapp.databinding.ActivitySplashBinding
 import com.google.firebase.auth.FirebaseAuth
 

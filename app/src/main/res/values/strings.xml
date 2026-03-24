@@ -6,6 +6,8 @@
     <string name="web_client_id">85642422657-jtof1j6mi4h8u58qi9c8c2uihvdco0hf.apps.googleusercontent.com</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="doanvan">My name is Sarah. I wake up at 7 AM\nevery day. First, I brush my teeth and\nwash my face. Then, I have breakfast\nwith my family. I usually eat cereal and\ndrink orange juice.\n\nAt 8 AM, I go to school. I study\nEnglish, Math, and Science. My\nfavorite subject is English! I have lunch\nat noon with my friends. We talk and\nlaugh together.\n\nAfter school, I go home at 3 PM. I do\nmy homework and play with my dog.\nAt 7 PM, we have dinner. Then I\nwatch TV or read a book. I go to bed\nat 10 PM.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- Strings used for fragments for navigation -->
 
 

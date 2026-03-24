@@ -8,6 +8,7 @@ import com.example.learnapp.View.ui.fragment.ArticlesFragment
 import com.example.learnapp.View.ui.fragment.LessonFragment
 import com.example.learnapp.View.ui.fragment.ProfileFragment
 import com.example.learnapp.R
+import com.example.learnapp.View.ui.fragment.AiFragment
 import com.example.learnapp.View.ui.fragment.VocabularyFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -45,6 +46,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.menu_vocabulary->{
                     replaceFragment(VocabularyFragment())
+                    true
+                }
+                R.id.menu_ai->{
+                    replaceFragment(AiFragment())
                     true
                 }
                 R.id.menu_articles->{

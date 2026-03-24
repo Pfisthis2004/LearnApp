@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".EditProfileActivity">
+    tools:context=".View.EditProfileActivity">
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarProfile"
         android:layout_width="match_parent"
