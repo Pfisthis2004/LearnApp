@@ -59,6 +59,7 @@ class SpeechToTextManager(
     }
 
     fun destroy() {
+        speechRecognizer.cancel()
         speechRecognizer.destroy()
     }
 }

@@ -35,8 +35,8 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
 
     private fun updateUIFromGemini() {
         // Hiển thị 2 lựa chọn vai trò cho AI dựa trên config nhận được
-        binding.rbBotrole1.text = "${config.botRole}"
-        binding.rbBotrole2.text = "${config.userRole}"
+        binding.rbBotrole1.text = "${config.roles[0]}"
+        binding.rbBotrole2.text = "${config.roles[1]}"
 
         // Mặc định chọn dòng đầu tiên cho Bee AI
         binding.rbBotrole1.isChecked = true
@@ -65,20 +65,26 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
         binding.loadingSetting.visibility = View.VISIBLE
         binding.mainContent.visibility = View.GONE
 
-        val isBotRole1 = binding.rbBotrole1.isChecked
-        // Thu thập lựa chọn cuối cùng của người dùng để ghi đè lên config cũ
-        val finalBotRole = if (isBotRole1) config.botRole else config.userRole
-        val finalUserRole = if (isBotRole1) config.userRole else config.botRole
+        // 1. Xác định vai nào là của AI, vai nào là của Người dùng dựa trên RadioButton
+        val aiIndex = if (binding.rbBotrole1.isChecked) 0 else 1
+        // Người dùng sẽ đóng vai còn lại
+        val userIndex = if (aiIndex == 0) 1 else 0
+
+        // 2. Cập nhật lại openingHeader
+        val updatedHeader = config.openingHeader
+            .replace("[Role0]", config.roles[0])
+            .replace("[Role1]", config.roles[1])
 
         // Tạo config cuối cùng để gửi đi
         val finalConfig = config.copy(
             title = config.title,
             description = this.config.description,
-            botRole = finalBotRole,
-            userRole = finalUserRole,
+            botRole = config.roles[aiIndex],
+            userRole = config.roles[userIndex],
+            goals = config.goals_for_roles[userIndex],
             personality = if (binding.rbBotCheerful.isChecked) "Cheerful" else "Serious",
             attitude = if (binding.rbBotAgree.isChecked) "Supportive" else "Challenging",
-            openingHeader = config.openingHeader
+            openingHeader = updatedHeader
         )
 
         // Chuyển màn hình sau 1.2 giây

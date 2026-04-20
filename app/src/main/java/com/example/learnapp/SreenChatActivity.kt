@@ -2,6 +2,7 @@ package com.example.learnapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
@@ -28,6 +29,7 @@ class SreenChatActivity : AppCompatActivity() {
     private lateinit var chatAdapter: ChatAdapter
     private val viewModel: ChatViewModel by viewModels()
     private var currentConfig: ChatConfig? = null
+    private var isNavigatingToResult = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,43 +115,72 @@ class SreenChatActivity : AppCompatActivity() {
         }
     }
     private fun observeChatLogic() {
+        // 1. Quản lý danh sách tin nhắn và cuộn
         viewModel.chatMessages.observe(this) { messages ->
             if (messages != null) {
                 chatAdapter.submitList(messages)
-                binding.chatRecyclerView.smoothScrollToPosition(chatAdapter.itemCount - 1)
-
-                // Chỉ phát âm câu cuối nếu là AI
+                binding.chatRecyclerView.post {
+                    if (chatAdapter.itemCount > 0) {
+                        binding.chatRecyclerView.smoothScrollToPosition(chatAdapter.itemCount - 1)
+                    }
+                }
+                // Phát âm câu cuối nếu là AI
                 messages.lastOrNull()?.let {
                     if (it.sender == "AI") ttsManager.speak(it.text)
                 }
             }
         }
-        viewModel.suggestionText.observe(this) { hint ->
-            if (!hint.isNullOrEmpty()) {
-                binding.promptsuggest.text = hint
+
+        // 2. Quản lý trạng thái mục tiêu (GỘP LẠI)
+        viewModel.goalStatus.observe(this) { status ->
+            if (status == null) return@observe
+
+            chatAdapter.updateGoalStatus(status)
+
+            // Chỉ gọi phân tích khi: có mục tiêu, tất cả xong, và chưa đang chuyển màn
+            if (status.isNotEmpty() && status.all { it } && !isNavigatingToResult) {
+                // Vô hiệu hóa nút bấm để tránh gửi tin nhắn khi đang tổng kết
+                binding.recordButton.isEnabled = false
+                binding.instructionText.text = "Đang tổng kết bài học..."
+
+                currentConfig?.let { viewModel.finishAndAnalyze(it) }
             }
         }
 
-        viewModel.goalStatus.observe(this) { status ->
-            chatAdapter.updateGoalStatus(status)
+        // 3. Đợi kết quả phân tích cuối cùng để chuyển màn
+        viewModel.finalAnalysis.observe(this) { analysis ->
+            if (analysis != null && !isNavigatingToResult) {
+                isNavigatingToResult = true
+
+                binding.root.postDelayed({
+                    val intent = Intent(this, AIResultActivity::class.java).apply {
+                        putExtra("SCORE", analysis.score)
+                        putStringArrayListExtra("GOOD_SOUNDS", ArrayList(analysis.good_sounds))
+                        putStringArrayListExtra("IMPROVE_SOUNDS", ArrayList(analysis.improve_sounds))
+                        putStringArrayListExtra("GRAMMAR_ERRORS", ArrayList(analysis.grammar_errors))
+
+                        putExtra("LESSON_TITLE", currentConfig?.title)
+                        putExtra("GOALS_STATUS", ArrayList(viewModel.goalStatus.value ?: emptyList<Boolean>()))
+                        putExtra("GOALS_TEXT", ArrayList(currentConfig?.goals ?: emptyList<String>()))
+                    }
+                    startActivity(intent)
+                    finish()
+                }, 1500) // Delay nhẹ để người dùng kịp thấy mục tiêu cuối cùng tích xanh
+            }
+        }
+
+        // 4. Các observer phụ khác
+        viewModel.suggestionText.observe(this) { hint ->
+            if (!hint.isNullOrEmpty()) binding.promptsuggest.text = hint
         }
 
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.recordButton.isEnabled = !isLoading
-            binding.recordButton.alpha = if (isLoading) 0.5f else 1.0f
-            binding.instructionText.text = if (isLoading) "AI đang nghĩ..." else "Nhấn giữ và nhắc lại"
-        }
-
-        viewModel.isFinished.observe(this) { finished ->
-            if (finished) {
-//                val intent = Intent(this, ResultActivity::class.java).apply {
-//                    val lastAI = viewModel.chatMessages.value?.lastOrNull { it.sender == "AI" }
-//                    putExtra("SCORE", lastAI?.score ?: 0)
-//                    putExtra("GOALS_STATUS", ArrayList(viewModel.goalStatus.value ?: emptyList<Boolean>()))
-//                    putExtra("GOALS_TEXT", ArrayList(currentConfig?.goals ?: emptyList<String>()))
-//                }
-                startActivity(intent)
-                finish()
+            // Chỉ cập nhật nếu chưa vào trạng thái kết thúc
+            if (!isNavigatingToResult) {
+                binding.recordButton.isEnabled = !isLoading
+                binding.helpButton.isEnabled = !isLoading
+                binding.recordButton.alpha = if (isLoading) 0.5f else 1.0f
+                binding.instructionText.text = if (isLoading) "AI đang nghĩ..." else "Nhấn giữ và nhắc lại"
             }
         }
     }
@@ -161,8 +192,9 @@ class SreenChatActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        ttsManager.stop()
         ttsManager.shutDown()
         sttManager.destroy()
+        super.onDestroy()
     }
 }

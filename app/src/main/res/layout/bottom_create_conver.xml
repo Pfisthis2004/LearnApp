@@ -1,50 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/bg_feedback_header">
+    android:layout_height="match_parent">
 
-    <!-- Tiêu đề -->
-    <TextView
-        android:id="@+id/tvTitle"
+    <!-- Form nhập -->
+    <LinearLayout
+        android:id="@+id/createview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Mô tả tình huống"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="12dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/bg_feedback_header">
 
-    <!-- Ô nhập nội dung -->
-    <EditText
-        android:id="@+id/etInput"
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mô tả tình huống"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etInput"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:hint="Mô tả tình huống mong muốn"
+            android:gravity="top|start"
+            android:background="@drawable/bogoctron"
+            android:padding="8dp"/>
+
+        <TextView
+            android:id="@+id/tvWordLimit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/200 từ"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/btnCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Khởi tạo"
+            android:backgroundTint="#2196F3"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+
+    <!-- Loading overlay -->
+    <LinearLayout
+        android:id="@+id/loading_setting"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:hint="Mô tả tình huống mong muốn"
-        android:gravity="top|start"
-        android:background="@drawable/bogoctron"
-        android:padding="8dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/white"
+        android:visibility="gone">
 
-    <!-- Giới hạn từ -->
-    <TextView
-        android:id="@+id/tvWordLimit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0/200 từ"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="8dp"/>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleLarge"
+            android:indeterminate="true"/>
 
-    <!-- Nút Khởi tạo -->
-    <Button
-        android:id="@+id/btnCreate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Khởi tạo"
-        android:backgroundTint="#2196F3"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đang khởi tạo tình huống"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hãy chờ chút nhé!"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+</FrameLayout>

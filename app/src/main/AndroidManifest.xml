@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
         <activity
+            android:name=".AIResultActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChooseScenarioActivity"
             android:exported="false" />
         <activity

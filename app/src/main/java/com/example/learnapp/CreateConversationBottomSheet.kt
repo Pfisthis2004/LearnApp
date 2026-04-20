@@ -2,6 +2,8 @@ package com.example.learnapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,11 +46,30 @@ class CreateConversationBottomSheet: BottomSheetDialogFragment() {
 
             generateAndNavigate(userIdea)
         }
+        var isUpdating = false
+        binding.etInput.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (isUpdating) return
+                val words = s?.trim()?.split("\\s+".toRegex())?.filter { it.isNotEmpty() } ?: emptyList()
+                if (words.size > 200) {
+                    isUpdating = true
+                    val limitedText = words.take(200).joinToString(" ")
+                    binding.etInput.setText(limitedText)
+                    binding.etInput.setSelection(limitedText.length)
+                    isUpdating = false
+                }
+                binding.tvWordLimit.text = "${words.size.coerceAtMost(200)}/200 từ"
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+
+
     }
 
     private fun generateAndNavigate(idea: String) {
-        // Hiện hiệu ứng chờ (nếu layout của bạn có ProgressBar)
-        // binding.progressBar.visibility = View.VISIBLE
+        binding.loadingSetting.visibility = View.VISIBLE
         binding.btnCreate.isEnabled = false
 
         lifecycleScope.launch {
@@ -72,7 +93,7 @@ class CreateConversationBottomSheet: BottomSheetDialogFragment() {
                 Toast.makeText(context, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
                 binding.btnCreate.isEnabled = true
-                // binding.progressBar.visibility = View.GONE
+                binding.loadingSetting.visibility = View.GONE
             }
         }
     }

@@ -20,6 +20,8 @@ class ChatViewModel : ViewModel() {
     val isFinished: LiveData<Boolean> get() = _isFinished
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
+    private val _finalAnalysis = MutableLiveData<AIResponse?>()
+    val finalAnalysis: LiveData<AIResponse?> get() = _finalAnalysis
     private val _suggestionText = MutableLiveData<String?>()
     val suggestionText: LiveData<String?> = _suggestionText
     private var conversationHistory = ""
@@ -36,8 +38,8 @@ class ChatViewModel : ViewModel() {
             _isLoading.postValue(false)
 
             response?.let {
-                // Lưu vào history để lần sau AI không quên vai
-                conversationHistory += "User: $header\nAI: ${it.reply}\n"
+//                // Lưu vào history để lần sau AI không quên vai
+//                conversationHistory += "User: $header\nAI: ${it.reply}\n"
                 processAIResponse(it)
             }
         }
@@ -47,17 +49,24 @@ class ChatViewModel : ViewModel() {
         addMessageToUI(ChatMessage(text = userText, sender = "USER"))
         _isLoading.value = true
         viewModelScope.launch {
-            val response = geminiManager.chatAndCheckGoals(userText, config, conversationHistory)
+            val historyContext = getLimitedHistory()
+            val response = geminiManager.chatAndCheckGoals(userText, config, historyContext)
             _isLoading.postValue(false)
             response?.let {
-                conversationHistory += "User: $userText\nAI: ${it.reply}\n"
+//                conversationHistory += "User: $userText\nAI: ${it.reply}\n"
                 processAIResponse(it)
             }
         }
     }
 
     private fun processAIResponse(response: AIResponse) {
-        addMessageToUI(ChatMessage(text = response.reply, sender = "AI", translation = response.vi_trans, score = response.score))
+        val aiMsg = ChatMessage(
+            text = response.reply,
+            sender = "AI",
+            translation = response.vi_trans,
+            score = response.score
+        )
+        addMessageToUI(aiMsg)
         _goalStatus.postValue(response.goal_status)
         if (response.is_finished) _isFinished.postValue(true)
     }
@@ -68,13 +77,35 @@ class ChatViewModel : ViewModel() {
         currentList.add(message)
         _chatMessages.postValue(currentList)
     }
+    private fun getLimitedHistory(): String {
+        val allMessages = _chatMessages.value ?: return ""
+        // Lấy 6 tin nhắn cuối cùng
+        val limited = allMessages.takeLast(6)
+        return limited.joinToString("\n") { msg ->
+            "${msg.sender}: ${msg.text}"
+        }
+    }
+    // Trong ChatViewModel.kt
+    fun finishAndAnalyze(config: ChatConfig) {
+        _isLoading.postValue(true)
+        viewModelScope.launch {
+            // Gom tất cả tin nhắn User đã nói từ đầu buổi
+            val historyContext = _chatMessages.value?.joinToString("\n") {
+                "${it.sender}: ${it.text}"
+            } ?: ""
 
+            // Gọi hàm phân tích chuyên sâu đã có trong GeminiManager
+            val result = geminiManager.generateFinalAnalysis(config, historyContext)
+
+            _finalAnalysis.postValue(result)
+            _isLoading.postValue(false)
+            _isFinished.postValue(true)
+        }
+    }
     fun fetchAiSuggestion(config: ChatConfig) {
         viewModelScope.launch {
             // Gom lịch sử tin nhắn thành chuỗi văn bản
-            val historyStr = _chatMessages.value?.joinToString("\n") {
-                "${it.sender}: ${it.text}"
-            } ?: ""
+            val historyStr = getLimitedHistory()
 
             val result = geminiManager.getSuggestion(config, historyStr)
             _suggestionText.postValue(result)

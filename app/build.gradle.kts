@@ -62,6 +62,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
 
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
     implementation(libs.androidx.navigation.fragment.ktx)
