@@ -7,11 +7,13 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.learnapp.Model.Chat.HistoryItem
 import com.example.learnapp.R
 import com.example.learnapp.ViewModel.ChatViewModel
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivityAiresultBinding
 import com.google.android.flexbox.FlexboxLayout
 import com.google.firebase.Timestamp
@@ -19,6 +21,7 @@ import com.google.firebase.Timestamp
 class AIResultActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAiresultBinding
     private val viewModel: ChatViewModel by viewModels()
+    private val userviewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +46,8 @@ class AIResultActivity : AppCompatActivity() {
                 finish()
             } else {
                 // Nếu vừa học xong:
+                userviewModel.markTodayAsLearned()
+                Toast.makeText(this, "Đã đánh dấu hôm nay là ngày học", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, MainActivity::class.java)
 
                 // CỰC KỲ QUAN TRỌNG:

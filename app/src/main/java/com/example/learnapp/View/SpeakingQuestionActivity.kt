@@ -10,10 +10,13 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -24,6 +27,7 @@ import com.example.learnapp.R
 import com.example.learnapp.Repository.QuestionRepository
 import com.example.learnapp.ViewModel.QuestionViewModel
 import com.example.learnapp.ViewModel.QuestionViewModelFactory
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivitySpeakingQuestionBinding
 
 class SpeakingQuestionActivity : AppCompatActivity() {
@@ -34,6 +38,7 @@ class SpeakingQuestionActivity : AppCompatActivity() {
     private val viewModel: QuestionViewModel by viewModels {
         QuestionViewModelFactory(QuestionRepository())
     }
+    private val userviewModel: UserViewModel by viewModels()
 
     private var player: ExoPlayer? = null
     private var speechRecognizer: SpeechRecognizer? = null
@@ -216,7 +221,12 @@ class SpeakingQuestionActivity : AppCompatActivity() {
 
         binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
         binding.includeResult.tvStars.text = "Thưởng: +$xp XP"
-        binding.includeResult.btnContinueLesson.setOnClickListener { finish() }
+        binding.includeResult.btnContinueLesson.setOnClickListener {
+            userviewModel.markTodayAsLearned()
+            Toast.makeText(this, "Đã đánh dấu hôm nay là ngày học", Toast.LENGTH_SHORT).show()
+            finish()
+
+        }
 
     }
 

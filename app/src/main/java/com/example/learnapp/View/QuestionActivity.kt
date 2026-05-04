@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -21,6 +22,7 @@ import com.example.learnapp.Repository.QuestionRepository
 import com.example.learnapp.View.ui.adapter.VocabResultAdapter
 import com.example.learnapp.ViewModel.QuestionViewModel
 import com.example.learnapp.ViewModel.QuestionViewModelFactory
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.ViewModel.VocabViewModel
 import com.example.learnapp.databinding.ActivityQuestionBinding
 import com.example.learnapp.databinding.FeedbackBottomSheetBinding
@@ -31,6 +33,7 @@ class QuestionActivity : AppCompatActivity() {
     private val viewModel: QuestionViewModel by viewModels {
         QuestionViewModelFactory(QuestionRepository())
     }
+    private val userviewModel: UserViewModel by viewModels()
     private val vocabViewModel: VocabViewModel by viewModels()
     private lateinit var player: ExoPlayer
 
@@ -295,7 +298,11 @@ class QuestionActivity : AppCompatActivity() {
             binding.includeResult.vocabularylist.visibility = View.GONE
             Log.w("QuestionActivity", "Không có từ vựng mới nào.")
         }
-        binding.includeResult.btnContinueLesson.setOnClickListener{finish()}
+        binding.includeResult.btnContinueLesson.setOnClickListener{
+            userviewModel.markTodayAsLearned()
+            Toast.makeText(this, "Đã đánh dấu hôm nay là ngày học", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
     private fun setupOrderingUI(q: Question) {
         val availableWords = q.options.toMutableList().apply { shuffle() }

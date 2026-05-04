@@ -7,17 +7,19 @@ import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.learnapp.Model.ArticleQuestion
 import com.example.learnapp.R
 import com.example.learnapp.ViewModel.ArticleQuizViewModel
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivityArticleQuizBinding
 
 class ArticleQuizActivity : AppCompatActivity() {
     private lateinit var binding: ActivityArticleQuizBinding
     private val viewModel: ArticleQuizViewModel by viewModels()
-
+    private val userviewModel: UserViewModel by viewModels()
     private var selectedOptionText: String? = null
     private var selectedTextView: TextView? = null
 
@@ -190,6 +192,8 @@ class ArticleQuizActivity : AppCompatActivity() {
         binding.includeResult.tvStars.text = "Thưởng: +$xpReward XP"
 
         binding.includeResult.btnContinueLesson.setOnClickListener {
+            userviewModel.markTodayAsLearned()
+            Toast.makeText(this, "Đã đánh dấu hôm nay là ngày học", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

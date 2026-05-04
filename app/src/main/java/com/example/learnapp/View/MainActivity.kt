@@ -1,11 +1,13 @@
 package com.example.learnapp.View
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.learnapp.View.ui.fragment.*
 import com.example.learnapp.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,11 +17,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        bottomNavigationView = findViewById(R.id.bottomNav)
+        val prefs = getSharedPreferences("LearnAppPrefs", MODE_PRIVATE)
+        val isNotiEnabled = prefs.getBoolean("notifications_enabled", true)
+        val userType = prefs.getString("user_type", "free") // lưu khi login
 
-        // BƯỚC QUAN TRỌNG: Chỉ nạp Fragment lần đầu khi mở App
-        // Nếu savedInstanceState != null (tức là xoay màn hình),
-        // hệ thống sẽ tự khôi phục lại Fragment cũ, ta không được ghi đè.
+        if (isNotiEnabled) {
+            // luôn đăng ký topic all
+            FirebaseMessaging.getInstance().subscribeToTopic("all")
+
+            // đăng ký theo loại tài khoản
+            when (userType) {
+                "free" -> {
+                    FirebaseMessaging.getInstance().subscribeToTopic("free")
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("premium")
+                }
+                "premium" -> {
+                    FirebaseMessaging.getInstance().subscribeToTopic("premium")
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("free")
+                }
+            }
+
+        } else {
+            // hủy tất cả khi tắt thông báo
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("all")
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("free")
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("premium")
+
+        }
+        bottomNavigationView = findViewById(R.id.bottomNav)
         if (savedInstanceState == null) {
             setupInitialFragment()
         }

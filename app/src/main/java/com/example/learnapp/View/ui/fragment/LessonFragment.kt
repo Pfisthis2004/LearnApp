@@ -1,6 +1,11 @@
 package com.example.learnapp.View.ui.fragment
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +14,8 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +24,7 @@ import com.example.learnapp.R
 import com.example.learnapp.Repository.LevelRepostitory
 import com.example.learnapp.View.QuestionActivity
 import com.example.learnapp.View.ui.adapter.ChapterAdapter
+import com.example.learnapp.View.ui.bottomsheet.NotificationBottomSheet
 import com.example.learnapp.ViewModel.LessonViewModel
 import com.example.learnapp.databinding.FragmentLessonBinding
 
@@ -24,92 +32,155 @@ class LessonFragment : Fragment() {
     private lateinit var chapterAdapter: ChapterAdapter
     private val viewModel: LessonViewModel by viewModels()
     private lateinit var binding: FragmentLessonBinding
-
+    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+        if (key == "has_new_notification") {
+            val hasNew = sharedPreferences.getBoolean("has_new_notification", false)
+            // Cập nhật giao diện trên luồng chính
+            activity?.runOnUiThread {
+                binding.notificationBadge.visibility = if (hasNew) View.VISIBLE else View.GONE
+            }
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLessonBinding.inflate(inflater, container, false)
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        prefs.registerOnSharedPreferenceChangeListener(prefListener)
 
-        // 1. Lấy thông tin Level từ SharedPreferences hoặc Arguments
-        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", AppCompatActivity.MODE_PRIVATE)
-        val levelId = arguments?.getString("selectedLevelId") ?: prefs.getString("selectedLevelId", null)
-        val levelTitle = arguments?.getString("selectedLevelTitle") ?: prefs.getString("selectedLevelTitle", "Chưa chọn level")
+        setupInitialData()
+        setupRecyclerView()
+        setupObservers()
+        setupClickListeners()
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Kiểm tra xin quyền thông báo ngay khi vào màn hình (Android 13+)
+        checkNotificationPermission()
+    }
+
+    private fun setupInitialData() {
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        val levelId = prefs.getString("selectedLevelId", null)
+        val levelTitle = prefs.getString("selectedLevelTitle", "Chưa chọn level")
 
         binding.leveltv.text = levelTitle
 
-        // 2. Thiết lập ChapterAdapter (LessonAdapter sẽ chạy bên trong Adapter này)
+        // Load dữ liệu lần đầu nếu đã có LevelId lưu trong máy
+        levelId?.let { viewModel.loadChaptersByLevel(it) }
+    }
+
+    private fun setupRecyclerView() {
         chapterAdapter = ChapterAdapter(emptyList(), emptyList()) { lesson ->
             val intent = Intent(requireContext(), QuestionActivity::class.java)
-            intent.putExtra("chapterId", lesson.chapterId)
-            intent.putExtra("id", lesson.id)
-            intent.putExtra("levelId", lesson.levelId)
-            intent.putExtra("xpReward", lesson.xpReward) // Truyền thêm XP nếu cần
+            intent.apply {
+                putExtra("chapterId", lesson.chapterId)
+                putExtra("id", lesson.id)
+                putExtra("levelId", lesson.levelId)
+                putExtra("xpReward", lesson.xpReward)
+            }
             startActivity(intent)
         }
+        binding.rcvchapter.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = chapterAdapter
+        }
+    }
 
-        binding.rcvchapter.layoutManager = LinearLayoutManager(requireContext())
-        binding.rcvchapter.adapter = chapterAdapter
-
-        // 3. Hiệu ứng Loading
+    private fun setupObservers() {
+        // Quan sát trạng thái Loading
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             if (loading) showLoading() else hideLoading()
         }
 
-        // 4.Quan sát cả 2 LiveData để cập nhật Adapter chính xác
+        // Quan sát danh sách Chapter
         viewModel.chapters.observe(viewLifecycleOwner) { chapters ->
             val completed = viewModel.completedLessons.value ?: emptyList()
             chapterAdapter.updateData(chapters ?: emptyList(), completed)
         }
 
+        // Quan sát danh sách bài học đã hoàn thành
         viewModel.completedLessons.observe(viewLifecycleOwner) { completed ->
             val chapters = viewModel.chapters.value ?: emptyList()
             chapterAdapter.updateData(chapters, completed ?: emptyList())
         }
+    }
 
-        // 5. Xử lý sự kiện chọn lại Level
+    private fun setupClickListeners() {
+        // Chọn lại Level
         binding.levelListView.setOnClickListener {
             showLevelDialog()
         }
 
-        // 6. Load dữ liệu lần đầu
-        levelId?.let { viewModel.loadChaptersByLevel(it) }
+        // Nút thông báo
+        binding.notification.setOnClickListener {
+            handleNotificationClick()
+        }
+    }
 
-        return binding.root
+    private fun handleNotificationClick() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            checkNotificationPermission()
+        } else {
+            // 1. Tắt chấm đỏ ngay lập tức
+            binding.notificationBadge.visibility = View.GONE
+
+            // 2. Lưu trạng thái đã đọc vào máy
+            val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("has_new_notification", false).apply()
+
+            // 3. Mở danh sách thông báo chi tiết
+            val bottomSheet = NotificationBottomSheet()
+            bottomSheet.show(childFragmentManager, "NotificationList")
+        }
     }
 
     private fun showLevelDialog() {
         val popupView = layoutInflater.inflate(R.layout.bottom_choose_level, null)
         val listView = popupView.findViewById<ListView>(R.id.levelListView)
+        val dialog = AlertDialog.Builder(requireContext()).setView(popupView).create()
 
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(popupView)
-            .create()
-
-        val levelRepo = LevelRepostitory()
-        levelRepo.fetchLevels { levels ->
+        LevelRepostitory().fetchLevels { levels ->
             val levelNames = levels.map { it.title }
-            val levelAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, levelNames)
-            listView.adapter = levelAdapter
+            listView.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, levelNames)
 
             listView.setOnItemClickListener { _, _, position, _ ->
-                val selectedLevel = levels[position]
-                binding.leveltv.text = selectedLevel.title
+                val selected = levels[position]
+                binding.leveltv.text = selected.title
 
-                // Lưu lại Level đã chọn
-                requireContext().getSharedPreferences("LearnAppPrefs", AppCompatActivity.MODE_PRIVATE)
+                requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
                     .edit()
-                    .putString("selectedLevelId", selectedLevel.id)
-                    .putString("selectedLevelTitle", selectedLevel.title)
+                    .putString("selectedLevelId", selected.id)
+                    .putString("selectedLevelTitle", selected.title)
                     .apply()
 
-                showLoading()
-                viewModel.loadChaptersByLevel(selectedLevel.id)
+                viewModel.loadChaptersByLevel(selected.id)
                 dialog.dismiss()
             }
         }
         dialog.show()
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    101
+                )
+            }
+        }
     }
 
     private fun showLoading() {
@@ -125,9 +196,20 @@ class LessonFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Cập nhật lại dữ liệu khi quay lại màn hình (đảm bảo đồng bộ bài học mới)
-        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", AppCompatActivity.MODE_PRIVATE)
-        val levelId = prefs.getString("selectedLevelId", null)
-        levelId?.let { viewModel.loadChaptersByLevel(it) }
+        // Cập nhật chấm đỏ và dữ liệu bài học mỗi khi quay lại màn hình
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        val hasNew = prefs.getBoolean("has_new_notification", false)
+        android.util.Log.d("DEBUG_NOTI", "Giá trị trong máy là: " + prefs.getBoolean("has_new_notification", false))
+        binding.notificationBadge.visibility = if (hasNew) View.VISIBLE else View.GONE
+
+        prefs.getString("selectedLevelId", null)?.let {
+            viewModel.loadChaptersByLevel(it)
+        }
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Hủy đăng ký để tránh rò rỉ bộ nhớ
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
     }
 }

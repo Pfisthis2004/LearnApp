@@ -27,25 +27,48 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginRight="30dp">
+
+            <!-- 1. Cụm Streaks (Ngọn lửa) -->
             <ImageView
                 android:id="@+id/streaks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/flame"
-                android:layout_marginRight="20dp"
-                />
-            <ImageView
+                android:src="@drawable/flame"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"/>
+
+            <!-- 2. Cụm Thông báo (Chuông + Chấm đỏ) -->
+            <FrameLayout
                 android:id="@+id/notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bell"
-                android:layout_marginRight="30dp"
-                />
-        </LinearLayout>
+                android:layout_toEndOf="@id/streaks"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/bell" />
+
+                <View
+                    android:id="@+id/notificationBadge"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/red_dot"
+                    android:visibility="visible" />
+            </FrameLayout>
+
+        </RelativeLayout>
+
     </LinearLayout>
 
     <LinearLayout

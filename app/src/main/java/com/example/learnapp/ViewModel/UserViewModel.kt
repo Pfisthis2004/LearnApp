@@ -1,5 +1,6 @@
 package com.example.learnapp.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -60,7 +61,8 @@ class UserViewModel: ViewModel() {
         val isDifferentWeek = now.get(Calendar.WEEK_OF_YEAR) != lastLogin.get(Calendar.WEEK_OF_YEAR)
 
         if (isMonday && isDifferentWeek) {
-            repository.resetWeeklyProgress(user.uid)
+            Log.d("UserViewModel", "Đã reset tuần mới thành công")
+            repository.resetWeeklyProgress(user.uid, now.timeInMillis) // Cập nhật timestamp ở đây
         }
     }
     // Hàm lấy danh sách 7 ngày của tuần hiện tại và kiểm tra xem ngày nào đã học
@@ -79,7 +81,7 @@ class UserViewModel: ViewModel() {
             val dateStr = dateFormat.format(calendar.time)
             // Kiểm tra xem ngày 'dateStr' (VD: 2026-04-20) có trong mảng dữ liệu Firebase không
             val isDone = completedDays?.contains(dateStr) ?: false
-
+            Log.d("DayAdapterDebug", "dateStr=$dateStr, completedDays=$completedDays, isDone=$isDone")
             dayList.add(DayStudy(dayNames[i], isDone))
             calendar.add(Calendar.DAY_OF_MONTH, 1) // Nhảy sang ngày tiếp theo
         }
@@ -87,13 +89,21 @@ class UserViewModel: ViewModel() {
     }
     fun markTodayAsLearned() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val now = Calendar.getInstance()
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
 
         val firestore = FirebaseFirestore.getInstance()
-        firestore.collection("Users").document(uid)
-            .update("completedDays", FieldValue.arrayUnion(today))
+
+        // Cập nhật cả ngày đã học và mốc thời gian đăng nhập cuối
+        val updates = mapOf(
+            "completedDays" to FieldValue.arrayUnion(today),
+            "lastLoginAt" to now.timeInMillis
+        )
+
+        firestore.collection("users").document(uid)
+            .update(updates)
             .addOnSuccessListener {
-                loadData() // Tải lại dữ liệu để UI cập nhật ngay lập tức
+                loadData()
             }
     }
     fun checkAndAwardCertificate(user: User, currentLevelId: String) {
