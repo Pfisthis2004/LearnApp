@@ -114,9 +114,34 @@ class ChatAdapter(private val config: ChatConfig,
 
     inner class AIViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val tvBotMessage = view.findViewById<TextView>(R.id.tvBotMessage)
+        private val tvBotTranslation = view.findViewById<TextView>(R.id.tvBotTranslation)
+        private val viewDivider = view.findViewById<View>(R.id.viewDivider)
+        private val imgTranslate = view.findViewById<ImageView>(R.id.imgTranslate)
         private val imgSpeaker = view.findViewById<ImageView>(R.id.imgSpeaker)
         fun bind(message: ChatMessage, onSpeakClick: (String) -> Unit) {
-            tvBotMessage.text = message.text
+            val parts = message.text.split("|")
+            val englishText = parts[0].trim()
+            val vietnameseText = if (parts.size > 1) parts[1].trim() else ""
+
+            tvBotMessage.text =englishText
+            tvBotTranslation.text = vietnameseText
+
+            tvBotTranslation.visibility = View.GONE
+            viewDivider.visibility = View.GONE
+            imgTranslate.alpha = 0.6f
+
+            imgTranslate.setOnClickListener {
+                if (tvBotTranslation.visibility == View.GONE) {
+                    tvBotTranslation.visibility = View.VISIBLE
+                    viewDivider.visibility = View.VISIBLE
+                    imgTranslate.alpha = 1.0f // Làm sáng icon khi đang xem dịch
+                } else {
+                    tvBotTranslation.visibility = View.GONE
+                    viewDivider.visibility = View.GONE
+                    imgTranslate.alpha = 0.6f
+                }
+            }
+
             imgSpeaker.setOnClickListener {
                 onSpeakClick(message.text)
             }

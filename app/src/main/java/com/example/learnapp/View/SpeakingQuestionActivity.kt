@@ -215,7 +215,7 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         viewModel.finishLesson(nextLessonId)
 
         binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
-        binding.includeResult.tvStars.text = "Phần thưởng: +$xp XP"
+        binding.includeResult.tvStars.text = "Thưởng: +$xp XP"
         binding.includeResult.btnContinueLesson.setOnClickListener { finish() }
 
     }

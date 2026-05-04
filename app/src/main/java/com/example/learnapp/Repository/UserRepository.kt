@@ -26,6 +26,11 @@ class UserRepository {
     fun resetWeeklyProgress(uid: String) {
         db.collection("users").document(uid).update("completedDays", emptyList<String>())
     }
+    fun addCompletedDay(uid: String, dateStr: String, onComplete: () -> Unit) {
+        db.collection("Users").document(uid)
+            .update("completedDays", FieldValue.arrayUnion(dateStr))
+            .addOnSuccessListener { onComplete() }
+    }
     fun getChaptersByLevel(levelId: String, callback: (List<String>) -> Unit) {
         db.collection("chapters")
             .whereEqualTo("levelId", levelId)

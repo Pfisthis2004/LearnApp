@@ -8,9 +8,13 @@ import com.example.learnapp.Model.Status
 import com.example.learnapp.Model.User
 import com.example.learnapp.Repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class UserViewModel: ViewModel() {
     private val repository = UserRepository()
@@ -48,7 +52,6 @@ class UserViewModel: ViewModel() {
             _vocabCount.value = count
         }
     }
-
     private fun checkAndResetWeek(user: User) {
         val now = Calendar.getInstance()
         val lastLogin = Calendar.getInstance().apply { timeInMillis = user.lastLoginAt }
@@ -60,10 +63,38 @@ class UserViewModel: ViewModel() {
             repository.resetWeeklyProgress(user.uid)
         }
     }
+    // Hàm lấy danh sách 7 ngày của tuần hiện tại và kiểm tra xem ngày nào đã học
+    fun getWeeklyStudyData(completedDays: List<String>?): List<DayStudy> {
+        val dayList = mutableListOf<DayStudy>()
+        val calendar = Calendar.getInstance()
 
-    fun getStudyDaysList(completedDays: List<String>): List<DayStudy> {
-        val allDays = listOf("2", "3", "4", "5", "6", "7", "Cn")
-        return allDays.map { DayStudy(it, completedDays.contains(it)) }
+        // Đưa calendar về ngày Thứ 2 của tuần này
+        calendar.firstDayOfWeek = Calendar.MONDAY
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        val dayNames = listOf("2", "3", "4", "5", "6", "7", "Cn")
+
+        for (i in 0..6) {
+            val dateStr = dateFormat.format(calendar.time)
+            // Kiểm tra xem ngày 'dateStr' (VD: 2026-04-20) có trong mảng dữ liệu Firebase không
+            val isDone = completedDays?.contains(dateStr) ?: false
+
+            dayList.add(DayStudy(dayNames[i], isDone))
+            calendar.add(Calendar.DAY_OF_MONTH, 1) // Nhảy sang ngày tiếp theo
+        }
+        return dayList
+    }
+    fun markTodayAsLearned() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        val firestore = FirebaseFirestore.getInstance()
+        firestore.collection("Users").document(uid)
+            .update("completedDays", FieldValue.arrayUnion(today))
+            .addOnSuccessListener {
+                loadData() // Tải lại dữ liệu để UI cập nhật ngay lập tức
+            }
     }
     fun checkAndAwardCertificate(user: User, currentLevelId: String) {
         // 1. Kiểm tra xem Level này đã có chứng chỉ chưa
@@ -84,7 +115,6 @@ class UserViewModel: ViewModel() {
             _userData.value = user
         }
     }
-
     fun updateDisplayName(uid: String, newName: String) {
         if (newName.isBlank()) {
             _updateStatus.value = Status.Error("Tên không được để trống")

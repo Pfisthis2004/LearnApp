@@ -15,13 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
         <activity
-            android:name=".AIResultActivity"
+            android:name=".View.AIResultActivity"
             android:exported="false" />
         <activity
-            android:name=".ChooseScenarioActivity"
+            android:name=".View.ChooseScenarioActivity"
             android:exported="false" />
         <activity
-            android:name=".SreenChatActivity"
+            android:name=".View.SreenChatActivity"
             android:exported="false" />
         <activity
             android:name=".View.EditProfileActivity"

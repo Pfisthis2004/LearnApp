@@ -187,7 +187,7 @@ class ArticleQuizActivity : AppCompatActivity() {
         binding.includeResult.tvScore.text = "Đúng: ${viewModel.score}/$totalQuestions"
 
         val xpReward = intent.getIntExtra("XP_REWARD", 0)
-        binding.includeResult.tvStars.text = "Phần thưởng: +$xpReward XP"
+        binding.includeResult.tvStars.text = "Thưởng: +$xpReward XP"
 
         binding.includeResult.btnContinueLesson.setOnClickListener {
             finish()

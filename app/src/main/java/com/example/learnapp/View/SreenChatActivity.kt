@@ -1,4 +1,4 @@
-package com.example.learnapp
+package com.example.learnapp.View
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -6,18 +6,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.media3.common.C
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.learnapp.Model.Chat.ChatConfig
+import com.example.learnapp.Utils.SpeechToTextManager
+import com.example.learnapp.Utils.TextToSpeechManager
 import com.example.learnapp.View.ui.adapter.ChatAdapter
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.ActivitySreenChatBinding
@@ -59,7 +58,8 @@ class SreenChatActivity : AppCompatActivity() {
 
     private fun setupRecyclerView(config: ChatConfig) {
         chatAdapter = ChatAdapter(config){ textToSpeak ->
-            ttsManager.speak(textToSpeak)
+            val englishText = textToSpeak.split("|")[0].trim()
+            ttsManager.speak(englishText)
         }
         binding.chatRecyclerView.apply {
             adapter = chatAdapter
@@ -71,7 +71,8 @@ class SreenChatActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupSTT(config: ChatConfig) {
-        sttManager = SpeechToTextManager(this,
+        sttManager = SpeechToTextManager(
+            this,
             onResult = { text -> viewModel.sendUserMessage(text, config) },
             onError = { error -> Toast.makeText(this, "Lỗi: $error", Toast.LENGTH_SHORT).show() }
         )
@@ -91,7 +92,7 @@ class SreenChatActivity : AppCompatActivity() {
                         .alpha(0f)
                         .setDuration(300)
                         .withEndAction {
-                            binding.suggestBlock.visibility = android.view.View.GONE
+                            binding.suggestBlock.visibility = View.GONE
                             binding.suggestBlock.alpha = 1f // Reset alpha cho lần hiện sau
                             viewModel.clearSuggestion()
                         }.start()
@@ -105,11 +106,17 @@ class SreenChatActivity : AppCompatActivity() {
     private fun setupHelpButton() {
         binding.helpButton.setOnClickListener {
             currentConfig?.let { config ->
-                // 1. Hiển thị block và trạng thái chờ
-                binding.suggestBlock.visibility = android.view.View.VISIBLE
-                binding.promptsuggest.text = "Đợi một lát..."
+                // 1. Hiệu ứng hiện khối gợi ý mượt mà
+                binding.suggestBlock.visibility = View.VISIBLE
+                binding.suggestBlock.alpha = 0f
+                binding.suggestBlock.animate().alpha(1f).setDuration(200).start()
 
-                // 2. Gọi AI lấy gợi ý
+                // 2. Chữ chạy hoặc thông báo trạng thái sinh động
+                binding.promptsuggest.text = "Đợi một tý..."
+
+                // Vô hiệu hóa nút để tránh bấm liên tục
+                binding.helpButton.isEnabled = false
+
                 viewModel.fetchAiSuggestion(config)
             }
         }
@@ -126,7 +133,11 @@ class SreenChatActivity : AppCompatActivity() {
                 }
                 // Phát âm câu cuối nếu là AI
                 messages.lastOrNull()?.let {
-                    if (it.sender == "AI") ttsManager.speak(it.text)
+                    if (it.sender == "AI") {
+                        // Tách lấy phần tiếng Anh để đọc, bỏ qua phần sau dấu "|"
+                        val englishOnly = it.text.split("|")[0].trim()
+                        ttsManager.speak(englishOnly)
+                    }
                 }
             }
         }
@@ -159,7 +170,7 @@ class SreenChatActivity : AppCompatActivity() {
                         putStringArrayListExtra("IMPROVE_SOUNDS", ArrayList(analysis.improve_sounds))
                         putStringArrayListExtra("GRAMMAR_ERRORS", ArrayList(analysis.grammar_errors))
 
-                        putExtra("LESSON_TITLE", currentConfig?.title)
+                        putExtra("LESSON_TITLE", binding.tvTitle.text.toString())
                         putExtra("GOALS_STATUS", ArrayList(viewModel.goalStatus.value ?: emptyList<Boolean>()))
                         putExtra("GOALS_TEXT", ArrayList(currentConfig?.goals ?: emptyList<String>()))
                     }
@@ -170,8 +181,23 @@ class SreenChatActivity : AppCompatActivity() {
         }
 
         // 4. Các observer phụ khác
-        viewModel.suggestionText.observe(this) { hint ->
-            if (!hint.isNullOrEmpty()) binding.promptsuggest.text = hint
+        viewModel.suggestionText.observe(this) { rawHint ->
+            if (!rawHint.isNullOrEmpty()) {
+                val cleanHint = rawHint.replace("[", "").replace("]", "").trim()
+                if (cleanHint.contains("|")) {
+                    val parts = cleanHint.split("|")
+                    val english = parts[0].trim()
+                    val vietnamese = parts.getOrNull(1)?.trim() ?: ""
+
+                    binding.promptsuggest.text = english
+                    binding.translationSuggest.text = vietnamese // TextView mới thêm vào suggestBlock
+                } else {
+                    // Phòng hờ AI quên dấu |
+                    binding.promptsuggest.text = cleanHint
+                    binding.translationSuggest.text = ""
+                }
+                binding.helpButton.isEnabled = true
+            }
         }
 
         viewModel.isLoading.observe(this) { isLoading ->

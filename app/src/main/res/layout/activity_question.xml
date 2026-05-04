@@ -42,6 +42,43 @@
             android:text=""
             android:textSize="20sp"
             android:layout_marginBottom="16dp" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputLayoutFillBlank"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFillBlank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập đáp án..."
+                android:imeOptions="actionDone"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexSelectedWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:flexWrap="wrap"
+            android:minHeight="50dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexAvailableWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:flexWrap="wrap"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kiểm tra"
+            android:visibility="gone"/>
 
         <!-- Các lựa chọn -->
         <LinearLayout

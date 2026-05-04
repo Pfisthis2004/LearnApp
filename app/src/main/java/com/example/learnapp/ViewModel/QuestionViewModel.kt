@@ -9,6 +9,7 @@ import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.QuestionType
 import com.example.learnapp.Model.ResultState
 import com.example.learnapp.Model.handler.FillBlankHandler
+import com.example.learnapp.Model.handler.OrderingHandler
 import com.example.learnapp.Model.handler.QuestionHandler
 import com.example.learnapp.Model.handler.QuizHandler
 import com.example.learnapp.Model.handler.SpeakingHandler
@@ -26,7 +27,8 @@ class QuestionViewModel(
 
     private val _currentIndex = MutableLiveData(0)
     val currentIndex: LiveData<Int> get() = _currentIndex
-
+    private val _selectedOrderingWords = MutableLiveData<MutableList<String>>(mutableListOf())
+    val selectedOrderingWords: LiveData<MutableList<String>> get() = _selectedOrderingWords
     private val _result = MutableLiveData<ResultState?>()
     val result: LiveData<ResultState?> get() = _result
 
@@ -53,7 +55,21 @@ class QuestionViewModel(
             Log.d(TAG, "Reset currentIndex=0, correctCount=0")
         }
     }
+    fun addWordToOrdering(word: String) {
+        val current = _selectedOrderingWords.value ?: mutableListOf()
+        current.add(word)
+        _selectedOrderingWords.value = current
+    }
 
+    fun removeWordFromOrdering(word: String) {
+        val current = _selectedOrderingWords.value ?: mutableListOf()
+        current.remove(word)
+        _selectedOrderingWords.value = current
+    }
+
+    fun resetOrdering() {
+        _selectedOrderingWords.value = mutableListOf()
+    }
     fun nextQuestion() {
         val newIndex = (_currentIndex.value ?: 0) + 1
         Log.d(TAG, "Moving to next question: index=$newIndex")
@@ -100,6 +116,11 @@ class QuestionViewModel(
                         Log.d(TAG, "FillBlankResult correct. Total correctCount=$_correctCount")
                     }
                 }
+                is ResultState.OrderingResult -> {
+                    if (res.isCorrect){
+                        _correctCount++
+                    }
+                }
             }
         } ?: Log.w(TAG, "No question found at index=$index")
     }
@@ -110,6 +131,7 @@ class QuestionViewModel(
             QuestionType.MULTIPLE_CHOICE -> QuizHandler()
             QuestionType.SPEAKING -> SpeakingHandler()
             QuestionType.FILL_IN_THE_BLANK -> FillBlankHandler()
+            QuestionType.ORDERING -> OrderingHandler()
             null -> {
                 Log.e(TAG, "Unknown QuestionType=null")
                 throw IllegalArgumentException("Unknown QuestionType")

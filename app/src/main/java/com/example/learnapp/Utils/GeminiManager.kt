@@ -1,5 +1,7 @@
-package com.example.learnapp
+package com.example.learnapp.Utils
 
+import android.util.Log
+import com.example.learnapp.BuildConfig
 import com.example.learnapp.Model.Chat.AIResponse
 import com.example.learnapp.Model.Chat.AISelectionResponse
 import com.example.learnapp.Model.Chat.ChatConfig
@@ -7,21 +9,43 @@ import com.example.learnapp.Model.Chat.ScenarioOption
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.generationConfig
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GeminiManager() {
-    private val gson = Gson()
-    private val generativeModel = GenerativeModel(
-        modelName = "gemini-3.1-flash-lite-preview", //Gemini 3 Flash hoacGemini 2.5 Flash Lite
-        apiKey = BuildConfig.GEMINI_API_KEY,
-        generationConfig = generationConfig {
-            responseMimeType = "application/json"
-            temperature = 0.85f
+    private val gson = GsonBuilder().setLenient().create()
+    private val apiKeys = listOf(
+        BuildConfig.GEMINI_API_KEY,
+        BuildConfig.GEMINI_API_KEY_2,
+        BuildConfig.GEMINI_API_KEY_3
+    ).filter { it.isNotEmpty() }
 
+    private var currentKeyIndex = 0
+
+    // 2. Hàm khởi tạo Model linh hoạt theo Key hiện tại
+    private fun getGenerativeModel(): GenerativeModel {
+        val key = if (apiKeys.isNotEmpty()) apiKeys[currentKeyIndex] else ""
+        return GenerativeModel(
+            modelName = "gemini-3-flash-preview", //gemini-3.1-flash-lite-preview
+            apiKey = key,
+            generationConfig = generationConfig {
+                responseMimeType = "application/json"
+                temperature = 0.85f
+            }
+        )
+    }
+
+    // 3. Cơ chế xoay vòng Key khi gặp lỗi 429 (Too Many Requests)
+    private fun rotateKey(): Boolean {
+        if (currentKeyIndex < apiKeys.size - 1) {
+            currentKeyIndex++
+            Log.d("GEMINI_AUTH", "Đã đổi sang API Key dự phòng số: ${currentKeyIndex + 1}")
+            return true
         }
-    )
-
+        Log.e("GEMINI_AUTH", "Đã thử hết tất cả các API Key nhưng đều hết hạn mức!")
+        return false
+    }
     /**
      * 1. Lấy kịch bản (Dùng tại SetupFragment)
      */
@@ -62,15 +86,12 @@ class GeminiManager() {
             }
         """.trimIndent()
 
-        return@withContext try {
-            val response = generativeModel.generateContent(prompt)
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(prompt)
             val cleanJson = cleanJsonResponse(response.text)
-            android.util.Log.d("GEMINI_RAW", "Data: $cleanJson")
-            val result = gson.fromJson(cleanJsonResponse(response.text), AISelectionResponse::class.java)
+            Log.d("GEMINI_RAW", "Data: $cleanJson")
+            val result = gson.fromJson(cleanJson, AISelectionResponse::class.java)
             result.options
-        } catch (e: Exception) {
-            android.util.Log.e("GEMINI_ERROR", "Lỗi tạo kịch bản: ${e.message}")
-            null
         }
     }
 
@@ -122,12 +143,13 @@ class GeminiManager() {
                 4. **CẢM XÚC**: Thể hiện sự ngạc nhiên, đồng cảm hoặc nghi ngờ dựa trên vai diễn.
             
             # RULES
-                1. Language: ALWAYS reply in English. 
-                2. Length: Natural and concise (15-35 words).
-                3. Evaluation: Check the learning goals: [${config.goals.joinToString(", ")}]. 
+                1. Language: ALWAYS reply in English for the "reply" field.
+                2. Translation: Provide a natural Vietnamese translation for the "vi_trans" field.
+                3. Length: Natural and concise (15-35 words).
+                4. Evaluation: Check the learning goals: [${config.goals.joinToString(", ")}]. 
                    Update "goal_status" (boolean array) based on the history.
-                4. Flow: If userInput is "START_CONVERSATION_NOW", initiate naturally with a "hook" (câu dẫn dắt).
-                5. Exit: If all goals are true, set "is_finished": true.
+                5. Flow: If userInput is "START_CONVERSATION_NOW", initiate naturally with a "hook" (câu dẫn dắt).
+                6. Exit: If all goals are true, set "is_finished": true.
             """.trimIndent()
 
         // 3. Prompt gửi đi (ép kiểu trả về JSON)
@@ -142,20 +164,17 @@ class GeminiManager() {
         Return ONLY JSON format:
         {
           "reply": "Your message in English",
-          "vi_trans": "Bản dịch tiếng Việt",
+          "vi_trans": "Bản dịch tiếng Việt tương ứng",
           "goal_status": [boolean, boolean, boolean],
           "is_finished": boolean,
           "score": integer (0-100 based on user's English level in this turn)
         }
     """.trimIndent()
 
-        return@withContext try {
-            val response = generativeModel.generateContent(fullPrompt)
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(fullPrompt)
             val cleanJson = cleanJsonResponse(response.text)
             gson.fromJson(cleanJson, AIResponse::class.java)
-        } catch (e: Exception) {
-            android.util.Log.e("GEMINI_CHAT_ERROR", "${e.message}")
-            null
         }
     }
 
@@ -164,94 +183,95 @@ class GeminiManager() {
      */
     private fun cleanJsonResponse(rawResponse: String?): String {
         if (rawResponse == null) return ""
-        return rawResponse
+
+        // Loại bỏ rác bên ngoài dấu ngoặc nhọn (Gemini thỉnh thoảng thêm text giải thích)
+        var cleaned = rawResponse
             .replace("```json", "")
             .replace("```", "")
             .replace("`", "")
             .trim()
-    }
-//    suspend fun getSuggestion(config: ChatConfig, history: String): String? = withContext(Dispatchers.IO) {
-//        val prompt = """
-//    # CONTEXT
-//    - Scenario: ${config.situation}
-//    - User's Role: ${config.userRole}
-//    - Bot's Role: ${config.botRole}
-//    - **LEARNING GOALS**: [${config.goals.joinToString(", ")}]
-//
-//    # CURRENT HISTORY
-//    $history
-//
-//    # TASK
-//    Suggest ONE natural English sentence for the user to say next.
-//
-//    # CRITICAL RULE (QUAN TRỌNG)
-//    - The suggestion **MUST** help the user achieve one of the LEARNING GOALS above.
-//    - The sentence must be short, natural, and fit the current emotional tone of the chat.
-//    - Return ONLY the English sentence. No extra text, no quotes.
-//""".trimIndent()
-//
-//        return@withContext try {
-//            val response = generativeModel.generateContent(prompt)
-//            val rawText = response.text ?: ""
-//
-//            // 1. Làm sạch Markdown (```json ...) bằng hàm bạn đã có
-//            var cleanText = cleanJsonResponse(rawText)
-//
-//            // 2. PHÒNG VỆ: Nếu AI lỡ tay trả về JSON { "suggestion": "abc" }
-//            // Ta sẽ kiểm tra nếu chuỗi bắt đầu bằng '{', thì cố gắng parse lấy trường reply/suggestion
-//            if (cleanText.trim().startsWith("{")) {
-//                try {
-//                    // Thử parse nhanh để lấy giá trị bên trong nếu nó là JSON
-//                    val jsonMap = gson.fromJson(cleanText, Map::class.java)
-//                    // Lấy giá trị đầu tiên bất kỳ trong map (thường là key "reply" hoặc "suggestion")
-//                    cleanText = jsonMap.values.firstOrNull()?.toString() ?: cleanText
-//                } catch (e: Exception) {
-//                    // Nếu parse lỗi thì cứ để nguyên để xử lý tiếp
-//                }
-//            }
-//            cleanText.trim().replace("\"", "") // Xóa dấu ngoặc kép nếu có
-//        } catch (e: Exception) {
-//            null
-//        }
-//    }
-    suspend fun getSuggestion(config: ChatConfig, history: String): String? = withContext(Dispatchers.IO) {
-        val prompt = """
-            # CONTEXT
-            - Scenario: ${config.situation}
-            - User's Role: ${config.userRole}
-            - Bot's Role: ${config.botRole}
-            - **ALL LEARNING GOALS**: [${config.goals.joinToString(", ")}]
-            
-            # CURRENT HISTORY
-            $history
-            
-            # TASK: STEP-BY-STEP SUGGESTION
-            1. Dựa trên lịch sử hội thoại (# CURRENT HISTORY), hãy xác định mục tiêu nào trong danh sách mục tiêu (# ALL LEARNING GOALS) là mục tiêu **tiếp theo** mà người dùng cần thực hiện.
-            2. Suggest ONE natural English sentence to help the user achieve **ONLY THAT SPECIFIC GOAL**.
-            
-            # CRITICAL RULES
-            - **NO SPEED-RUNNING**: Tuyệt đối không gợi ý câu trả lời hoàn thành nhiều mục tiêu cùng lúc. 
-            - **NEXT STEP ONLY**: Nếu người dùng đang ở mục tiêu 1, chỉ gợi ý câu cho mục tiêu 1. Nếu mục tiêu 1 xong rồi, mới gợi ý cho mục tiêu 2.
-            - **NATURAL FLOW**: Câu gợi ý phải ngắn gọn (dưới 15 từ), tự nhiên và khớp với cảm xúc hiện tại của cuộc trò chuyện.
-            - **OUTPUT**: Return ONLY the English sentence. No extra text, no quotes, no explanations.
-        """.trimIndent()
 
-        return@withContext try {
-            val response = generativeModel.generateContent(prompt)
-            val rawText = response.text ?: ""
-            var cleanText = cleanJsonResponse(rawText)
+        // Tìm vị trí của dấu { đầu tiên và } cuối cùng để cắt đúng khối JSON
+        val firstBracket = cleaned.indexOf('{')
+        val lastBracket = cleaned.lastIndexOf('}')
 
-            if (cleanText.trim().startsWith("{")) {
-                try {
-                    val jsonMap = gson.fromJson(cleanText, Map::class.java)
-                    cleanText = jsonMap.values.firstOrNull()?.toString() ?: cleanText
-                } catch (e: Exception) {}
-            }
-            cleanText.trim().replace("\"", "")
-        } catch (e: Exception) {
-            null
+        return if (firstBracket != -1 && lastBracket != -1 && lastBracket > firstBracket) {
+            cleaned.substring(firstBracket, lastBracket + 1)
+        } else {
+            cleaned
         }
     }
+//        suspend fun getSuggestion(config: ChatConfig, history: String): String? = withContext(Dispatchers.IO) {
+//            val prompt = """
+//            # CONTEXT
+//            - Scenario: ${config.situation}
+//            - User's Role: ${config.userRole}
+//            - Bot's Role: ${config.botRole}
+//            - **ALL LEARNING GOALS**: [${config.goals.joinToString(", ")}]
+//
+//            # CURRENT HISTORY
+//            $history
+//
+//            # TASK
+//            Suggest ONE natural English sentence for the user to say to achieve the NEXT uncompleted goal.
+//
+//            # CRITICAL RULES
+//            - **LANGUAGE**: The output MUST be in English. No Vietnamese.
+//            - **NO EXPLANATION**: Do not explain what to do. Just provide the line of dialogue.
+//            - **EXAMPLE**: If the goal is "Ask for a coffee", return "Could I have a latte, please?".
+//            - **LENGTH**: Under 20 words.
+//
+//            # OUTPUT
+//            (Return ONLY the English sentence, no quotes)
+//        """.trimIndent()
+//
+//        executeWithRetry {
+//            val response = getGenerativeModel().generateContent(prompt)
+//            val rawText = response.text ?: ""
+//            var cleanText = cleanJsonResponse(rawText)
+//
+//            if (cleanText.trim().startsWith("{")) {
+//                try {
+//                    val jsonMap = gson.fromJson(cleanText, Map::class.java)
+//                    cleanText = jsonMap.values.firstOrNull()?.toString() ?: cleanText
+//                } catch (e: Exception) {}
+//            }
+//            cleanText.trim().replace("\"", "")
+//        }
+//    }
+
+    suspend fun getSuggestion(config: ChatConfig, history: String, goalStatus: List<Boolean>): String? = withContext(Dispatchers.IO) {
+        val nextGoalIndex = goalStatus.indexOf(false)
+        val nextGoal = config.goals.getOrNull(nextGoalIndex) ?: "Finish the conversation naturally"
+        val shortHistory = history.lines().takeLast(10).joinToString("\n")
+
+        val prompt = """
+            # CONTEXT
+            Scenario: ${config.situation}
+            User Role: ${config.userRole}
+          
+            # TARGET GOAL
+            Only focus on suggesting to help the user accomplish this SINGLE goal "$nextGoal"
+         
+            # RECENT HISTORY
+            $shortHistory
+            
+            # TASK
+            Suggest ONE natural English sentence for the user to achieve the "Next Goal" AND its Vietnamese translation.
+            
+            # CRITICAL:
+            - Format: [English sentence] | [Vietnamese translation]
+            - Use the pipe character "|" to separate them.
+            - DO NOT use brackets, quotes, or JSON.
+            - Example: Could you help me with this? | Bạn có thể giúp tôi việc này không?
+        """.trimIndent()
+        // Giữ nguyên phần executeWithRetry của bạn
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(prompt)
+            cleanJsonResponse(response.text).trim().replace("\"", "")
+        }
+    }
+
     suspend fun generateFinalAnalysis(config: ChatConfig, history: String): AIResponse? = withContext(Dispatchers.IO) {
         val finalPrompt = """
             # CONTEXT
@@ -264,7 +284,7 @@ class GeminiManager() {
             # TASK: FINAL EVALUATION
             Dựa trên TOÀN BỘ các câu nói của "User" trong lịch sử hội thoại trên, hãy thực hiện phân tích chuyên sâu:
             1. **Pronunciation (IPA)**: Liệt kê các ký hiệu âm tiết IPA (ví dụ: s, z, θ, ð, ɪ, i:,...) mà người dùng sử dụng chính xác (good_sounds) và các âm thường xuyên phát âm sai hoặc cần cải thiện (improve_sounds).
-            2. **Grammar**: Nhận diện các loại lỗi ngữ pháp lặp lại (ví dụ: "Tense consistency", "Articles", "Subject-Verb Agreement").
+            2. **Grammar**: Nhận diện các loại lỗi ngữ pháp lặp lại (ví dụ: "Mạo từ", "Chia động từ số ít/số nhiều").
             3. **Final Score**: Đưa ra điểm số tổng kết trung bình cho cả quá trình (0-100).
 
             # OUTPUT FORMAT (JSON ONLY)
@@ -279,13 +299,40 @@ class GeminiManager() {
             }
         """.trimIndent()
 
-        return@withContext try {
-            val response = generativeModel.generateContent(finalPrompt)
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(finalPrompt)
             val cleanJson = cleanJsonResponse(response.text)
             gson.fromJson(cleanJson, AIResponse::class.java)
-        } catch (e: Exception) {
-            android.util.Log.e("GEMINI_FINAL_ERROR", "${e.message}")
-            null
         }
+    }
+    private suspend fun <T> executeWithRetry(block: suspend () -> T): T? {
+        var attempts = 0
+        while (attempts < apiKeys.size) {
+            try {
+                return block()
+            } catch (e: Exception) {
+                val errorMsg = e.message ?: ""
+                // Bổ sung kiểm tra "503" hoặc "UNAVAILABLE" hoặc "demand" (từ thông báo lỗi bạn nhận được)
+                val isRetryableError = errorMsg.contains("429") ||
+                        errorMsg.contains("Quota") ||
+                        errorMsg.contains("503") ||
+                        errorMsg.contains("UNAVAILABLE") ||
+                        errorMsg.contains("demand")
+
+                if (isRetryableError) {
+                    attempts++
+                    Log.w("GEMINI_RETRY", "Gặp lỗi hệ thống hoặc Quota. Đang thử đổi Key... (Lần thử: $attempts)")
+                    if (!rotateKey()) {
+                        Log.e("GEMINI_CORE", "Đã thử hết tất cả các Key khả dụng.")
+                        break
+                    }
+                    // Sau khi rotateKey, vòng lặp while sẽ chạy lại block() với getGenerativeModel() mới
+                } else {
+                    Log.e("GEMINI_CORE", "Lỗi nghiêm trọng không thể retry: $errorMsg")
+                    break
+                }
+            }
+        }
+        return null
     }
 }

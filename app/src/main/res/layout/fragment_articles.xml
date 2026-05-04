@@ -34,7 +34,88 @@
             android:textSize="14sp" />
 
     </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cấp độ bài đọc"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#333"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="4dp"/>
 
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Level A1 (Active) -->
+            <TextView
+                android:id="@+id/btnA1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="A1"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bogoc_level"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <!-- Level A2 -->
+            <TextView
+                android:id="@+id/btnA2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="A2"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_white_rounded"
+                android:textColor="#4A90E2" />
+
+            <!-- Level B1 -->
+            <TextView
+                android:id="@+id/btnB1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="B1"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_white_rounded"
+                android:textColor="#4A90E2" />
+
+            <!-- Level B2 -->
+            <TextView
+                android:id="@+id/btnB2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="B2"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_white_rounded"
+                android:textColor="#4A90E2" />
+
+            <!-- Level C1 -->
+            <TextView
+                android:id="@+id/btnC1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="C1"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:background="@drawable/bg_white_rounded"
+                android:textColor="#4A90E2" />
+        </LinearLayout>
+    </HorizontalScrollView>
     <ImageView
         android:id="@+id/loadingImage"
         android:layout_width="match_parent"

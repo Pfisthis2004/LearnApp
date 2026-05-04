@@ -70,8 +70,8 @@ class ProfileFragment : Fragment() {
                     binding.tvCertificates.text = "${it.certificates} Certificates"
 
                     // Cập nhật dữ liệu cho Adapter hiện tại
-                    val dayList = viewModel.getStudyDaysList(it.completedDays)
-                    dayAdapter.updateData(dayList)
+                    val studyDays = viewModel.getWeeklyStudyData(it.completedDays)
+                    dayAdapter.updateData(studyDays)
 
                     Glide.with(this@ProfileFragment) // Dùng context của Fragment
                         .load(it.photoURL)

@@ -96,6 +96,16 @@
                 android:gravity="center"
                 android:layout_marginTop="4dp"
                 android:textStyle="italic"/>
+            <TextView
+                android:id="@+id/translationSuggest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="..."
+                android:textSize="14sp"
+                android:textColor="#E0E0E0"
+                android:gravity="center"
+                android:layout_marginTop="2dp"
+                android:textStyle="italic"/>
         </LinearLayout>
 
         <TextView
@@ -130,8 +140,8 @@
 
             <ImageButton
                 android:id="@+id/recordButton"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/bogoctron"
                 android:src="@drawable/mic_icon"

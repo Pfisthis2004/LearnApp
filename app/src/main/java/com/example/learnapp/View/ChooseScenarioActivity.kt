@@ -1,20 +1,15 @@
-package com.example.learnapp
+package com.example.learnapp.View
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.learnapp.Model.Chat.ChatConfig
 import com.example.learnapp.Model.Chat.ScenarioOption
-import com.example.learnapp.ViewModel.ScenarioViewModel
+import com.example.learnapp.R
+import com.example.learnapp.View.ui.bottomsheet.SettingConversationBottomSheet
 import com.example.learnapp.databinding.ActivityChooseScenarioBinding
 
 class ChooseScenarioActivity : AppCompatActivity() {
-    private val viewModel: ScenarioViewModel by viewModels()
     private lateinit var binding: ActivityChooseScenarioBinding
     private var selectedConfig: ChatConfig? = null
     private var scenarios: ArrayList<ScenarioOption>? = null
@@ -65,6 +60,7 @@ class ChooseScenarioActivity : AppCompatActivity() {
         }
 
         binding.btnEdit.setOnClickListener { finish() }
+        binding.ivBack.setOnClickListener { finish() }
     }
 
     // Hàm bổ trợ để quản lý trạng thái chọn

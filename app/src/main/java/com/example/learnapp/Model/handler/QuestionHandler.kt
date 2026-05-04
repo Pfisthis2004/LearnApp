@@ -5,4 +5,5 @@ import com.example.learnapp.Model.ResultState
 
 interface QuestionHandler {
     fun checkAnswer(userInput: String, question: Question): ResultState
+
 }
