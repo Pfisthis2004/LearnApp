@@ -5,11 +5,14 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.learnapp.Model.ArticleQuestion
 import com.example.learnapp.R
 import com.example.learnapp.ViewModel.ArticleQuizViewModel
@@ -192,9 +195,38 @@ class ArticleQuizActivity : AppCompatActivity() {
         binding.includeResult.tvStars.text = "Thưởng: +$xpReward XP"
 
         binding.includeResult.btnContinueLesson.setOnClickListener {
-            userviewModel.markTodayAsLearned()
-            Toast.makeText(this, "Đã đánh dấu hôm nay là ngày học", Toast.LENGTH_SHORT).show()
+            userviewModel.markTodayAsLearned { newStreakCount ->
+                // Hàm này chỉ chạy khi hôm nay là lần học đầu tiên
+                showCongratsDialog(newStreakCount)
+            }
             finish()
         }
+    }
+    private fun showCongratsDialog(streak: Int) {
+        val dialogView = layoutInflater.inflate(R.layout.streakslayout, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        val img = dialogView.findViewById<ImageView>(R.id.imgCuteFlame)
+        val tvMsg = dialogView.findViewById<TextView>(R.id.tvStreakMessage)
+        val btn = dialogView.findViewById<Button>(R.id.btnContinue)
+
+        tvMsg.text = "Bạn đã đạt mốc $streak ngày học tập liên tiếp!"
+
+        // Dùng Glide load ảnh pháo hoa hoặc chúc mừng khác
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.cuteflame) // File gif pháo hoa/chúc mừng
+            .into(img)
+
+        btn.setOnClickListener {
+            dialog.dismiss()
+            finish()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
     }
 }

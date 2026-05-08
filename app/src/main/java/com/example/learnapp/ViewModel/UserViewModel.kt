@@ -87,24 +87,45 @@ class UserViewModel: ViewModel() {
         }
         return dayList
     }
-    fun markTodayAsLearned() {
+    fun markTodayAsLearned(onNewStreak: (Int) -> Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val now = Calendar.getInstance()
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
-
         val firestore = FirebaseFirestore.getInstance()
 
-        // Cập nhật cả ngày đã học và mốc thời gian đăng nhập cuối
-        val updates = mapOf(
-            "completedDays" to FieldValue.arrayUnion(today),
-            "lastLoginAt" to now.timeInMillis
-        )
+        val now = Calendar.getInstance()
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
+        val userRef = firestore.collection("users").document(uid)
 
-        firestore.collection("users").document(uid)
-            .update(updates)
-            .addOnSuccessListener {
-                loadData()
+        userRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val user = document.toObject(User::class.java) ?: return@addOnSuccessListener
+                val completedDays = user.completedDays
+
+                // CHỈ XỬ LÝ NẾU HÔM NAY CHƯA CÓ TRONG DANH SÁCH
+                if (!completedDays.contains(today)) {
+                    val newStreak = user.streak + 1
+
+                    val updates = hashMapOf(
+                        "completedDays" to FieldValue.arrayUnion(today),
+                        "lastLoginAt" to now.timeInMillis,
+                        "streak" to newStreak
+                    )
+
+                    userRef.update(updates as Map<String, Any>).addOnSuccessListener {
+                        // Trả về số streak mới để View hiển thị Dialog
+                        Log.d("STREAK_DEBUG", "Cập nhật Streak thành công!")
+                        Log.d("STREAK_DEBUG", "Ngày ghi nhận: $today")
+                        Log.d("STREAK_DEBUG", "Số streak mới: $newStreak")
+                        onNewStreak(newStreak)
+                        loadData() // Load lại dữ liệu mới nhất
+                    }.addOnFailureListener { e ->
+                        // --- LOG THẤT BẠI ---
+                        Log.e("STREAK_DEBUG", "Lỗi cập nhật Firestore: ${e.message}")
+                    }
+                } else {
+                    Log.d("STREAK_DEBUG", "Hôm nay ($today) đã được ghi nhận rồi, không tăng thêm.")
+                }
             }
+        }
     }
     fun checkAndAwardCertificate(user: User, currentLevelId: String) {
         // 1. Kiểm tra xem Level này đã có chứng chỉ chưa
@@ -124,6 +145,24 @@ class UserViewModel: ViewModel() {
         repository.getUserProfile(uid) { user ->
             _userData.value = user
         }
+    }
+    fun loadUserDataRealtime() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // Sử dụng snapshot listener để nhận dữ liệu ngay khi Firestore thay đổi
+        FirebaseFirestore.getInstance().collection("users").document(uid)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("UserViewModel", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val user = snapshot.toObject(User::class.java)
+                    _userData.value = user // Tự động kích hoạt Observer ở Fragment
+                    Log.d("STREAK_DEBUG", "Realtime update: Streak = ${user?.streak}")
+                }
+            }
     }
     fun updateDisplayName(uid: String, newName: String) {
         if (newName.isBlank()) {

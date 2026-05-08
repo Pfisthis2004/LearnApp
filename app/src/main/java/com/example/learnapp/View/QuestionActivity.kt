@@ -1,17 +1,24 @@
 package com.example.learnapp.View
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.QuestionType
@@ -299,9 +306,16 @@ class QuestionActivity : AppCompatActivity() {
             Log.w("QuestionActivity", "Không có từ vựng mới nào.")
         }
         binding.includeResult.btnContinueLesson.setOnClickListener{
-            userviewModel.markTodayAsLearned()
-            Toast.makeText(this, "Đã đánh dấu hôm nay là ngày học", Toast.LENGTH_SHORT).show()
-            finish()
+            val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+
+            userviewModel.markTodayAsLearned { newStreakCount ->
+                if (newStreakCount > 0) {
+                    // Chỉ lưu số streak mới vào SharedPreferences để Fragment biết mà hiển thị
+                    prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                }
+                // Luôn finish để quay về màn hình trước đó
+                finish()
+            }
         }
     }
     private fun setupOrderingUI(q: Question) {
@@ -362,7 +376,6 @@ class QuestionActivity : AppCompatActivity() {
             }
         }
     }
-
     private fun createWordButton(text: String, isSelected: Boolean = false, onClick: () -> Unit): View {
         // Sử dụng Style chuẩn của Material Design
         val styleAttr = if (isSelected) {

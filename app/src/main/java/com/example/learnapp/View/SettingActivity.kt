@@ -119,9 +119,17 @@ class SettingActivity : AppCompatActivity() {
             .setTitle("Đăng xuất")
             .setMessage("Bạn có chắc chắn muốn thoát?")
             .setPositiveButton("Đăng xuất") { _, _ ->
-                viewModel.logout()
-                // Xóa trạng thái thông báo cũ để user sau không bị trùng
-                getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE).edit().clear().apply()
+                // Gọi logout từ ViewModel (để xử lý FirebaseAuth)
+                viewModel.logout(this)
+
+                // KHÔNG dùng .clear(). Hãy xóa cụ thể hoặc không xóa gì nếu muốn giữ level
+                val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+                prefs.edit().apply {
+                    // remove("user_id") // Nếu bạn có lưu ID user thì xóa
+                    // Đừng xóa selectedLevelId ở đây
+                    apply()
+                }
+
                 navigateToLogin()
             }
             .setNegativeButton("Hủy", null)

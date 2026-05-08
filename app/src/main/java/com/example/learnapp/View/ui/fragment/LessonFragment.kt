@@ -11,13 +11,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.ListView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.R
@@ -26,11 +30,15 @@ import com.example.learnapp.View.QuestionActivity
 import com.example.learnapp.View.ui.adapter.ChapterAdapter
 import com.example.learnapp.View.ui.bottomsheet.NotificationBottomSheet
 import com.example.learnapp.ViewModel.LessonViewModel
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.FragmentLessonBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class LessonFragment : Fragment() {
     private lateinit var chapterAdapter: ChapterAdapter
     private val viewModel: LessonViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
     private lateinit var binding: FragmentLessonBinding
     private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         if (key == "has_new_notification") {
@@ -67,9 +75,12 @@ class LessonFragment : Fragment() {
     private fun setupInitialData() {
         val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
         val levelId = prefs.getString("selectedLevelId", null)
-        val levelTitle = prefs.getString("selectedLevelTitle", "Chưa chọn level")
 
+        val levelTitle = prefs.getString("selectedLevelTitle", "Chưa chọn level")
         binding.leveltv.text = levelTitle
+
+        val streakCount = prefs.getInt("current_streak", 0) // Mặc định là 0 nếu chưa có
+        binding.tvStreakCount.text = streakCount.toString()
 
         // Load dữ liệu lần đầu nếu đã có LevelId lưu trong máy
         levelId?.let { viewModel.loadChaptersByLevel(it) }
@@ -97,7 +108,16 @@ class LessonFragment : Fragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             if (loading) showLoading() else hideLoading()
         }
+        userViewModel.loadUserDataRealtime()
+        userViewModel.userData.observe(viewLifecycleOwner) { user ->
+            user?.let {
 
+                binding.tvStreakCount.text = it.streak.toString()
+                // Cập nhật lại cache local để đồng bộ
+                val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+                prefs.edit().putInt("current_streak", it.streak).apply()
+            }
+        }
         // Quan sát danh sách Chapter
         viewModel.chapters.observe(viewLifecycleOwner) { chapters ->
             val completed = viewModel.completedLessons.value ?: emptyList()
@@ -116,13 +136,38 @@ class LessonFragment : Fragment() {
         binding.levelListView.setOnClickListener {
             showLevelDialog()
         }
-
+        binding.streakLayout.setOnClickListener {
+            showStreakDetail()
+        }
         // Nút thông báo
         binding.notification.setOnClickListener {
             handleNotificationClick()
         }
     }
+    private fun showStreakDetail() {
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        val streakCount = prefs.getInt("current_streak", 0)
 
+        // Tạo Dialog
+        val dialogView = layoutInflater.inflate(R.layout.streakdetailslayout, null)
+        val builder = AlertDialog.Builder(requireContext()).setView(dialogView)
+        val dialog = builder.create()
+        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+        // Ánh xạ View trong Dialog
+        val imgDetail = dialogView.findViewById<ImageView>(R.id.imgStreakDetail)
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvStreakTitle)
+        val btnClose = dialogView.findViewById<Button>(R.id.btnStreakClose)
+
+        // Dùng Glide load ảnh trong Dialog cho "mượt"
+        Glide.with(this).load(R.raw.fire).into(imgDetail)
+        tvTitle.text = "$streakCount Ngày Liên Tiếp!"
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+
+        // Làm nền dialog trong suốt để thấy bo góc của layout
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
     private fun handleNotificationClick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
@@ -142,7 +187,34 @@ class LessonFragment : Fragment() {
             bottomSheet.show(childFragmentManager, "NotificationList")
         }
     }
+    private fun showCongratsDialog(streak: Int) {
+        val dialogView = layoutInflater.inflate(R.layout.streakslayout, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
 
+        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+
+        val img = dialogView.findViewById<ImageView>(R.id.imgCuteFlame)
+        val tvMsg = dialogView.findViewById<TextView>(R.id.tvStreakMessage)
+        val btn = dialogView.findViewById<Button>(R.id.btnContinue)
+
+        tvMsg.text = "Bạn đã đạt mốc $streak ngày học tập liên tiếp!"
+
+        // Dùng Glide load ảnh pháo hoa hoặc chúc mừng khác
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.cuteflame) // File gif pháo hoa/chúc mừng
+            .into(img)
+
+        btn.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
     private fun showLevelDialog() {
         val popupView = layoutInflater.inflate(R.layout.bottom_choose_level, null)
         val listView = popupView.findViewById<ListView>(R.id.levelListView)
@@ -198,6 +270,22 @@ class LessonFragment : Fragment() {
         super.onResume()
         // Cập nhật chấm đỏ và dữ liệu bài học mỗi khi quay lại màn hình
         val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+
+        userViewModel.userData.observe(viewLifecycleOwner) { user ->
+            binding.tvStreakCount.text = (user?.streak ?: 0).toString()
+        }
+
+        val pendingStreak = prefs.getInt("pending_streak_count", -1)
+        if (pendingStreak > 0) {
+            // Sử dụng lifecycleScope thay cho GlobalScope để tránh rò rỉ bộ nhớ
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(2000) // 1 giây là đủ để user nhận diện màn hình chính
+                showCongratsDialog(pendingStreak)
+                // Xóa dấu hiệu chờ hiện
+                prefs.edit().remove("pending_streak_count").apply()
+            }
+        }
+
         val hasNew = prefs.getBoolean("has_new_notification", false)
         android.util.Log.d("DEBUG_NOTI", "Giá trị trong máy là: " + prefs.getBoolean("has_new_notification", false))
         binding.notificationBadge.visibility = if (hasNew) View.VISIBLE else View.GONE
