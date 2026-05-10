@@ -1,6 +1,7 @@
 package com.example.learnapp.View
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -202,6 +203,11 @@ class SpeakingQuestionActivity : AppCompatActivity() {
     private fun showFinalResult() {
         binding.main.visibility = View.GONE
         binding.includeResult.root.visibility = View.VISIBLE
+
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.congrats)
+            .into(binding.includeResult.imgCongrats)
         val correct = viewModel.correctCount
         val total = viewModel.questions.value?.size ?: 0
         val scorePercent = if (total > 0) (correct * 100) / total else 0
@@ -225,44 +231,22 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         viewModel.finishLesson(nextLessonId)
 
         binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
-        binding.includeResult.tvStars.text = "Thưởng: +$xp XP"
+        binding.includeResult.tvStars.text = "Thưởng: $xp XP"
         binding.includeResult.btnContinueLesson.setOnClickListener {
-            userviewModel.markTodayAsLearned { newStreakCount ->
-                // Hàm này chỉ chạy khi hôm nay là lần học đầu tiên
-                showCongratsDialog(newStreakCount)
-            }
-            finish()
+                val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
 
+                userviewModel.markTodayAsLearned { newStreakCount ->
+                    if (newStreakCount > 0) {
+                        // Chỉ lưu số streak mới vào SharedPreferences để Fragment biết mà hiển thị
+                        prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                    }
+                    // Luôn finish để quay về màn hình trước đó
+                    finish()
+                }
         }
 
     }
-    private fun showCongratsDialog(streak: Int) {
-        val dialogView = layoutInflater.inflate(R.layout.streakslayout, null)
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
 
-        val img = dialogView.findViewById<ImageView>(R.id.imgCuteFlame)
-        val tvMsg = dialogView.findViewById<TextView>(R.id.tvStreakMessage)
-        val btn = dialogView.findViewById<Button>(R.id.btnContinue)
-
-        tvMsg.text = "Bạn đã đạt mốc $streak ngày học tập liên tiếp!"
-
-        // Dùng Glide load ảnh pháo hoa hoặc chúc mừng khác
-        Glide.with(this)
-            .asGif()
-            .load(R.raw.cuteflame) // File gif pháo hoa/chúc mừng
-            .into(img)
-
-        btn.setOnClickListener {
-            dialog.dismiss()
-            finish()
-        }
-
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.show()
-    }
     override fun onDestroy() {
         super.onDestroy()
         player?.release()

@@ -1,18 +1,26 @@
 package com.example.learnapp.View.ui.fragment
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.R
 import com.example.learnapp.View.ui.adapter.ArticleAdapter
 import com.example.learnapp.ViewModel.ArticleViewModel
 import com.example.learnapp.databinding.FragmentArticlesBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ArticlesFragment : Fragment() {
     private lateinit var binding: FragmentArticlesBinding
@@ -84,7 +92,34 @@ class ArticlesFragment : Fragment() {
             }
         }
     }
+    private fun showCongratsDialog(streak: Int) {
+        val dialogView = layoutInflater.inflate(R.layout.streakslayout, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
 
+        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+
+        val img = dialogView.findViewById<ImageView>(R.id.imgCuteFlame)
+        val tvMsg = dialogView.findViewById<TextView>(R.id.tvStreakMessage)
+        val btn = dialogView.findViewById<Button>(R.id.btnContinue)
+
+        tvMsg.text = "Bạn đã đạt mốc $streak ngày học tập liên tiếp!"
+
+        // Dùng Glide load ảnh pháo hoa hoặc chúc mừng khác
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.cuteflame) // File gif pháo hoa/chúc mừng
+            .into(img)
+
+        btn.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
     private fun showLoading() {
         binding.rvArticles.visibility = View.GONE
         binding.loadingImage.visibility = View.VISIBLE
@@ -101,5 +136,15 @@ class ArticlesFragment : Fragment() {
         super.onResume()
         // Cập nhật lại danh sách để làm mới trạng thái "Hoàn thành" sau khi User làm Quiz
         viewModel.loadArticles()
+
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        val pendingStreak = prefs.getInt("pending_streak_count", -1)
+
+        if (pendingStreak > 0) {
+                showCongratsDialog(pendingStreak)
+                // Xóa dấu hiệu chờ hiện
+                prefs.edit().remove("pending_streak_count").apply()
+
+        }
     }
 }

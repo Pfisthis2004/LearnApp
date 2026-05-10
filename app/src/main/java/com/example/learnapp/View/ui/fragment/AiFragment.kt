@@ -1,20 +1,30 @@
 package com.example.learnapp.View.ui.fragment
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Chat.HistoryItem
+import com.example.learnapp.R
 import com.example.learnapp.View.AIResultActivity
 import com.example.learnapp.View.ui.bottomsheet.CreateConversationBottomSheet
 import com.example.learnapp.View.ui.adapter.HistoryAdapter
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.FragmentAiBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class AiFragment : Fragment() {
 
@@ -73,9 +83,49 @@ class AiFragment : Fragment() {
             isNestedScrollingEnabled = false
         }
     }
+    private fun showCongratsDialog(streak: Int) {
+        val dialogView = layoutInflater.inflate(R.layout.streakslayout, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
 
+        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+
+        val img = dialogView.findViewById<ImageView>(R.id.imgCuteFlame)
+        val tvMsg = dialogView.findViewById<TextView>(R.id.tvStreakMessage)
+        val btn = dialogView.findViewById<Button>(R.id.btnContinue)
+
+        tvMsg.text = "Bạn đã đạt mốc $streak ngày học tập liên tiếp!"
+
+        // Dùng Glide load ảnh pháo hoa hoặc chúc mừng khác
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.cuteflame) // File gif pháo hoa/chúc mừng
+            .into(img)
+
+        btn.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
+    override fun onResume() {
+        super.onResume()
+
+        val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+        val pendingStreak = prefs.getInt("pending_streak_count", -1)
+
+        if (pendingStreak > 0) {
+                showCongratsDialog(pendingStreak)
+                // Hiện xong thì xóa đi để lần sau vào không hiện lại nữa
+                prefs.edit().remove("pending_streak_count").apply()
+
+        }
+    }
     private fun showDeleteDialog(historyItem: HistoryItem) {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Xác nhận xóa")
             .setMessage("Bạn có chắc chắn muốn xóa bài học '${historyItem.lessonTitle}' không?")
             .setPositiveButton("OK") { dialog, _ ->

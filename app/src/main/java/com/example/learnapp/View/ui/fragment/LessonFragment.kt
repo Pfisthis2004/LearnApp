@@ -277,13 +277,10 @@ class LessonFragment : Fragment() {
 
         val pendingStreak = prefs.getInt("pending_streak_count", -1)
         if (pendingStreak > 0) {
-            // Sử dụng lifecycleScope thay cho GlobalScope để tránh rò rỉ bộ nhớ
-            viewLifecycleOwner.lifecycleScope.launch {
-                delay(2000) // 1 giây là đủ để user nhận diện màn hình chính
                 showCongratsDialog(pendingStreak)
                 // Xóa dấu hiệu chờ hiện
                 prefs.edit().remove("pending_streak_count").apply()
-            }
+
         }
 
         val hasNew = prefs.getBoolean("has_new_notification", false)

@@ -1,6 +1,7 @@
 package com.example.learnapp.View
 
 import android.animation.ValueAnimator
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -51,17 +52,16 @@ class AIResultActivity : AppCompatActivity() {
             } else {
                 // Nếu vừa học xong:
                 userviewModel.markTodayAsLearned { newStreakCount ->
-                    // Hàm này chỉ chạy khi hôm nay là lần học đầu tiên
-                    showCongratsDialog(newStreakCount)
+                    if (newStreakCount > 0) {
+                        // Nếu có streak mới -> Hiện Dialog (Dialog sẽ xử lý finish() sau khi bấm nút)
+                        val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+                        prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                    }
                 }
-                val intent = Intent(this, MainActivity::class.java)
-
-                // CỰC KỲ QUAN TRỌNG:
-                // Flag này sẽ "quét sạch" các Activity trung gian và quay về MainActivity
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-
-                startActivity(intent)
-                // Không cần gọi finish() ở đây vì CLEAR_TOP đã tự đóng các thằng trên nó rồi
+                val intentHome = Intent(this, MainActivity::class.java)
+                intentHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                startActivity(intentHome)
+                finish()
             }
         }
     }
@@ -153,32 +153,5 @@ class AIResultActivity : AppCompatActivity() {
             ).apply { setMargins(0, 0, 20, 20) }
         }
         flexLayout.addView(textView)
-    }
-    private fun showCongratsDialog(streak: Int) {
-        val dialogView = layoutInflater.inflate(R.layout.streakslayout, null)
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
-
-        val img = dialogView.findViewById<ImageView>(R.id.imgCuteFlame)
-        val tvMsg = dialogView.findViewById<TextView>(R.id.tvStreakMessage)
-        val btn = dialogView.findViewById<Button>(R.id.btnContinue)
-
-        tvMsg.text = "Bạn đã đạt mốc $streak ngày học tập liên tiếp!"
-
-        // Dùng Glide load ảnh pháo hoa hoặc chúc mừng khác
-        Glide.with(this)
-            .asGif()
-            .load(R.raw.cuteflame) // File gif pháo hoa/chúc mừng
-            .into(img)
-
-        btn.setOnClickListener {
-            dialog.dismiss()
-            finish()
-        }
-
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.show()
     }
 }

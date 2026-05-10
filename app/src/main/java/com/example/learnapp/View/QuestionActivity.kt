@@ -245,6 +245,10 @@ class QuestionActivity : AppCompatActivity() {
         binding.includeResult.root.visibility = View.VISIBLE
         binding.includeResult.vocabularylist.visibility = View.VISIBLE
 
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.congrats)
+            .into(binding.includeResult.imgCongrats)
         val correct = viewModel.correctCount
         val total = viewModel.questions.value?.size ?: 0
         val scorePercent = if (total > 0) (correct * 100) / total else 0
@@ -269,7 +273,7 @@ class QuestionActivity : AppCompatActivity() {
         viewModel.finishLesson(nextLessonId)
 
         binding.includeResult.tvScore.text = "Điểm: $scorePercent%"
-        binding.includeResult.tvStars.text = "Thưởng: +$xp XP"
+        binding.includeResult.tvStars.text = "Thưởng: $xp XP"
 
         val questions = viewModel.questions.value ?: emptyList()
         Log.d("QuestionActivity", "Tổng số câu hỏi nhận được: ${questions.size}")
@@ -316,6 +320,7 @@ class QuestionActivity : AppCompatActivity() {
                 // Luôn finish để quay về màn hình trước đó
                 finish()
             }
+            finish()
         }
     }
     private fun setupOrderingUI(q: Question) {
