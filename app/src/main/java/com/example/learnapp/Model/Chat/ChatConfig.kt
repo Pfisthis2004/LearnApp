@@ -9,6 +9,8 @@ data class ChatConfig(
     val title: String = "English Conversation",
     val description: String ="",
     val situation: String = "",
+    val roles: List<String> = emptyList(),          // Ví dụ: ["Bác sĩ", "Bệnh nhân"]
+    val goals_for_roles: List<List<String>> = emptyList(),
     val botRole: String = "",
     val userRole: String = "",
     val goals: List<String> = emptyList(),

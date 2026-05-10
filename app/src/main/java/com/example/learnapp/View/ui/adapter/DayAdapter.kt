@@ -23,12 +23,14 @@ class DayAdapter(private var days: List<DayStudy>): RecyclerView.Adapter<DayAdap
     ) {
         val day = days[position]
         holder.tvDay.text = day.dayName
+        holder.tvDay.isActivated = day.isSelected
+        // Đổi background dựa trên việc ngày đó có được học hay không
         if (day.isSelected) {
+            // Ngày đã học: Hiện hình tròn màu xanh (colorPrimary)
             holder.tvDay.setBackgroundResource(R.drawable.day_selected)
-            holder.tvDay.isActivated = true // Kích hoạt state_activated để chữ thành màu trắng
         } else {
+            // Ngày chưa học: Hiện hình tròn màu xám nhạt (colorCard)
             holder.tvDay.setBackgroundResource(R.drawable.day_unselected)
-            holder.tvDay.isActivated = false // Tắt state_activated để chữ về màu đen
         }
     }
 

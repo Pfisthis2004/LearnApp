@@ -53,7 +53,7 @@ class EditProfileActivity : AppCompatActivity() {
                     edtEmail.setText(it.email)
 
                     // Điền thông tin gói (ID là prenium theo XML của bạn)
-                    prenium.setText(if (it.isPremium) "Gói: Premium" else "Gói: Miễn phí")
+                    prenium.setText(if (it.premium) "Gói: Premium" else "Gói: Miễn phí")
 
                     // Hiển thị ảnh đại diện mặc định của user
                     Glide.with(this@EditProfileActivity)

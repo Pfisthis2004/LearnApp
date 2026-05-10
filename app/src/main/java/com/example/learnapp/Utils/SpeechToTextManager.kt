@@ -1,4 +1,4 @@
-package com.example.learnapp
+package com.example.learnapp.Utils
 
 import android.content.Context
 import android.content.Intent
@@ -59,6 +59,7 @@ class SpeechToTextManager(
     }
 
     fun destroy() {
+        speechRecognizer.cancel()
         speechRecognizer.destroy()
     }
 }

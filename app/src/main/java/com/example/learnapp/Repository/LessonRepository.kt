@@ -59,7 +59,6 @@ class LessonRepository {
                         lessonObj.levelId = doc.getString("levelId") ?: ""
 
                         // Log kiểm tra từng bài học sau khi map xong
-                        Log.d("DEBUG_FETCH", "Fetched Lesson: ${lessonObj.id}, Chapter: ${lessonObj.chapterId}, Level: ${lessonObj.levelId}")
 
                         lessonObj
                     } else {

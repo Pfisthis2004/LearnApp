@@ -6,7 +6,6 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <!-- Avatar bot -->
     <ImageView
         android:id="@+id/imgBotAvatar"
         android:layout_width="40dp"
@@ -15,29 +14,67 @@
         android:scaleType="centerCrop"
         android:layout_marginEnd="8dp"/>
 
-    <!-- Bong bóng hội thoại bot + icon loa -->
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <!-- Nội dung tin nhắn bot -->
-        <TextView
-            android:id="@+id/tvBotMessage"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="60dp"
+            android:maxWidth="280dp"
             android:background="@drawable/item_conver_background"
-            android:padding="12dp"
-            android:text="Bot message here..."
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="12dp">
 
-        <!-- Icon loa ở góc dưới bên phải -->
-        <ImageView
-            android:id="@+id/imgSpeaker"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@drawable/volume2"
+            <TextView
+                android:id="@+id/tvBotMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="English text here..."
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:id="@+id/viewDivider"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#40FFFFFF"
+                android:layout_marginVertical="4dp"/>
+
+            <TextView
+                android:id="@+id/tvBotTranslation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bản dịch tiếng Việt..."
+                android:textColor="#D1D1D1"
+                android:textSize="13sp"
+                android:textStyle="italic"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="4dp"/>
+            android:orientation="horizontal"
+            android:layout_margin="4dp">
+
+            <ImageView
+                android:id="@+id/imgTranslate"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/translate" />
+
+            <ImageView
+                android:id="@+id/imgSpeaker"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/volume2" />
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

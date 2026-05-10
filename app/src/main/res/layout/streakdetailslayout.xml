@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+
+    android:background="@drawable/bogoctron"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <ImageView
+        android:id="@+id/imgStreakDetail"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/flame" />
+
+    <TextView
+        android:id="@+id/tvStreakTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text=" Chuoi 0 Streak!"
+        android:textColor="#FF9800"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="Bạn đang làm rất tốt! \nHãy tiếp tục duy trì việc học mỗi ngày nhé."
+        android:textColor="#666666" />
+
+    <Button
+        android:id="@+id/btnStreakClose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#FF9800"
+        android:text="Đã hiểu"
+        android:textColor="@color/white" />
+
+</LinearLayout>

@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,11 +14,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
+
+        <service
+            android:name=".Utils.MessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity
-            android:name=".ChooseScenarioActivity"
+            android:name=".View.AIResultActivity"
             android:exported="false" />
         <activity
-            android:name=".SreenChatActivity"
+            android:name=".View.ChooseScenarioActivity"
+            android:exported="false" />
+        <activity
+            android:name=".View.SreenChatActivity"
             android:exported="false" />
         <activity
             android:name=".View.EditProfileActivity"
@@ -72,7 +84,13 @@
             android:exported="false" />
         <activity
             android:name=".View.MainActivity"
-            android:exported="false" />
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".View.LoginActivity"
             android:exported="false" />

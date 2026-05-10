@@ -1,14 +1,12 @@
-package com.example.learnapp
+package com.example.learnapp.View
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.learnapp.Model.Chat.ChatConfig
 import com.example.learnapp.Model.Chat.ScenarioOption
+import com.example.learnapp.R
+import com.example.learnapp.View.ui.bottomsheet.SettingConversationBottomSheet
 import com.example.learnapp.databinding.ActivityChooseScenarioBinding
 
 class ChooseScenarioActivity : AppCompatActivity() {
@@ -62,14 +60,20 @@ class ChooseScenarioActivity : AppCompatActivity() {
         }
 
         binding.btnEdit.setOnClickListener { finish() }
+        binding.ivBack.setOnClickListener { finish() }
     }
 
     // Hàm bổ trợ để quản lý trạng thái chọn
     private fun selectScenario(index: Int) {
-        val scenario = scenarios?.get(index - 1) // Lấy cả cục ScenarioOption
-        selectedConfig = scenario?.config?.copy(
-            description = scenario.description ?: "" // Lấy description ở cấp ngoài nạp vào trong
-        )
+        scenarios?.getOrNull(index - 1)?.let { scenario ->
+
+            // Đảm bảo config không null trước khi copy
+            scenario.config?.let { config ->
+                selectedConfig = config.copy(
+                    description = scenario.description ?: "" // Backup bằng chuỗi rỗng nếu null
+                )
+            }
+        }
         if (index == 1) {
             binding.rbScenario1.isChecked = true
             binding.rbScenario2.isChecked = false

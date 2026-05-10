@@ -14,6 +14,11 @@ android {
     namespace = "com.example.learnapp"
     compileSdk = 36
 
+    buildFeatures{
+        viewBinding = true
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.learnapp"
         minSdk = 24
@@ -26,8 +31,12 @@ android {
             properties.load(FileInputStream(localPropertiesFile))
         }
         val apiKey = properties.getProperty("GEMINI_API_KEY") ?: ""
+        val apiKey2 = properties.getProperty("GEMINI_API_KEY_2") ?: ""
+        val apiKey3 = properties.getProperty("GEMINI_API_KEY_3") ?: ""
         // Đưa Key vào BuildConfig để dùng trong code Kotlin
         buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+        buildConfigField("String", "GEMINI_API_KEY_2", "\"$apiKey2\"")
+        buildConfigField("String", "GEMINI_API_KEY_3", "\"$apiKey3\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -47,10 +56,6 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures{
-        viewBinding = true
-        buildConfig = true
-    }
 }
 
 dependencies {
@@ -62,6 +67,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
 
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -77,7 +84,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("com.google.firebase:firebase-firestore")
-
+    implementation("com.google.firebase:firebase-messaging")
     implementation(libs.firebase.auth)
 
     implementation ("com.github.bumptech.glide:glide:4.16.0")

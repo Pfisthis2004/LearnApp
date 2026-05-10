@@ -1,4 +1,4 @@
-package com.example.learnapp
+package com.example.learnapp.Utils
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
@@ -31,7 +31,9 @@ class TextToSpeechManager(context: Context) : TextToSpeech.OnInitListener {
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TTS_ID")
         }
     }
-
+    fun stop() {
+        tts?.stop() // Dừng phát ngay lập tức
+    }
     fun shutDown() {
         tts?.stop()
         tts?.shutdown()

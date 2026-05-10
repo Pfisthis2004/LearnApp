@@ -1,23 +1,29 @@
 package com.example.learnapp.View
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.learnapp.Model.ArticleQuestion
 import com.example.learnapp.R
 import com.example.learnapp.ViewModel.ArticleQuizViewModel
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivityArticleQuizBinding
 
 class ArticleQuizActivity : AppCompatActivity() {
     private lateinit var binding: ActivityArticleQuizBinding
     private val viewModel: ArticleQuizViewModel by viewModels()
-
+    private val userviewModel: UserViewModel by viewModels()
     private var selectedOptionText: String? = null
     private var selectedTextView: TextView? = null
 
@@ -183,13 +189,28 @@ class ArticleQuizActivity : AppCompatActivity() {
         binding.layoutquiz.visibility = View.GONE
         binding.includeResult.root.visibility = View.VISIBLE
 
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.congrats)
+            .into(binding.includeResult.imgCongrats)
+
         val totalQuestions = viewModel.questions.value?.size ?: 0
         binding.includeResult.tvScore.text = "Đúng: ${viewModel.score}/$totalQuestions"
 
         val xpReward = intent.getIntExtra("XP_REWARD", 0)
-        binding.includeResult.tvStars.text = "Phần thưởng: +$xpReward XP"
+        binding.includeResult.tvStars.text = "Thưởng: $xpReward XP"
 
-        binding.includeResult.btnContinueLesson.setOnClickListener {
+        binding.includeResult.btnContinueLesson.setOnClickListener{
+            val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+
+            userviewModel.markTodayAsLearned { newStreakCount ->
+                if (newStreakCount > 0) {
+                    // Chỉ lưu số streak mới vào SharedPreferences để Fragment biết mà hiển thị
+                    prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                }
+                // Luôn finish để quay về màn hình trước đó
+                finish()
+            }
             finish()
         }
     }

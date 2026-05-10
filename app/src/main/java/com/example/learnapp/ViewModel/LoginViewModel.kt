@@ -73,8 +73,9 @@ class LoginViewModel : ViewModel() {
                     createdAt = System.currentTimeMillis(),
                     totalXP = 0,
                     streak = 0,
+                    role = "user",
                     lastLoginAt = System.currentTimeMillis(),
-                    isPremium = false,
+                    premium = false,
                     completedLessons = emptyList()
                 )
                 docRef.set(userData)

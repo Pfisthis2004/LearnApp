@@ -23,9 +23,14 @@ class UserRepository {
     }
 
     // Reset tuần mới (Xóa mảng completedDays)
-    fun resetWeeklyProgress(uid: String) {
-        db.collection("users").document(uid).update("completedDays", emptyList<String>())
+    fun resetWeeklyProgress(uid: String, newTimestamp: Long) {
+        val updates = mapOf(
+            "completedDays" to emptyList<String>(),
+            "lastLoginAt" to newTimestamp // Cập nhật để lần sau check không bị reset nữa
+        )
+        db.collection("users").document(uid).update(updates)
     }
+
     fun getChaptersByLevel(levelId: String, callback: (List<String>) -> Unit) {
         db.collection("chapters")
             .whereEqualTo("levelId", levelId)

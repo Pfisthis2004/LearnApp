@@ -17,22 +17,32 @@ class ChatAdapter(private val config: ChatConfig,
 
     private var messages = mutableListOf<ChatMessage>()
     private var goalStatus = listOf<Boolean>()
-
+    private var lastPosition = -1
     companion object {
         private const val TYPE_HEADER = 0 // Layout mô tả + mục tiêu
         private const val TYPE_AI = 1     // Layout bot chat
         private const val TYPE_USER = 2   // Layout user chat
     }
-
+    private fun setAnimation(viewToAnimate: View, position: Int) {
+        // Chỉ chạy animation cho những item mới chưa từng hiển thị
+        if (position > lastPosition) {
+            val animation = android.view.animation.AnimationUtils.loadAnimation(
+                viewToAnimate.context,
+                R.anim.item_animation_fall_down
+            )
+            viewToAnimate.startAnimation(animation)
+            lastPosition = position
+        }
+    }
     fun submitList(newList: List<ChatMessage>) {
         messages = newList.toMutableList()
         notifyDataSetChanged()
     }
 
     fun updateGoalStatus(newStatus: List<Boolean>) {
-        goalStatus = newStatus
+        this.goalStatus = newStatus
         // Chỉ cập nhật lại item đầu tiên (Header) khi trạng thái mục tiêu thay đổi
-        notifyItemChanged(0)
+        notifyDataSetChanged()
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -54,14 +64,23 @@ class ChatAdapter(private val config: ChatConfig,
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is HeaderViewHolder) {
-            holder.bind(config, goalStatus)
-        } else {
-            // Lấy tin nhắn thực tế từ list
-            val message = messages[position - 1]
-            when (holder) {
-                is AIViewHolder -> holder.bind(message,onSpeakClick)
-                is UserViewHolder -> holder.bind(message)
+        when (holder) {
+            is HeaderViewHolder -> holder.bind(config, goalStatus)
+            is AIViewHolder -> {
+                val msgIndex = position - 1
+                if (msgIndex in messages.indices) {
+                    holder.bind(messages[msgIndex], onSpeakClick)
+                    // CHÈN VÀO ĐÂY: Chạy hiệu ứng cho tin nhắn AI
+                    setAnimation(holder.itemView, position)
+                }
+            }
+            is UserViewHolder -> {
+                val msgIndex = position - 1
+                if (msgIndex in messages.indices) {
+                    holder.bind(messages[msgIndex])
+                    // Nếu muốn tin nhắn User cũng bay lên thì chèn ở đây luôn
+                    setAnimation(holder.itemView, position)
+                }
             }
         }
     }
@@ -76,23 +95,53 @@ class ChatAdapter(private val config: ChatConfig,
         private val tvDescription = view.findViewById<TextView>(R.id.tvHeaderDescription)
         private val rvObjectives = view.findViewById<RecyclerView>(R.id.rvobjectives)
 
+        // Trong ChatAdapter.kt -> HeaderViewHolder
         fun bind(config: ChatConfig, status: List<Boolean>) {
-            android.util.Log.d("ChatAdapter", "Description nhận được: ${config.description}")
-            // Hiển thị nội dung bối cảnh
+            // 1. Cập nhật text luôn luôn chạy
             tvDescription.text = config.description
 
-            // Thiết lập RecyclerView con cho mục tiêu
-            rvObjectives.layoutManager = LinearLayoutManager(itemView.context)
-            // Đảm bảo bạn truyền list goals và status vào đúng GoalsAdapter
-            rvObjectives.adapter = GoalsAdapter(config.goals, status)
+            // 2. Chỉ setup RecyclerView con khi nó chưa có Adapter
+            if (rvObjectives.adapter == null) {
+                rvObjectives.layoutManager = LinearLayoutManager(itemView.context)
+                rvObjectives.setHasFixedSize(true) // Giúp RecyclerView tính toán kích thước nhanh hơn
+                rvObjectives.adapter = GoalsAdapter(config.goals, status)
+            } else {
+                // 3. Nếu đã có, chỉ cần cập nhật trạng thái của mảng Boolean
+                (rvObjectives.adapter as GoalsAdapter).updateData(status)
+            }
         }
     }
 
     inner class AIViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val tvBotMessage = view.findViewById<TextView>(R.id.tvBotMessage)
+        private val tvBotTranslation = view.findViewById<TextView>(R.id.tvBotTranslation)
+        private val viewDivider = view.findViewById<View>(R.id.viewDivider)
+        private val imgTranslate = view.findViewById<ImageView>(R.id.imgTranslate)
         private val imgSpeaker = view.findViewById<ImageView>(R.id.imgSpeaker)
         fun bind(message: ChatMessage, onSpeakClick: (String) -> Unit) {
-            tvBotMessage.text = message.text
+            val parts = message.text.split("|")
+            val englishText = parts[0].trim()
+            val vietnameseText = if (parts.size > 1) parts[1].trim() else ""
+
+            tvBotMessage.text =englishText
+            tvBotTranslation.text = vietnameseText
+
+            tvBotTranslation.visibility = View.GONE
+            viewDivider.visibility = View.GONE
+            imgTranslate.alpha = 0.6f
+
+            imgTranslate.setOnClickListener {
+                if (tvBotTranslation.visibility == View.GONE) {
+                    tvBotTranslation.visibility = View.VISIBLE
+                    viewDivider.visibility = View.VISIBLE
+                    imgTranslate.alpha = 1.0f // Làm sáng icon khi đang xem dịch
+                } else {
+                    tvBotTranslation.visibility = View.GONE
+                    viewDivider.visibility = View.GONE
+                    imgTranslate.alpha = 0.6f
+                }
+            }
+
             imgSpeaker.setOnClickListener {
                 onSpeakClick(message.text)
             }

@@ -2,6 +2,7 @@ package com.example.learnapp.View.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -70,8 +71,10 @@ class ProfileFragment : Fragment() {
                     binding.tvCertificates.text = "${it.certificates} Certificates"
 
                     // Cập nhật dữ liệu cho Adapter hiện tại
-                    val dayList = viewModel.getStudyDaysList(it.completedDays)
-                    dayAdapter.updateData(dayList)
+                    Log.d("ProfileFragment", "completedDays from Firestore: ${it.completedDays}")
+                    val studyDays = viewModel.getWeeklyStudyData(it.completedDays)
+                    Log.d("ProfileFragment", "studyDays: $studyDays")
+                    dayAdapter.updateData(studyDays)
 
                     Glide.with(this@ProfileFragment) // Dùng context của Fragment
                         .load(it.photoURL)

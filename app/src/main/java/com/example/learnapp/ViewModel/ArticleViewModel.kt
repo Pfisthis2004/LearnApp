@@ -10,18 +10,20 @@ import com.google.firebase.auth.FirebaseAuth
 
 class ArticleViewModel : ViewModel() {
     private val repository = ArticlesRepository()
-
+    private var currentLevel: String = "A1"
     val articlesLiveData = MutableLiveData<List<Article>>()
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
-    fun loadArticles() {
+    fun loadArticles(level: String = currentLevel) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        currentLevel = level
         _isLoading.postValue(true)
 
-        repository.fetchArticlesWithStatus(userId) { list ->
+        repository.fetchArticlesByLevel(userId, level) { list ->
             articlesLiveData.postValue(list)
             _isLoading.postValue(false)
         }
     }
+
 }

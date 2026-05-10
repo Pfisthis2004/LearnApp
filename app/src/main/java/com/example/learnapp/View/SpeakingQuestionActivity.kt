@@ -1,6 +1,7 @@
 package com.example.learnapp.View
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,13 +11,21 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Lesson
 import com.example.learnapp.Model.Question
 import com.example.learnapp.Model.ResultState
@@ -24,6 +33,7 @@ import com.example.learnapp.R
 import com.example.learnapp.Repository.QuestionRepository
 import com.example.learnapp.ViewModel.QuestionViewModel
 import com.example.learnapp.ViewModel.QuestionViewModelFactory
+import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivitySpeakingQuestionBinding
 
 class SpeakingQuestionActivity : AppCompatActivity() {
@@ -34,6 +44,7 @@ class SpeakingQuestionActivity : AppCompatActivity() {
     private val viewModel: QuestionViewModel by viewModels {
         QuestionViewModelFactory(QuestionRepository())
     }
+    private val userviewModel: UserViewModel by viewModels()
 
     private var player: ExoPlayer? = null
     private var speechRecognizer: SpeechRecognizer? = null
@@ -192,6 +203,11 @@ class SpeakingQuestionActivity : AppCompatActivity() {
     private fun showFinalResult() {
         binding.main.visibility = View.GONE
         binding.includeResult.root.visibility = View.VISIBLE
+
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.congrats)
+            .into(binding.includeResult.imgCongrats)
         val correct = viewModel.correctCount
         val total = viewModel.questions.value?.size ?: 0
         val scorePercent = if (total > 0) (correct * 100) / total else 0
@@ -215,7 +231,19 @@ class SpeakingQuestionActivity : AppCompatActivity() {
         viewModel.finishLesson(nextLessonId)
 
         binding.includeResult.tvScore.text = "Điểm của bạn: $scorePercent%"
-        binding.includeResult.tvStars.text = "Phần thưởng: +$xp XP"
+        binding.includeResult.tvStars.text = "Thưởng: $xp XP"
+        binding.includeResult.btnContinueLesson.setOnClickListener {
+                val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
+
+                userviewModel.markTodayAsLearned { newStreakCount ->
+                    if (newStreakCount > 0) {
+                        // Chỉ lưu số streak mới vào SharedPreferences để Fragment biết mà hiển thị
+                        prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                    }
+                    // Luôn finish để quay về màn hình trước đó
+                    finish()
+                }
+        }
 
     }
 
