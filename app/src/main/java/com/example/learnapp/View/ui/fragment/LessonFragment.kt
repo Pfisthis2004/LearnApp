@@ -109,6 +109,7 @@ class LessonFragment : Fragment() {
             if (loading) showLoading() else hideLoading()
         }
         userViewModel.loadUserDataRealtime()
+        userViewModel.loadData()
         userViewModel.userData.observe(viewLifecycleOwner) { user ->
             user?.let {
 

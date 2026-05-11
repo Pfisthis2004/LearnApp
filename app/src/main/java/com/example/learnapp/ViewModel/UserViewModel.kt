@@ -11,6 +11,7 @@ import com.example.learnapp.Repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 
 
 import java.util.Calendar
@@ -36,6 +37,7 @@ class UserViewModel: ViewModel() {
         repository.getUserProfile(uid) { user ->
             user?.let {
                 // 1. Kiểm tra Reset tuần mới (Nếu là Thứ 2 và chưa reset)
+                checkAndResetStreak(it)
                 checkAndResetWeek(it)
 
                 // 2. Cập nhật dữ liệu User
@@ -66,6 +68,28 @@ class UserViewModel: ViewModel() {
         }
     }
     // Hàm lấy danh sách 7 ngày của tuần hiện tại và kiểm tra xem ngày nào đã học
+    private fun checkAndResetStreak(user: User) {
+        val now = Calendar.getInstance()
+        val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
+
+        // Lấy ngày hôm qua
+        val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
+        val yesterdayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(yesterday.time)
+
+        val completedDays = user.completedDays ?: emptyList()
+
+        // Nếu hôm nay chưa học VÀ hôm qua cũng không học -> Reset về 0
+        if (!completedDays.contains(todayStr) && !completedDays.contains(yesterdayStr)) {
+            if (user.streak > 0) {
+                val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                    .update("streak", 0)
+                    .addOnSuccessListener {
+                        Log.d("STREAK_DEBUG", "Đã quá hạn 1 ngày, streak reset về 0")
+                    }
+            }
+        }
+    }
     fun getWeeklyStudyData(completedDays: List<String>?): List<DayStudy> {
         val dayList = mutableListOf<DayStudy>()
         val calendar = Calendar.getInstance()
@@ -92,17 +116,28 @@ class UserViewModel: ViewModel() {
         val firestore = FirebaseFirestore.getInstance()
 
         val now = Calendar.getInstance()
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
+
+        // Tính ngày hôm qua để kiểm tra tính liên tục
+        val yesterdayCal = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
+        val yesterday = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(yesterdayCal.time)
+
         val userRef = firestore.collection("users").document(uid)
 
         userRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
                 val user = document.toObject(User::class.java) ?: return@addOnSuccessListener
-                val completedDays = user.completedDays
+                val completedDays = user.completedDays ?: mutableListOf()
 
-                // CHỈ XỬ LÝ NẾU HÔM NAY CHƯA CÓ TRONG DANH SÁCH
+                // 1. Nếu hôm nay chưa được ghi nhận học
                 if (!completedDays.contains(today)) {
-                    val newStreak = user.streak + 1
+                    // Nếu có học hôm qua -> streak + 1
+                    // Nếu hôm qua KHÔNG học -> reset streak về 1 (vì hôm nay mới bắt đầu lại)
+                    val newStreak = if (completedDays.contains(yesterday)) {
+                        user.streak + 1
+                    } else {
+                        1
+                    }
 
                     val updates = hashMapOf(
                         "completedDays" to FieldValue.arrayUnion(today),
@@ -111,18 +146,16 @@ class UserViewModel: ViewModel() {
                     )
 
                     userRef.update(updates as Map<String, Any>).addOnSuccessListener {
-                        // Trả về số streak mới để View hiển thị Dialog
-                        Log.d("STREAK_DEBUG", "Cập nhật Streak thành công!")
-                        Log.d("STREAK_DEBUG", "Ngày ghi nhận: $today")
-                        Log.d("STREAK_DEBUG", "Số streak mới: $newStreak")
+                        Log.d("STREAK_DEBUG", "Cập nhật thành công! Streak mới: $newStreak")
                         onNewStreak(newStreak)
-                        loadData() // Load lại dữ liệu mới nhất
+                        loadData() // Cập nhật lại các LiveData khác
                     }.addOnFailureListener { e ->
-                        // --- LOG THẤT BẠI ---
-                        Log.e("STREAK_DEBUG", "Lỗi cập nhật Firestore: ${e.message}")
+                        Log.e("STREAK_DEBUG", "Lỗi update: ${e.message}")
                     }
                 } else {
-                    Log.d("STREAK_DEBUG", "Hôm nay ($today) đã được ghi nhận rồi, không tăng thêm.")
+                    // 2. Nếu hôm nay học rồi nhưng làm thêm bài nữa, chỉ trả về streak hiện tại, không tăng
+                    Log.d("STREAK_DEBUG", "Hôm nay đã học rồi.")
+                    onNewStreak(0) // Trả về 0 hoặc -1 để Fragment biết không hiện Dialog chúc mừng lần 2
                 }
             }
         }

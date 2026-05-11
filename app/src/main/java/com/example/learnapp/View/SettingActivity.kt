@@ -36,7 +36,7 @@ class SettingActivity : AppCompatActivity() {
 
         binding.layoutChangePassword.root.setOnClickListener {
             // Chuyển sang Activity đổi mật khẩu (nếu có)
-            Toast.makeText(this, "Tính năng đang phát triển", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ChangePass::class.java))
         }
 
         binding.btnBack.setOnClickListener { finish() }

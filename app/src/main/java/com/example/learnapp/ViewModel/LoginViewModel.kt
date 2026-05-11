@@ -21,6 +21,23 @@ class LoginViewModel : ViewModel() {
     val errorMessage: LiveData<String> get() = _errorMessage
 
     fun loginWithEmail(email: String, password: String) {
+        if (email.isBlank()) {
+            _errorMessage.value = "Email không được để trống"
+            return
+        }
+
+        // 2. Kiểm tra mật khẩu trống
+        if (password.isBlank()) {
+            _errorMessage.value = "Mật khẩu không được để trống"
+            return
+        }
+
+        // 3. Kiểm tra độ dài mật khẩu
+        if (password.length < 8) {
+            _errorMessage.value = "Mật khẩu phải có ít nhất 8 ký tự"
+            return
+        }
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
