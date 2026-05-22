@@ -17,7 +17,7 @@
             android:layout_weight="1"
             android:text="Chapter - 1"
             android:textSize="20sp"
-            android:textColor="#333333"
+            android:textColor="@color/black"
             android:textStyle="bold" />
 
         <TextView

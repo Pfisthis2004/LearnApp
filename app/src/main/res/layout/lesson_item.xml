@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
+        android:backgroundTint="@color/white"
         android:gravity="center_vertical"
         android:background="@drawable/clickbackground"
         android:foreground="?android:selectableItemBackground">
@@ -40,7 +41,7 @@
             android:layout_weight="1"
             android:text="We're going on vacation"
             android:textSize="16sp"
-            android:textColor="#333333"
+            android:textColor="@color/black"
             android:textStyle="bold" />
 
         <!-- Trạng thái bài học -->
@@ -59,6 +60,7 @@
             android:layout_height="24dp"
             android:src="@drawable/lock_icon"
             android:layout_marginStart="8dp"
+            app:tint="@color/black"
             android:contentDescription="Lock Icon"
             android:visibility="gone"/>
     </LinearLayout>

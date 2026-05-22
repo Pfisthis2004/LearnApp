@@ -206,12 +206,11 @@ class ArticleQuizActivity : AppCompatActivity() {
             userviewModel.markTodayAsLearned { newStreakCount ->
                 if (newStreakCount > 0) {
                     // Chỉ lưu số streak mới vào SharedPreferences để Fragment biết mà hiển thị
-                    prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                    prefs.edit().putInt("pending_streak_count", newStreakCount).commit()
                 }
                 // Luôn finish để quay về màn hình trước đó
                 finish()
             }
-            finish()
         }
     }
 }

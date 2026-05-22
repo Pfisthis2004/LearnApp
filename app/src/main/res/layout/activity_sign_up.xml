@@ -31,17 +31,13 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/lightmode" />
     </LinearLayout>
 
     <!-- Logo -->
     <ImageView
         android:id="@+id/logo"
         android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:src="@drawable/logohello"
         app:layout_constraintTop_toBottomOf="@id/btn"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +49,7 @@
         android:id="@+id/titleText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Sign up and start learning any language"
+        android:text="Đăng ký và bắt đầu một khởi đầu mới nào"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginTop="15dp"
@@ -118,7 +114,7 @@
         android:id="@+id/btncontinue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Continue"
+        android:text="Đăng ký"
         android:textSize="20sp"
         android:backgroundTint="@color/colorPrimary"
         android:layout_marginTop="20dp"
@@ -159,7 +155,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account?"
+            android:text="Đã có tài khoản?"
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 
@@ -167,7 +163,7 @@
             android:id="@+id/btnlogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log in"
+            android:text="Đăng nhập"
             android:textSize="16sp"
             android:textColor="@color/colorPrimary"
             android:background="@android:color/transparent"

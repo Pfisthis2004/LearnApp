@@ -28,16 +28,13 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/lightmode" />
+
     </LinearLayout>
     <TextView
         android:id="@+id/HeaderText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Do you already know your \nlevel?"
+        android:text="Bạn đã biết trình độ của mình \nchưa?"
         android:textSize="26sp"
         android:textStyle="bold"
         android:layout_marginTop="15dp"
@@ -57,7 +54,7 @@
         android:id="@+id/btnchoose"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Choose your level"
+        android:text="Chọn trình độ của bạn"
         android:textSize="20sp"
         android:backgroundTint="@color/colorPrimary"
         android:layout_marginTop="20dp"

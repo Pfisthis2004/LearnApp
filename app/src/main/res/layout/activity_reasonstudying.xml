@@ -28,16 +28,13 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/lightmode" />
+
     </LinearLayout>
     <TextView
         android:id="@+id/HeaderText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Why are you studying English?"
+        android:text="Tại sao bạn lại học tiếng Anh?"
         android:textSize="26sp"
         android:textStyle="bold"
         android:layout_marginTop="15dp"
@@ -73,7 +70,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Friend and Family"
+                android:text="Bạn bè và Gia đình"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />
@@ -110,7 +107,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Entertainment and Culture"
+                android:text="Giải trí và Văn hóa"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />
@@ -147,7 +144,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Study"
+                android:text="Học tập"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />
@@ -183,7 +180,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Trips"
+                android:text="Du lịch"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />
@@ -219,7 +216,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Work"
+                android:text="Công việc"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />

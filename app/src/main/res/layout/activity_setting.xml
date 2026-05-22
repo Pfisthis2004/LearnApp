@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
+    android:background="@color/colorSurface"
     android:orientation="vertical"
     tools:context=".View.SettingActivity">
+
+    <!-- TOOLBAR -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarSettings"
         android:layout_width="match_parent"
@@ -17,127 +21,180 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="left"
-            >
+            android:gravity="start|center_vertical"
+            android:orientation="horizontal">
+
             <ImageButton
                 android:id="@+id/btnBack"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginStart="8dp"
+                android:background="@color/white"
                 android:src="@drawable/outline_arrow_left_alt_24"
-                android:layout_marginTop="15dp"
-                />
-            <!-- Tiêu đề gần icon back -->
+                app:tint="@color/black" />
+
             <TextView
                 android:id="@+id/tvSettingsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:text="Cài đặt"
-                android:layout_marginTop="24dp"
-                android:layout_marginLeft="10dp"
                 android:textColor="@color/black"
                 android:textSize="28sp"
-                android:textStyle="bold"
-             />
-
-
+                android:textStyle="bold" />
 
         </LinearLayout>
+
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <LinearLayout
+    <!-- SCROLL CONTENT -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorSurface"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="15dp">
+            android:padding="16dp">
 
+            <!-- ACCOUNT -->
             <TextView
                 style="@style/SettingsLabelStyle"
-                android:text="Tài khoản" />
+                android:text="Tài khoản"
+                android:textColor="@color/black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_white_rounded"
                 android:orientation="vertical">
 
-                <include android:id="@+id/layoutEditProfile"
-                    layout="@layout/item_settings"
-                    />
+                <include
+                    android:id="@+id/layoutEditProfile"
+                    layout="@layout/item_settings" />
+
                 <View style="@style/DividerStyle" />
-                <include android:id="@+id/layoutChangePassword" layout="@layout/item_settings" />
+
+                <include
+                    android:id="@+id/layoutChangePassword"
+                    layout="@layout/item_settings" />
+
             </LinearLayout>
 
+            <!-- SETTINGS -->
             <TextView
                 style="@style/SettingsLabelStyle"
                 android:layout_marginTop="24dp"
-                android:text="Cài đặt" />
+                android:text="Cài đặt"
+                android:textColor="@color/black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_white_rounded"
                 android:orientation="vertical">
 
+                <!-- Notification -->
                 <RelativeLayout style="@style/SettingsRowStyle">
-                    <ImageView android:id="@+id/img1" style="@style/SettingsIconStyle" android:src="@drawable/bell" />
-                    <TextView android:layout_toEndOf="@id/img1" style="@style/SettingsTextStyle" android:text="Thông báo" />
+
+                    <ImageView
+                        android:id="@+id/img1"
+                        style="@style/SettingsIconStyle"
+                        android:src="@drawable/bell"
+                        app:tint="@color/black" />
+
+                    <TextView
+                        style="@style/SettingsTextStyle"
+                        android:layout_toEndOf="@id/img1"
+                        android:text="Thông báo"
+                        android:textColor="@color/black" />
+
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchNotification"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true" />
+
                 </RelativeLayout>
 
                 <View style="@style/DividerStyle" />
 
+                <!-- Dark mode -->
                 <RelativeLayout style="@style/SettingsRowStyle">
-                    <ImageView android:id="@+id/img2" style="@style/SettingsIconStyle" android:src="@drawable/moon" />
-                    <TextView android:layout_toEndOf="@id/img2" style="@style/SettingsTextStyle" android:text="Chế độ tối" />
+
+                    <ImageView
+                        android:id="@+id/img2"
+                        style="@style/SettingsIconStyle"
+                        android:src="@drawable/moon"
+                        app:tint="@color/black" />
+
+                    <TextView
+                        style="@style/SettingsTextStyle"
+                        android:layout_toEndOf="@id/img2"
+                        android:text="Chế độ tối"
+                        android:textColor="@color/black" />
+
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchDarkMode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true" />
+
                 </RelativeLayout>
+
             </LinearLayout>
+
+            <!-- SUPPORT -->
             <TextView
                 style="@style/SettingsLabelStyle"
+                android:layout_marginTop="24dp"
                 android:text="Hỗ trợ"
-                android:layout_marginTop="24dp"/>
+                android:textColor="@color/black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_white_rounded"
                 android:orientation="vertical">
 
-                <include android:id="@+id/layoutHelp" layout="@layout/item_settings" />
+                <include
+                    android:id="@+id/layoutHelp"
+                    layout="@layout/item_settings" />
+
                 <View style="@style/DividerStyle" />
-                <include android:id="@+id/layoutAboutApp" layout="@layout/item_settings" />
+
+                <include
+                    android:id="@+id/layoutAboutApp"
+                    layout="@layout/item_settings" />
+
             </LinearLayout>
+
+            <!-- LOGOUT -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
                 android:background="@drawable/bogoctron"
-                android:text="Đăng xuất"
-                android:textColor="#E53935"
-                android:textStyle="bold"
                 android:drawableStart="@drawable/icon_log_out"
                 android:paddingStart="20dp"
-                android:textAllCaps="false"/>
+                android:text="Đăng xuất"
+                android:textAllCaps="false"
+                android:textColor="#E53935"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 </LinearLayout>

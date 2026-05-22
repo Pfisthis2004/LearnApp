@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5"
+    android:background="@color/colorSurface"
     tools:context=".View.ui.fragment.ArticlesFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -40,9 +40,9 @@
         android:text="Cấp độ bài đọc"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#333"
+        android:textColor="@color/black"
         android:layout_marginBottom="10dp"
-        android:layout_marginStart="4dp"/>
+        android:layout_marginStart="20dp"/>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -53,7 +53,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginStart="20dp">
 
             <!-- Level A1 (Active) -->
             <TextView
@@ -78,7 +79,9 @@
                 android:paddingVertical="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_white_rounded"
-                android:textColor="#4A90E2" />
+                android:textColor="#4A90E2"
+                android:textStyle="bold"
+                />
 
             <!-- Level B1 -->
             <TextView
@@ -90,7 +93,8 @@
                 android:paddingVertical="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_white_rounded"
-                android:textColor="#4A90E2" />
+                android:textColor="#4A90E2"
+                android:textStyle="bold" />
 
             <!-- Level B2 -->
             <TextView
@@ -102,7 +106,8 @@
                 android:paddingVertical="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_white_rounded"
-                android:textColor="#4A90E2" />
+                android:textColor="#4A90E2"
+                android:textStyle="bold"/>
 
             <!-- Level C1 -->
             <TextView
@@ -113,7 +118,8 @@
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="8dp"
                 android:background="@drawable/bg_white_rounded"
-                android:textColor="#4A90E2" />
+                android:textColor="#4A90E2"
+                android:textStyle="bold"/>
         </LinearLayout>
     </HorizontalScrollView>
     <ImageView

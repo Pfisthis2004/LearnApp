@@ -28,16 +28,12 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/lightmode" />
     </LinearLayout>
     <TextView
         android:id="@+id/HeaderText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Welcome User!"
+        android:text="Chào mừng \nngười dùng mới!"
         android:textSize="32sp"
         android:textStyle="bold"
         android:layout_marginTop="15dp"
@@ -48,7 +44,7 @@
         android:id="@+id/titleText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Tell us a little about yourself"
+        android:text="Hãy kể cho chúng tôi một chút về bản thân bạn"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/HeaderText"
@@ -83,7 +79,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="I don't know English"
+                android:text="Tôi không biết tiếng Anh"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />
@@ -120,7 +116,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="I have already studied English"
+                android:text="Tôi đã học tiếng Anh"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="12dp" />

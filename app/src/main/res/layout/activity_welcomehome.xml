@@ -7,22 +7,22 @@
     android:layout_height="match_parent"
     tools:context=".View.ui.begin.welcomehome"
     android:orientation="vertical">
-    <ImageView
-        android:id="@+id/lightMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/lightmode"
-        android:layout_gravity="end"
+    <View
+        android:id="@+id/view"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="40dp"
         />
+
     <ImageView
         android:id="@+id/logo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/logoname"
-        app:layout_constraintTop_toBottomOf="@id/lightMode"
+        app:layout_constraintTop_toBottomOf="@id/view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
@@ -40,7 +40,7 @@
         android:id="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Learn a language\nin 3 minute a day"
+        android:text="Mỗi ngày 3 phút để \nhọc một ngôn ngữ"
         android:gravity="center"
         android:textSize="32sp"
         android:lineSpacingExtra="4dp"
@@ -53,7 +53,7 @@
         android:id="@+id/btndangky"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start Learning"
+        android:text="Bắt đầu học"
         android:textSize="20sp"
         android:backgroundTint="@color/colorPrimary"
         app:cornerRadius="10dp"
@@ -81,15 +81,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account?"
+            android:text="Đã có tài khoản?"
             android:textSize="16sp"
+            android:layout_marginRight="10dp"
             android:textColor="@android:color/black"/>
 
         <Button
             android:id="@+id/btndangnhap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log in"
+            android:text="Đăng nhập"
             android:textSize="16sp"
             android:textColor="@color/colorPrimary"
             android:background="@android:color/transparent"

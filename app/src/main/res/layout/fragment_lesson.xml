@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@color/colorSurface"
     tools:context=".View.ui.fragment.LessonFragment">
 
     <LinearLayout
@@ -13,102 +14,94 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-    <LinearLayout
-        android:id="@+id/btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="30dp">
-
-        <ImageView
-            android:id="@+id/btnback"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/btn"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/language_icon_arrow_icon" />
+            android:orientation="horizontal"
+            android:layout_marginTop="30dp">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/leveltv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Beginning - A1"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:id="@+id/levelListView"
+                    android:layout_width="40dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/outline_keyboard_arrow_down_24"
+                    android:layout_gravity="center"
+                    app:tint="@color/black" />
+
+        </LinearLayout>
+
 
         <RelativeLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="30dp">
+            android:layout_weight="1"
+            android:gravity="end|center_vertical">
+
             <LinearLayout
                 android:id="@+id/streakLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
-            <!-- 1. Cụm Streaks (Ngọn lửa) -->
-            <ImageView
-                android:id="@+id/streaks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/flame"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-           />
-            <TextView
-                android:id="@+id/tvStreakCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:layout_marginEnd="20dp"
-                android:textColor="#FF9800"
-                android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/streaks"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/flame"
+                    app:tint="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tvStreakCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:layout_marginEnd="16dp"
+                    android:textColor="#FF9800"
+                    android:textStyle="bold"/>
             </LinearLayout>
-            <!-- 2. Cụm Thông báo (Chuông + Chấm đỏ) -->
+
             <FrameLayout
                 android:id="@+id/notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/streakLayout"
-                android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+                android:layout_centerVertical="true">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/bell" />
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/bell"
+                    app:tint="@color/black"/>
 
                 <View
                     android:id="@+id/notificationBadge"
                     android:layout_width="10dp"
                     android:layout_height="10dp"
                     android:layout_gravity="top|end"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/red_dot"
-                    android:visibility="visible" />
+                    android:background="@drawable/red_dot"/>
             </FrameLayout>
 
         </RelativeLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/leveltv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Beginning - A1"
-            android:textStyle="bold"
-            android:textSize="20sp"/>
-        <ImageView
-            android:id="@+id/levelListView"
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:src="@drawable/outline_keyboard_arrow_down_24"
-            android:layout_gravity="center"
-            />
-
-    </LinearLayout>
     <ImageView
         android:id="@+id/loadingImage"
         android:layout_width="match_parent"

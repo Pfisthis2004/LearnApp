@@ -19,17 +19,9 @@ class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        // 1. Kiểm tra xem code có thực sự chạy vào đây không
-        android.util.Log.d("DEBUG_NOTI", "------> ĐÃ NHẬN TÍN HIỆU TỪ ADMIN <------")
-
         // Trong MessagingService.kt
         val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
-        val isSaved = prefs.edit().putBoolean("has_new_notification", true).commit() // Dùng commit()
-
-        android.util.Log.d("DEBUG_NOTI", "---- NHẬN TIN TỪ ADMIN WEB ----")
-        android.util.Log.d("DEBUG_NOTI", "Lưu thành công: $isSaved")
-
-
+        prefs.edit().putBoolean("has_new_notification", true).commit() // Dùng commit()
         val title = remoteMessage.data["title"] ?: "LangGo"
         val body = remoteMessage.data["body"] ?: "Thông báo mới"
         showNotification(title, body)
@@ -55,10 +47,9 @@ class MessagingService : FirebaseMessagingService() {
             this, 0, intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
-        val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.logoapp)
+
         val builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.logoremove)
-            .setLargeIcon(largeIcon)
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))

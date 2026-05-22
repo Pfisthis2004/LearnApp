@@ -271,12 +271,9 @@ class LessonFragment : Fragment() {
         super.onResume()
         // Cập nhật chấm đỏ và dữ liệu bài học mỗi khi quay lại màn hình
         val prefs = requireContext().getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
-
-        userViewModel.userData.observe(viewLifecycleOwner) { user ->
-            binding.tvStreakCount.text = (user?.streak ?: 0).toString()
-        }
-
         val pendingStreak = prefs.getInt("pending_streak_count", -1)
+
+
         if (pendingStreak > 0) {
                 showCongratsDialog(pendingStreak)
                 // Xóa dấu hiệu chờ hiện
@@ -285,7 +282,6 @@ class LessonFragment : Fragment() {
         }
 
         val hasNew = prefs.getBoolean("has_new_notification", false)
-        android.util.Log.d("DEBUG_NOTI", "Giá trị trong máy là: " + prefs.getBoolean("has_new_notification", false))
         binding.notificationBadge.visibility = if (hasNew) View.VISIBLE else View.GONE
 
         prefs.getString("selectedLevelId", null)?.let {

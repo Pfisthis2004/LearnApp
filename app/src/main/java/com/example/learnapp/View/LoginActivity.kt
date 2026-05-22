@@ -65,7 +65,9 @@ class LoginActivity : AppCompatActivity() {
             viewModel.loginWithEmail(email, password)
 
         }
-
+        binding.btnback.setOnClickListener {
+            finish()
+        }
         // Quên mật khẩu
         binding.btnforget.setOnClickListener {
             val email = binding.edtemail.text.toString()

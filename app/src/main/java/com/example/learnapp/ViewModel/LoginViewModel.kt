@@ -32,11 +32,6 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        // 3. Kiểm tra độ dài mật khẩu
-        if (password.length < 8) {
-            _errorMessage.value = "Mật khẩu phải có ít nhất 8 ký tự"
-            return
-        }
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->

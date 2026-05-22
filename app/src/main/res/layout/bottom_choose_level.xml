@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Level"
+        android:text="Chọn cấp độ"
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingBottom="8dp" />

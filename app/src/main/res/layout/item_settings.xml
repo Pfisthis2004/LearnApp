@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="56dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/selectableItemBackground"
     android:paddingHorizontal="16dp">
 
@@ -10,7 +11,9 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_centerVertical="true"
-        android:src="@drawable/lock_icon" />
+        android:src="@drawable/lock_icon"
+        app:tint="@color/black"
+        />
 
     <TextView
         android:id="@+id/itemTitle"
@@ -40,5 +43,6 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/outline_arrow_right_alt_24"
+        app:tint="@color/black"
         android:alpha="0.5"/>
 </RelativeLayout>

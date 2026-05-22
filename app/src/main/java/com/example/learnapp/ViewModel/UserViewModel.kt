@@ -205,4 +205,16 @@ class UserViewModel: ViewModel() {
         _updateStatus.value = Status.Loading
         repository.updateProfileInfo(uid, newName) { _updateStatus.value = it }
     }
+    fun updatePhoto(uid: String, base64Image: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(uid)
+            .update("photoURL", base64Image)
+            .addOnSuccessListener {
+                _updateStatus.value = Status.Success("Ảnh đại diện đã được cập nhật") as Status<Unit>?
+            }
+            .addOnFailureListener { e ->
+                _updateStatus.value = Status.Error(e.message ?: "Lỗi khi lưu ảnh")
+            }
+    }
+
 }

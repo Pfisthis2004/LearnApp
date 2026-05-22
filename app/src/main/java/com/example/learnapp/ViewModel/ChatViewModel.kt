@@ -134,7 +134,7 @@ class ChatViewModel : ViewModel() {
             // Gọi Repository và truyền List<Boolean> vào
             val result = repository.fetchSuggestion(config, limitHistory, currentGoalStatus)
 
-            _suggestionText.postValue(result ?: "Could not get suggestion.")
+            _suggestionText.postValue(result ?: "Không thể nhận được gợi ý.")
         }
     }
 

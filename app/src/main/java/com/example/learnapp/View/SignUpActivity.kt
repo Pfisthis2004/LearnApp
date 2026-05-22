@@ -34,7 +34,10 @@ class SignUpActivity : AppCompatActivity() {
                 Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
+            if (password.length < 8) {
+                Toast.makeText(this, "Mật khẩu phải lớn hơn 8 ký tự", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {

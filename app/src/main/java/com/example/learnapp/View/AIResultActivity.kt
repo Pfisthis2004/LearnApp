@@ -55,7 +55,7 @@ class AIResultActivity : AppCompatActivity() {
                     if (newStreakCount > 0) {
                         // Nếu có streak mới -> Hiện Dialog (Dialog sẽ xử lý finish() sau khi bấm nút)
                         val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
-                        prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                        prefs.edit().putInt("pending_streak_count", newStreakCount).commit()
                     }
                 }
                 val intentHome = Intent(this, MainActivity::class.java)

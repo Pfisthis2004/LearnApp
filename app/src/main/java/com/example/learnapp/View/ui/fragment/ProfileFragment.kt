@@ -1,7 +1,9 @@
 package com.example.learnapp.View.ui.fragment
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -49,8 +51,8 @@ class ProfileFragment : Fragment() {
             setHasFixedSize(true) // Tối ưu hiệu năng vì số lượng ngày luôn là 7
         }
 
-        viewModel.loadData()
         observeViewModel()
+        viewModel.loadData()
     }
     private fun showLoading() {
         binding.layoutprofile.visibility = View.GONE
@@ -76,10 +78,20 @@ class ProfileFragment : Fragment() {
                     Log.d("ProfileFragment", "studyDays: $studyDays")
                     dayAdapter.updateData(studyDays)
 
-                    Glide.with(this@ProfileFragment) // Dùng context của Fragment
-                        .load(it.photoURL)
-                        .placeholder(R.drawable.user_avt)
-                        .into(imgAvatar)
+                    val base64Image = it.photoURL
+                    if (!base64Image.isNullOrEmpty()) {
+                        try {
+                            val bytes = Base64.decode(base64Image, Base64.DEFAULT)
+                            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                            binding.imgAvatar.setImageBitmap(bitmap)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            binding.imgAvatar.setImageResource(R.drawable.user_avt)
+                        }
+                    } else {
+                        binding.imgAvatar.setImageResource(R.drawable.user_avt)
+                    }
+
                 }
             }
         }
@@ -96,5 +108,9 @@ class ProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadData()
     }
 }

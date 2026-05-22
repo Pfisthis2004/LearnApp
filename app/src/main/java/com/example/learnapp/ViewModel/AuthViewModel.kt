@@ -20,9 +20,9 @@ class AuthViewModel : ViewModel() {
     }
 
 
-    fun setLastPassword(password: String) {
-        lastPassword = password
-    }
+//    fun setLastPassword(password: String) {
+//        lastPassword = password
+//    }
     fun updatePassword(currentPassword:String, newPassword: String,confirmPassword:String) {
         // 1. Kiểm tra độ dài
         if (newPassword.length < 8) {

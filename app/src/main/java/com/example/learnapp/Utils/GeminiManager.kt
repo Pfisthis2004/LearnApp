@@ -27,7 +27,7 @@ class GeminiManager() {
     private fun getGenerativeModel(): GenerativeModel {
         val key = if (apiKeys.isNotEmpty()) apiKeys[currentKeyIndex] else ""
         return GenerativeModel(
-            modelName = "gemini-3-flash-preview", //gemini-3.1-flash-lite-preview
+            modelName = "gemini-3.1-flash-lite", //gemini-3.1-flash-lite, gemini-2.5-flash-lite,gemini-3-flash-preview
             apiKey = key,
             generationConfig = generationConfig {
                 responseMimeType = "application/json"

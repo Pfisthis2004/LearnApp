@@ -36,7 +36,7 @@ class ChangePass : AppCompatActivity() {
             val confirm = binding.etConfirmPassword.text.toString().trim()
             viewModel.updatePassword(current, newPass, confirm)
         }
-
+        binding.btnBack.setOnClickListener { finish() }
         // Quan sát LiveData từ ViewModel
         viewModel.passwordResetStatus.observe(this) { result ->
             when (result) {

@@ -132,6 +132,7 @@ class QuestionActivity : AppCompatActivity() {
 
         binding.inputLayoutFillBlank?.visibility = View.GONE
         binding.flexAvailableWords?.visibility = View.GONE
+        binding.flexSelectedWords?.visibility = View.GONE
         binding.btnSubmit?.visibility = View.GONE
         // Hiển thị câu hỏi, thay thế ____ nếu có lựa chọn
         val promptText = if (selected != null) {
@@ -227,6 +228,9 @@ class QuestionActivity : AppCompatActivity() {
         sheetBinding.tvResult.setTextColor(
             ContextCompat.getColor(this, if (isCorrect) R.color.colorSuccess else R.color.colorError)
         )
+        sheetBinding.btnNext.backgroundTintList = ContextCompat.getColorStateList(this,
+            if (isCorrect) R.color.colorSuccess else R.color.colorError
+        )
 
         val currentQuestion = viewModel.questions.value?.get(viewModel.currentIndex.value ?: 0)
         sheetBinding.tvExplanation.text = currentQuestion?.explanation
@@ -315,12 +319,11 @@ class QuestionActivity : AppCompatActivity() {
             userviewModel.markTodayAsLearned { newStreakCount ->
                 if (newStreakCount > 0) {
                     // Chỉ lưu số streak mới vào SharedPreferences để Fragment biết mà hiển thị
-                    prefs.edit().putInt("pending_streak_count", newStreakCount).apply()
+                    prefs.edit().putInt("pending_streak_count", newStreakCount).commit()
                 }
                 // Luôn finish để quay về màn hình trước đó
                 finish()
             }
-            finish()
         }
     }
     private fun setupOrderingUI(q: Question) {
