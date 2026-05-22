@@ -108,44 +108,10 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
     private fun showVocabDetailDialog(vocab: Vocabulary) {
-        // 1. Khởi tạo Binding cho layout popup
-        val dialogBinding = ActivityDetailVocabBinding.inflate(layoutInflater)
-        val dialog = android.app.Dialog(requireContext())
-        dialog.setContentView(dialogBinding.root)
-
-        // 3. Đổ dữ liệu vào các view của Popup
-        dialogBinding.apply {
-            tvcontext.text = vocab.vocab
-            tvTrans.text = vocab.translation
-            tvExample.text = vocab.example.ifEmpty { "Không có ví dụ" }
-            tvLevelValue.text = vocab.levelId
-            val chapterNumber = vocab.chapterId.substringAfterLast("ch").filter { it.isDigit() }
-            tvReviewsValue.text = chapterNumber.ifEmpty { "1" }
-            val lessonNumber = vocab.lessonId.substringAfterLast("l").filter { it.isDigit() }
-            tvlessonvalue.text = lessonNumber.ifEmpty { "1" }
-
-            // Nút quay lại (đóng popup)
-            btnback.setOnClickListener {
-                dialog.dismiss()
-            }
-        }
-
-        // 4. Cấu hình để Dialog hiện giữa màn hình và có nền trong suốt (bo góc)
-        dialog.window?.apply {
-            setBackgroundDrawableResource(android.R.color.transparent)
-
-            // --- DÒNG QUAN TRỌNG NHẤT ĐÂY ---
-            setWindowAnimations(R.style.DialogAnimation)
-
-            setLayout(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            setDimAmount(0.7f)
-        }
-
-        dialog.show()
-        speakOut(vocab.vocab)
+        val intent = Intent(requireContext(), DetailVocabActivity::class.java)
+        // Truyền trực tiếp đối tượng, Activity sẽ nhận lại đúng y hệt
+        intent.putExtra("VOCAB_DATA", vocab)
+        startActivity(intent)
     }
     private fun setupTabListeners() {
         binding.tabAll.setOnClickListener {
