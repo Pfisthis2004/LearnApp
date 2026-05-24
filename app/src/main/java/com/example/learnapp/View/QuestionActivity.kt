@@ -91,21 +91,13 @@ class QuestionActivity : AppCompatActivity() {
                         if (res.isCorrect) R.color.colorSuccess else R.color.colorError))
                 }
                 is ResultState.OrderingResult -> {
-                    val originPrompt = currentQuestion.prompt
-                    var finalDisplay = originPrompt
-                    // Dùng chính Regex này để tìm vị trí điền
-                    val regex = Regex("_{2,}")
-                    // res.userAnswer lúc này là chuỗi các từ cách nhau bởi dấu cách (ví dụ: "Where are you from")
-                    val words = res.userAnswer.split(" ")
+                    // Gọi hàm helper để render an toàn
+                    binding.tvPrompt.text = formatResultText(currentQuestion.prompt, res.userAnswerList)
 
-                    words.forEach { word ->
-                        // Điền từ thật vào, không dùng ngoặc [] vì đây là kết quả cuối cùng
-                        finalDisplay = finalDisplay.replaceFirst(regex, word)
-                    }
-
-                    binding.tvPrompt.text = finalDisplay
-                    binding.tvPrompt.setTextColor(ContextCompat.getColor(this,
-                        if (res.isCorrect) R.color.colorSuccess else R.color.colorError))
+                    val color = ContextCompat.getColor(this,
+                        if (res.isCorrect) R.color.colorSuccess else R.color.colorError
+                    )
+                    binding.tvPrompt.setTextColor(color)
                 }
                 is ResultState.QuizResult -> {
                     val isCorrect = res.correct > 0
@@ -136,7 +128,7 @@ class QuestionActivity : AppCompatActivity() {
         binding.btnSubmit?.visibility = View.GONE
         // Hiển thị câu hỏi, thay thế ____ nếu có lựa chọn
         val promptText = if (selected != null) {
-            q.prompt.replace("____", selected)
+            q.prompt.replace(Regex("____"), selected)
         } else {
             q.prompt
         }
@@ -182,17 +174,23 @@ class QuestionActivity : AppCompatActivity() {
                 binding.flexSelectedWords?.visibility = View.VISIBLE
                 binding.btnSubmit?.visibility = View.VISIBLE
 
-                viewModel.resetOrdering() // THÊM DÒNG NÀY để làm sạch dữ liệu cũ
-                setupOrderingUI(q)
+                viewModel.resetOrdering()
+                setupOrderingUI(q) // Chỉ làm nhiệm vụ vẽ
 
+                // Gán listener duy nhất tại đây
+                // Trong QuestionActivity
                 binding.btnSubmit?.setOnClickListener {
-                    val userSentence = viewModel.selectedOrderingWords.value?.joinToString(" ") ?: ""
-                    if (userSentence.isNotEmpty()) {
-                        viewModel.checkAnswer(userSentence) // Chỉ gọi checkAnswer
+                    val selectedWords = viewModel.selectedOrderingWords.value ?: emptyList()
+                    val totalBlanks = Regex("_{2,}").findAll(q.prompt).count()
+
+                    if (selectedWords.size == totalBlanks) {
+                        // GỌI HÀM NÀY (sẽ sửa ở bước 2)
+                        viewModel.checkOrderingAnswer(selectedWords)
+                    } else {
+                        Toast.makeText(this, "Vui lòng điền đầy đủ", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-
             // Bạn đã xử lý SPEAKING ở Activity khác nên ở đây có thể để trống hoặc log
             else -> {
                 Log.d("QuestionActivity", "Type ${q.type} handled elsewhere or not supported here")
@@ -329,11 +327,6 @@ class QuestionActivity : AppCompatActivity() {
     private fun setupOrderingUI(q: Question) {
         val availableWords = q.options.toMutableList().apply { shuffle() }
         renderWords(availableWords)
-
-        binding.btnSubmit.setOnClickListener {
-            val finalSentence = viewModel.selectedOrderingWords.value?.joinToString(" ") ?: ""
-            viewModel.checkAnswer(finalSentence)
-        }
     }
 
     private fun renderWords(available: List<String>) {
@@ -351,6 +344,7 @@ class QuestionActivity : AppCompatActivity() {
         selected.forEach { word ->
             // Thay thế lần lượt từng cụm gạch bằng [từ]
             displayPrompt = displayPrompt.replaceFirst(placeholderRegex, "[$word]")
+
         }
         binding.tvPrompt.text = displayPrompt
 
@@ -396,6 +390,22 @@ class QuestionActivity : AppCompatActivity() {
         button.text = text
         button.setOnClickListener { onClick() }
         return button
+    }
+    private fun formatResultText(prompt: String, userAnswers: List<String>): String {
+        val placeholderRegex = Regex("_{2,}")
+        val parts = prompt.split(placeholderRegex)
+        val result = StringBuilder()
+
+        for (i in parts.indices) {
+            result.append(parts[i]) // Thêm phần văn bản cố định (đã bao gồm khoảng trắng cần thiết)
+
+            if (i < userAnswers.size) {
+                val word = userAnswers[i]
+                // Chỉ thêm từ vào, KHÔNG thêm khoảng trắng cứng ở đây
+                result.append(word)
+            }
+        }
+        return result.toString().replace(Regex("\\s+"), " ").trim()
     }
     override fun onDestroy() {
         super.onDestroy()

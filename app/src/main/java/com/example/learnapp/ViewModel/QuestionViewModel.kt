@@ -124,7 +124,21 @@ class QuestionViewModel(
             }
         } ?: Log.w(TAG, "No question found at index=$index")
     }
+    // Trong QuestionViewModel.kt
+    fun checkOrderingAnswer(userSelectedWords: List<String>) {
+        val index = _currentIndex.value ?: 0
+        val question = _questions.value?.getOrNull(index) ?: return
 
+        // Ép kiểu handler về OrderingHandler để sử dụng list
+        val handler = OrderingHandler()
+        val res = handler.checkOrderingAnswer(userSelectedWords, question)
+
+        _result.value = res
+
+        if (res is ResultState.OrderingResult && res.isCorrect) {
+            _correctCount++
+        }
+    }
     private fun getHandlerForType(type: QuestionType?): QuestionHandler {
         Log.d(TAG, "Getting handler for type=$type")
         return when (type) {

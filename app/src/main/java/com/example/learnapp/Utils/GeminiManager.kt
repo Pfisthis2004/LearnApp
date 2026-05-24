@@ -89,12 +89,15 @@ class GeminiManager() {
         executeWithRetry {
             val response = getGenerativeModel().generateContent(prompt)
             val cleanJson = cleanJsonResponse(response.text)
-            Log.d("GEMINI_RAW", "Data: $cleanJson")
+//            Log.d("GEMINI_RAW", "Data: $cleanJson")
             val result = gson.fromJson(cleanJson, AISelectionResponse::class.java)
             result.options
         }
     }
 
+    /**
+     * 3. Vòng lặp hội thoại & Kiểm tra mục tiêu
+     */
     /**
      * 3. Vòng lặp hội thoại & Kiểm tra mục tiêu
      */
@@ -114,7 +117,38 @@ class GeminiManager() {
         } else {
             "Challenge the user's ideas. Provide constructive counter-arguments or ask tough follow-up questions to test their logic."
         }
-        // System Instruction ép AI tuân thủ luật chơi
+
+        val proficiencyGuideline = when (config.level) {
+            "Beginner" -> """
+                # CEFR LEVEL: A1-A2 (BEGINNER MODE)
+                - SPEAKING STYLE: Use very simple, common English words and short, clear sentences. Ask easy, direct questions. Keep responses under 20 words.
+                - BEHAVIOR: Be highly encouraging. Focus on communication rather than perfection. Repeat or simplify questions if the user seems confused.
+                - ERROR POLICY: Do NOT over-correct. Accept small grammar mistakes if the meaning is clear. Correct only communication-blocking errors naturally.
+                - SCORING: Reward effort and clarity. Minor mistakes do not heavily reduce the score.
+            """.trimIndent()
+
+            "Intermediate" -> """
+                # CEFR LEVEL: B1-B2 (INTERMEDIATE MODE)
+                - SPEAKING STYLE: Use natural, daily conversational English with moderate sentence complexity. Introduce common phrasal verbs.
+                - BEHAVIOR: Ask meaningful follow-up questions. Encourage storytelling, expressing opinions, and deeper explanations.
+                - ERROR POLICY: Correct noticeable grammar mistakes naturally. Help improve sentence structures and vocabulary choices.
+                - SCORING: Evaluate grammar accuracy, fluency, and vocabulary balance equally.
+            """.trimIndent()
+
+            "Advanced" -> """
+                # CEFR LEVEL: C1-C2 (HARD / ADVANCED MODE)
+                - SPEAKING STYLE: Use sophisticated, academic, and highly nuanced English. Implement complex sentence structures, idioms, and precise collocations.
+                - BEHAVIOR: DO NOT use generic, warm greetings like 'Hey there'. Act like a strict, professional interviewer or thesis committee member. Go straight to the point. Challenge the user's reasoning, push for analytical thinking, and demand architectural or technical justifications.
+                - ERROR POLICY: Actively identify and strictly penalize subtle grammar mistakes, awkward phrasal structures, or un-native expressions.
+                - SCORING: Critically evaluate precision, fluency, and sophistication. Reduce points heavily for repetitive or simplistic vocabulary.
+            """.trimIndent()
+
+            else -> """
+                # CEFR LEVEL: DEFAULT
+                - Use simple, friendly English and maintain an easy-to-understand conversation flow.
+            """.trimIndent()
+        }
+
         val systemInstruction = """
             # ROLE & CONTEXT    
             - You are: ${config.botRole}
@@ -125,59 +159,169 @@ class GeminiManager() {
             - Style: $personalityGuideline
             - Strategy: $attitudeGuideline
             
+            $proficiencyGuideline
+            
+            # IMPORTANT LEVEL ADAPTATION
+            - The conversation difficulty, vocabulary complexity, correction strictness, and scoring MUST adapt dynamically based on the provided CEFR guidelines.
+            - Advanced mode requires immediate technical/logical pressure. Do not waste turns on casual pleasantries.
+            
             # GOAL MANAGEMENT (QUAN TRỌNG)
             - User's Goals to achieve: [${config.goals.joinToString(", ")}]
-            - Current Goal Status: (Dựa trên lịch sử hội thoại)
+            - Current Goal Status: (Evaluated from the chat history)
             
             # STRATEGY: ONE STEP AT A TIME
-            1. **FOCUS**: Tại mỗi lượt hội thoại, hãy chỉ tập trung dẫn dắt người dùng hoàn thành **DUY NHẤT MỘT** mục tiêu chưa hoàn thành theo thứ tự ưu tiên.
-            2. **STRICT EVALUATION**: Chỉ đánh giá một mục tiêu là `true` nếu người dùng đã thực hiện hành động đó một cách rõ ràng và đầy đủ. Không được đoán ý hoặc tự hoàn thành thay người dùng.
-            3. **GUIDANCE**: Nếu người dùng nói lạc đề, hãy khéo léo đặt câu hỏi hoặc gợi ý để họ quay lại mục tiêu hiện tại. 
-            4. **NO RUSH**: Tuyệt đối không được xác nhận hoàn thành nhiều mục tiêu cùng lúc trong một câu trả lời.
-            5. **TRANSITION**: Chỉ khi mục tiêu hiện tại đã đạt được (`true`), bạn mới được chuyển sang đặt câu hỏi dẫn dắt cho mục tiêu tiếp theo.
+            1. **FOCUS**: At each turn, focus strictly on guiding the user to accomplish the FIRST uncompleted goal from the list.
+            2. **STRICT EVALUATION**: Mark a goal as true ONLY if the user explicitly and fully performs the action. Do not guess or complete it for them.
+            3. **GUIDANCE**: If the user goes off-topic, gently but firmly steer them back to the current target goal.
+            4. **TRANSITION**: Do not rush. Only advance to the next goal after the current one is fully satisfied.
     
             # HUMAN-LIKE RULES (BẮT BUỘC)
-                1. **PHẢN HỒI CỤ THỂ**: Tuyệt đối không lặp lại các câu vô thưởng vô phạt như "Oh, that's great" hoặc "I see" cho mọi tình huống. Hãy phản hồi trực tiếp vào nội dung người dùng vừa nói.
-                2. **TỪ ĐỆM TỰ NHIÊN**: Sử dụng linh hoạt các cụm từ như "Well," "Actually," "To be honest," "You know," hoặc "I was thinking..." để giống văn nói.
-                3. **DẪN DẮT**: Luôn cố gắng đưa ra một thông tin mới hoặc đặt một câu hỏi liên quan đến bối cảnh để mở rộng cuộc trò chuyện.
-                4. **CẢM XÚC**: Thể hiện sự ngạc nhiên, đồng cảm hoặc nghi ngờ dựa trên vai diễn.
+            1. **NO REPETITION**: Never use standard template responses like "Oh, that's great" or "I see". Reply directly to the user's specific content.
+            2. **NATURAL FILLERS**: Use conversational fillers like "Well," "Actually," "To be honest," "You know," or "From a critical standpoint..." to sound authentic.
+            3. **DRIVE THE TALK**: Always introduce a fresh point or a targeted question based on the role context to keep the flow moving.
             
-            # RULES
-                1. Language: ALWAYS reply in English for the "reply" field.
-                2. Translation: Provide a natural Vietnamese translation for the "vi_trans" field.
-                3. Length: Natural and concise (15-35 words).
-                4. Evaluation: Check the learning goals: [${config.goals.joinToString(", ")}]. 
-                   Update "goal_status" (boolean array) based on the history.
-                5. Flow: If userInput is "START_CONVERSATION_NOW", initiate naturally with a "hook" (câu dẫn dắt).
-                6. Exit: If all goals are true, set "is_finished": true.
-            """.trimIndent()
+            # OUTPUT FORMAT RULES
+            1. Language: ALWAYS reply in English for the "reply" field.
+            2. Translation: Provide a natural Vietnamese translation for the "vi_trans" field.
+            3. Length: Stay concise and natural (15-35 words).
+            4. Exit: If all goals are verified as true, set "is_finished": true.
+        """.trimIndent()
 
-        // 3. Prompt gửi đi (ép kiểu trả về JSON)
         val fullPrompt = """
-        $systemInstruction
-        
-        Current History:
-        $history
-        
-        User's latest input: "$userInput"
-        
-        Return ONLY JSON format:
-        {
-          "reply": "Your message in English",
-          "vi_trans": "Bản dịch tiếng Việt tương ứng",
-          "goal_status": [boolean, boolean, boolean],
-          "is_finished": boolean,
-          "score": integer (0-100 based on user's English level in this turn)
-        }
-    """.trimIndent()
+            $systemInstruction
+            
+            Current History:
+            $history
+            
+            User's latest input: "$userInput"
+            
+            Return ONLY JSON format:
+            {
+              "reply": "Your message in English",
+              "vi_trans": "Bản dịch tiếng Việt tương ứng",
+              "goal_status": [boolean, boolean, boolean],
+              "is_finished": boolean,
+              "score": integer (0-100 based on user's English level in this turn)
+            }
+        """.trimIndent()
+
+        // --- ĐẶT LOG ĐẦU VÀO LUỒNG CHAT ---
+        Log.d("GEMINI_CHAT_INPUT", "====================== CHAT TURN START ======================")
+        Log.d("GEMINI_CHAT_INPUT", "Level: ${config.level} | User Input: $userInput")
+        Log.d("GEMINI_CHAT_INPUT", "Full Prompt Sent To AI:\n$fullPrompt")
 
         executeWithRetry {
             val response = getGenerativeModel().generateContent(fullPrompt)
             val cleanJson = cleanJsonResponse(response.text)
+
+            // --- ĐẶT LOG ĐẦU RA LUỒNG CHAT ---
+            Log.d("GEMINI_CHAT_OUTPUT", "Raw JSON Received:\n$cleanJson")
+            Log.d("GEMINI_CHAT_OUTPUT", "====================== CHAT TURN END ========================")
+
             gson.fromJson(cleanJson, AIResponse::class.java)
         }
     }
 
+    /**
+     * Hàm lấy mẫu câu trợ giúp theo Level
+     */
+    suspend fun getSuggestion(
+        config: ChatConfig,
+        history: String,
+        goalStatus: List<Boolean>
+    ): String? = withContext(Dispatchers.IO) {
+        val nextGoalIndex = goalStatus.indexOf(false)
+        val nextGoal = config.goals.getOrNull(nextGoalIndex) ?: "Finish the conversation naturally"
+
+        val shortHistory = history.lines().takeLast(6).joinToString("\n")
+
+        val suggestionLevelGuideline = when (config.level) {
+            "Beginner" -> """
+                - Use extremely simple vocabulary (A1-A2).
+                - Keep the sentence short, direct, and under 12 words.
+                - Use basic grammar structures (Simple Present, Simple Past, or simple requests).
+            """.trimIndent()
+
+            "Intermediate" -> """
+                - Use natural, daily conversational English (B1-B2).
+                - Use moderate sentence complexity and common phrasal verbs.
+                - Sentence length should be between 12-20 words.
+            """.trimIndent()
+
+            "Advanced" -> """
+                - Use sophisticated, academic, and professional vocabulary (C1-C2).
+                - Use advanced grammar structures (inversion, relative clauses, passive voice, formal collocations).
+                - Provide complex, high-scoring arguments fitting for a professional interview.
+            """.trimIndent()
+
+            else -> "- Use simple and clear English fit for basic communication."
+        }
+
+        val prompt = """
+            # CONTEXT
+            Scenario: ${config.situation}
+            User Role: ${config.userRole}
+            Current Level: ${config.level}
+          
+            # TARGET GOAL
+            The ultimate milestone to smoothly steer towards: "$nextGoal"
+         
+            # LEVEL GUIDELINES (MUST FOLLOW)
+            $suggestionLevelGuideline
+         
+            # RECENT HISTORY
+            $shortHistory
+            
+            # YOUR CRITICAL TASK
+            Look closely at the LAST message from the AI/Bot in the RECENT HISTORY above. 
+            Generate ONE ideal reply for the User that DIRECTLY answers or responds to that specific last message. 
+            
+            CRITICAL RULES:
+            1. COHERENCE FIRST: The suggested sentence MUST feel like a natural, immediate continuation of the current conversation. Do NOT abruptly jump to a new topic or look only at the target goal.
+            2. INTERACTION: Answer the Bot's question first, then optionally add a small detail or ask back to gently guide the conversation toward the "TARGET GOAL".
+            3. Generate ONE ideal sentence in English according to the level guidelines above, and provide its natural Vietnamese translation.
+            
+            # OUTPUT FORMAT (MANDATORY)
+            Return ONLY a valid JSON object with exactly two fields: "en" and "vi". Do not include markdown code blocks.
+            {
+              "en": "The generated English hint here",
+              "vi": "Bản dịch tiếng Việt tương ứng ở đây"
+            }
+        """.trimIndent()
+
+        // --- ĐẶT LOG ĐẦU VÀO HÀM SUGGESTION ---
+        Log.d("GEMINI_SUGGEST_INPUT", "==================== SUGGESTION START ======================")
+        Log.d("GEMINI_SUGGEST_INPUT", "Targeting Goal: $nextGoal | Level: ${config.level}")
+        Log.d("GEMINI_SUGGEST_INPUT", "Prompt Sent To AI:\n$prompt")
+
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(prompt)
+            val cleanJson = cleanJsonResponse(response.text)
+
+            // --- ĐẶT LOG ĐẦU RA HÀM SUGGESTION ---
+            Log.d("GEMINI_SUGGEST_OUTPUT", "Raw Suggestion JSON:\n$cleanJson")
+
+            try {
+                val jsonMap = gson.fromJson(cleanJson, Map::class.java)
+                val english = jsonMap["en"]?.toString() ?: ""
+                val vietnamese = jsonMap["vi"]?.toString() ?: ""
+
+                val combinedResult = if (english.isNotEmpty() && vietnamese.isNotEmpty()) {
+                    "$english | $vietnamese"
+                } else {
+                    null
+                }
+
+                Log.d("GEMINI_SUGGEST_OUTPUT", "Parsed Result: $combinedResult")
+                Log.d("GEMINI_SUGGEST_OUTPUT", "==================== SUGGESTION END ========================")
+
+                combinedResult
+            } catch (e: Exception) {
+                Log.e("GEMINI_SUGGEST_ERROR", "Lỗi phân tích JSON gợi ý: ${e.message}")
+                null
+            }
+        }
+    }
     /**
      * Hàm phụ dọn dẹp chuỗi JSON tránh lỗi format
      */
@@ -201,81 +345,11 @@ class GeminiManager() {
             cleaned
         }
     }
-//        suspend fun getSuggestion(config: ChatConfig, history: String): String? = withContext(Dispatchers.IO) {
-//            val prompt = """
-//            # CONTEXT
-//            - Scenario: ${config.situation}
-//            - User's Role: ${config.userRole}
-//            - Bot's Role: ${config.botRole}
-//            - **ALL LEARNING GOALS**: [${config.goals.joinToString(", ")}]
-//
-//            # CURRENT HISTORY
-//            $history
-//
-//            # TASK
-//            Suggest ONE natural English sentence for the user to say to achieve the NEXT uncompleted goal.
-//
-//            # CRITICAL RULES
-//            - **LANGUAGE**: The output MUST be in English. No Vietnamese.
-//            - **NO EXPLANATION**: Do not explain what to do. Just provide the line of dialogue.
-//            - **EXAMPLE**: If the goal is "Ask for a coffee", return "Could I have a latte, please?".
-//            - **LENGTH**: Under 20 words.
-//
-//            # OUTPUT
-//            (Return ONLY the English sentence, no quotes)
-//        """.trimIndent()
-//
-//        executeWithRetry {
-//            val response = getGenerativeModel().generateContent(prompt)
-//            val rawText = response.text ?: ""
-//            var cleanText = cleanJsonResponse(rawText)
-//
-//            if (cleanText.trim().startsWith("{")) {
-//                try {
-//                    val jsonMap = gson.fromJson(cleanText, Map::class.java)
-//                    cleanText = jsonMap.values.firstOrNull()?.toString() ?: cleanText
-//                } catch (e: Exception) {}
-//            }
-//            cleanText.trim().replace("\"", "")
-//        }
-//    }
-
-    suspend fun getSuggestion(config: ChatConfig, history: String, goalStatus: List<Boolean>): String? = withContext(Dispatchers.IO) {
-        val nextGoalIndex = goalStatus.indexOf(false)
-        val nextGoal = config.goals.getOrNull(nextGoalIndex) ?: "Finish the conversation naturally"
-        val shortHistory = history.lines().takeLast(10).joinToString("\n")
-
-        val prompt = """
-            # CONTEXT
-            Scenario: ${config.situation}
-            User Role: ${config.userRole}
-          
-            # TARGET GOAL
-            Only focus on suggesting to help the user accomplish this SINGLE goal "$nextGoal"
-         
-            # RECENT HISTORY
-            $shortHistory
-            
-            # TASK
-            Suggest ONE natural English sentence for the user to achieve the "Next Goal" AND its Vietnamese translation.
-            
-            # CRITICAL:
-            - Format: [English sentence] | [Vietnamese translation]
-            - Use the pipe character "|" to separate them.
-            - DO NOT use brackets, quotes, or JSON.
-            - Example: Could you help me with this? | Bạn có thể giúp tôi việc này không?
-        """.trimIndent()
-        // Giữ nguyên phần executeWithRetry của bạn
-        executeWithRetry {
-            val response = getGenerativeModel().generateContent(prompt)
-            cleanJsonResponse(response.text).trim().replace("\"", "")
-        }
-    }
-
     suspend fun generateFinalAnalysis(config: ChatConfig, history: String): AIResponse? = withContext(Dispatchers.IO) {
         val finalPrompt = """
             # CONTEXT
             - Scenario: ${config.situation}
+            - Level: ${config.level}
             - Learning Goals: [${config.goals.joinToString(", ")}]
             
             # FULL CONVERSATION HISTORY
@@ -286,17 +360,18 @@ class GeminiManager() {
             1. **Pronunciation (IPA)**: Liệt kê các ký hiệu âm tiết IPA (ví dụ: s, z, θ, ð, ɪ, i:,...) mà người dùng sử dụng chính xác (good_sounds) và các âm thường xuyên phát âm sai hoặc cần cải thiện (improve_sounds).
             2. **Grammar**: Nhận diện các loại lỗi ngữ pháp lặp lại (ví dụ: "Mạo từ", "Chia động từ số ít/số nhiều").
             3. **Final Score**: Đưa ra điểm số tổng kết trung bình cho cả quá trình (0-100).
-
-            # OUTPUT FORMAT (JSON ONLY)
+            Dựa trên toàn bộ cuộc hội thoại, hãy tạo một bản phân tích JSON theo cấu trúc sau:
             {
-              "reply": "Lời nhận xét tổng quát ngắn gọn bằng tiếng Việt về buổi học",
-              "score": integer,
-              "good_sounds": ["s", "i:", "t"],
-              "improve_sounds": ["θ", "z", "r"],
-              "grammar_errors": ["Mạo từ", "Chia động từ số ít/số nhiều"],
-              "goal_status": [true, true, true],
-              "is_finished": true
+              "reply": "Lời nhận xét tổng quát ngắn gọn bằng tiếng Việt",
+              "score": integer (0-100),
+              "good_sounds": ["âm đã làm tốt"],
+              "improve_sounds": ["âm cần cải thiện"],
+              "grammar_errors": ["lỗi ngữ pháp chính"],
+              "vocab_suggestions": ["3 từ vựng nâng cao nên dùng"],
+              "pronunciation_focus": ["các điểm trọng tâm cần luyện phát âm"],
+              "level": "${config.level}"
             }
+         
         """.trimIndent()
 
         executeWithRetry {

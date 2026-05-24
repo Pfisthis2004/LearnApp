@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class ChatConfig(
     val title: String = "English Conversation",
+    val level: String = "Beginner",
     val description: String ="",
     val situation: String = "",
     val roles: List<String> = emptyList(),          // Ví dụ: ["Bác sĩ", "Bệnh nhân"]

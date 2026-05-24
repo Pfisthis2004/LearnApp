@@ -14,9 +14,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Chat.HistoryItem
 import com.example.learnapp.R
+import com.example.learnapp.View.ui.adapter.ErrorDetailAdapter
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.ActivityAiresultBinding
@@ -37,7 +39,9 @@ class AIResultActivity : AppCompatActivity() {
         val historyItem = intent.getParcelableExtra<HistoryItem>("HISTORY_ITEM")
 
         if (historyItem != null) {
-            setupUI(historyItem)
+            // Chuyển đổi list sang ArrayList nếu cần
+            setupUI(historyItem, historyItem.score, ArrayList(historyItem.goalsStatus), ArrayList(historyItem.goalsText))
+            setupHighlights(historyItem.goodSounds, historyItem.improveSounds, historyItem.grammarErrors)
         } else {
             // 2. Nếu không có Object, tức là vừa học xong -> Xử lý dữ liệu mới
             handleNewResult()
@@ -66,46 +70,14 @@ class AIResultActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupUI(item: HistoryItem) {
-        binding.tvCongrats.text = "Kết quả bài học"
-        binding.btnHome.text = "QUAY LẠI"
+    private fun setupUI(item: HistoryItem,score: Int, status: ArrayList<Boolean>, texts: ArrayList<String>) {
+        // 1. Header & Tổng quan
+        binding.tvCongrats.text = "Kết quả đánh giá"
+        binding.tvLevelBadge.text = "Level: ${item.level}"
+        binding.tvOverallFeedback.text = item.overallFeedback
+        binding.btnHome.text = "HOÀN THÀNH"
 
-        // Đổ dữ liệu vào UI
-        displayResults(item.score, ArrayList(item.goalsStatus), ArrayList(item.goalsText))
-        setupHighlights(item.goodSounds, item.improveSounds, item.grammarErrors)
-    }
-
-    private fun handleNewResult() {
-        // Nhận dữ liệu từ Intent (gửi từ SreenChatActivity)
-        val score = intent.getIntExtra("SCORE", 0)
-        val title = intent.getStringExtra("LESSON_TITLE") ?: "N/A"
-        val goalsText = intent.getStringArrayListExtra("GOALS_TEXT") ?: arrayListOf()
-        val goalsStatus = intent.getSerializableExtra("GOALS_STATUS") as? ArrayList<Boolean> ?: arrayListOf()
-
-        val goodSounds = intent.getStringArrayListExtra("GOOD_SOUNDS") ?: arrayListOf()
-        val improveSounds = intent.getStringArrayListExtra("IMPROVE_SOUNDS") ?: arrayListOf()
-        val grammarErrors = intent.getStringArrayListExtra("GRAMMAR_ERRORS") ?: arrayListOf()
-
-        // Hiển thị UI ngay lập tức
-        displayResults(score, goalsStatus, goalsText)
-        setupHighlights(goodSounds, improveSounds, grammarErrors)
-
-        // Lưu vào Firebase thông qua Repository
-        val history = HistoryItem(
-            lessonTitle = title,
-            score = score,
-            timestamp = Timestamp.now(),
-            goalsText = goalsText,
-            goalsStatus = goalsStatus,
-            goodSounds = goodSounds,
-            improveSounds = improveSounds,
-            grammarErrors = grammarErrors
-        )
-        viewModel.saveHistory(history)
-    }
-
-    private fun displayResults(score: Int, status: ArrayList<Boolean>, texts: ArrayList<String>) {
-        // Hiệu ứng số điểm nhảy
+        // 2. Điểm số & Progress Bar
         ValueAnimator.ofInt(0, score).apply {
             duration = 1500
             interpolator = DecelerateInterpolator()
@@ -128,7 +100,59 @@ class AIResultActivity : AppCompatActivity() {
             summary.append("$icon $goal\n\n")
         }
         binding.tvGoalsSummary.text = summary.toString()
+
+        // 4. Grammar (RecyclerView)
+        val grammarAdapter = ErrorDetailAdapter(item.grammarErrors)
+        binding.rvGrammarErrors.adapter = grammarAdapter
+        binding.rvGrammarErrors.layoutManager = LinearLayoutManager(this)
+
+        // 5. Vocabulary (Flexbox)
+        binding.flexVocabSuggestions.removeAllViews()
+        item.vocabSuggestions.forEach { suggestion ->
+            addChipToFlex(binding.flexVocabSuggestions, suggestion, "#42A5F5")
+        }
+
+        // 6. Pronunciation (Flexbox)
+        binding.flexPronunciationFocus.removeAllViews()
+        item.pronunciationFocus.forEach { area ->
+            addChipToFlex(binding.flexPronunciationFocus, area, "#42A5F5")
+        }
+
     }
+
+    private fun handleNewResult() {
+        // 1. Thu thập dữ liệu từ Intent
+        val score = intent.getIntExtra("SCORE", 0)
+        val title = intent.getStringExtra("LESSON_TITLE") ?: "N/A"
+        val goalsText = intent.getStringArrayListExtra("GOALS_TEXT") ?: arrayListOf()
+        val goalsStatus = intent.getSerializableExtra("GOALS_STATUS") as? ArrayList<Boolean> ?: arrayListOf()
+
+        val goodSounds = intent.getStringArrayListExtra("GOOD_SOUNDS") ?: arrayListOf()
+        val improveSounds = intent.getStringArrayListExtra("IMPROVE_SOUNDS") ?: arrayListOf()
+        val grammarErrors = intent.getStringArrayListExtra("GRAMMAR_ERRORS") ?: arrayListOf()
+
+        // Tạo đối tượng hoàn chỉnh (Bạn cần truyền thêm các field mới từ Intent ở ScreenChatActivity)
+        val history = HistoryItem(
+            lessonTitle = title,
+            score = score,
+            timestamp = Timestamp.now(),
+            goalsText = intent.getStringArrayListExtra("GOALS_TEXT") ?: emptyList(),
+            goalsStatus = intent.getSerializableExtra("GOALS_STATUS") as? ArrayList<Boolean> ?: emptyList(),
+            goodSounds = intent.getStringArrayListExtra("GOOD_SOUNDS") ?: emptyList(),
+            improveSounds = intent.getStringArrayListExtra("IMPROVE_SOUNDS") ?: emptyList(),
+            grammarErrors = intent.getStringArrayListExtra("GRAMMAR_ERRORS") ?: emptyList(),
+            // MỚI: Thêm các field này vào Intent bên ScreenChatActivity
+            level = intent.getStringExtra("LEVEL") ?: "Beginner",
+            overallFeedback = intent.getStringExtra("FEEDBACK") ?: "",
+            vocabSuggestions = intent.getStringArrayListExtra("VOCAB_SUGGESTIONS") ?: emptyList(),
+            pronunciationFocus = intent.getStringArrayListExtra("PRONUNCIATION_FOCUS") ?: emptyList()
+        )
+        setupUI(history, score, goalsStatus, goalsText)
+        setupHighlights(goodSounds, improveSounds, grammarErrors)
+        // 3. Lưu vào Firebase
+        viewModel.saveHistory(history)
+    }
+
 
     private fun setupHighlights(good: List<String>, improve: List<String>, grammar: List<String>) {
         binding.flexGoodSounds.removeAllViews()
@@ -139,11 +163,10 @@ class AIResultActivity : AppCompatActivity() {
         improve.forEach { addChipToFlex(binding.flexImproveSounds, "/$it/", "#FF9800") }
         grammar.forEach { addChipToFlex(binding.flexGrammarErrors, it, "#B39DDB") }
     }
-
     private fun addChipToFlex(flexLayout: FlexboxLayout, text: String, colorHex: String) {
         val textView = TextView(this).apply {
             this.text = text
-            setTextColor(Color.parseColor(colorHex))
+            setTextColor(Color.WHITE)
             setPadding(32, 16, 32, 16)
             textSize = 14f
             setBackgroundResource(R.drawable.bg_chip_item)
@@ -154,4 +177,5 @@ class AIResultActivity : AppCompatActivity() {
         }
         flexLayout.addView(textView)
     }
+
 }

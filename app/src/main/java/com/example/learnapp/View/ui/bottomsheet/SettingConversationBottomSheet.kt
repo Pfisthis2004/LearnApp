@@ -72,7 +72,11 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
         // 1. Xác định vai
         val aiIndex = if (binding.rbBotrole1.isChecked) 0 else 1
         val userIndex = if (aiIndex == 0) 1 else 0
-
+        val selectedLevel = when (binding.rgLevel.checkedRadioButtonId) {
+            R.id.rbLevelIntermediate -> "Intermediate"
+            R.id.rbLevelAdvanced -> "Advanced"
+            else -> "Beginner"
+        }
         // 2. Cập nhật header
         val updatedHeader = config.openingHeader
             .replace("[Role0]", config.roles[0])
@@ -87,6 +91,7 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
             goals = config.goals_for_roles[userIndex],
             personality = if (binding.rbBotCheerful.isChecked) "Cheerful" else "Serious",
             attitude = if (binding.rbBotAgree.isChecked) "Supportive" else "Challenging",
+            level = selectedLevel,
             openingHeader = updatedHeader
         )
 

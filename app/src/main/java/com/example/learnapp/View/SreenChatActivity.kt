@@ -166,9 +166,16 @@ class SreenChatActivity : AppCompatActivity() {
                 binding.root.postDelayed({
                     val intent = Intent(this, AIResultActivity::class.java).apply {
                         putExtra("SCORE", analysis.score)
+                        putExtra("FEEDBACK", analysis.reply) // Gửi feedback
+                        putExtra("LEVEL", analysis.level)    // Gửi level
+
                         putStringArrayListExtra("GOOD_SOUNDS", ArrayList(analysis.good_sounds))
                         putStringArrayListExtra("IMPROVE_SOUNDS", ArrayList(analysis.improve_sounds))
                         putStringArrayListExtra("GRAMMAR_ERRORS", ArrayList(analysis.grammar_errors))
+
+                        // Gửi thêm các field mới
+                        putStringArrayListExtra("VOCAB_SUGGESTIONS", ArrayList(analysis.vocab_suggestions ?: emptyList()))
+                        putStringArrayListExtra("PRONUNCIATION_FOCUS", ArrayList(analysis.pronunciation_focus ?: emptyList()))
 
                         putExtra("LESSON_TITLE", binding.tvTitle.text.toString())
                         putExtra("GOALS_STATUS", ArrayList(viewModel.goalStatus.value ?: emptyList<Boolean>()))
@@ -176,7 +183,7 @@ class SreenChatActivity : AppCompatActivity() {
                     }
                     startActivity(intent)
                     finish()
-                }, 1500) // Delay nhẹ để người dùng kịp thấy mục tiêu cuối cùng tích xanh
+                }, 1500)
             }
         }
 
