@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#F5F5F5"
-    tools:context=".View.DetailArticleActivity">
+    tools:context=".View.ui.activity.DetailArticleActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

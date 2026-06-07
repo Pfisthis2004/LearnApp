@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import com.example.learnapp.View.ChooseScenarioActivity
+import com.example.learnapp.View.ui.activity.ChooseScenarioActivity
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.BottomCreateConverBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnApp">
         <activity
-            android:name=".View.ChangePass"
+            android:name=".View.ui.activity.ChangePass"
             android:exported="false" />
 
         <service
@@ -28,16 +28,16 @@
         </service>
 
         <activity
-            android:name=".View.AIResultActivity"
+            android:name=".View.ui.activity.AIResultActivity"
             android:exported="false" />
         <activity
-            android:name=".View.ChooseScenarioActivity"
+            android:name=".View.ui.activity.ChooseScenarioActivity"
             android:exported="false" />
         <activity
-            android:name=".View.SreenChatActivity"
+            android:name=".View.ui.activity.SreenChatActivity"
             android:exported="false" />
         <activity
-            android:name=".View.EditProfileActivity"
+            android:name=".View.ui.activity.EditProfileActivity"
             android:exported="false" />
         <activity
             android:name=".View.ui.begin.activity_splash"
@@ -50,24 +50,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.SettingActivity"
+            android:name=".View.ui.activity.SettingActivity"
             android:exported="false" />
         <activity
-            android:name=".View.ArticleQuizActivity"
+            android:name=".View.ui.activity.ArticleQuizActivity"
             android:exported="false" />
         <activity
-            android:name=".View.DetailArticleActivity"
+            android:name=".View.ui.activity.DetailArticleActivity"
             android:exported="false"
             android:theme="@style/Theme.LearnApp" />
         <activity
-            android:name=".View.DetailVocabActivity"
+            android:name=".View.ui.activity.DetailVocabActivity"
             android:exported="false"
             android:theme="@style/Theme.LearnApp" />
         <activity
-            android:name=".View.SpeakingQuestionActivity"
+            android:name=".View.ui.activity.SpeakingQuestionActivity"
             android:exported="false" />
         <activity
-            android:name=".View.QuestionActivity"
+            android:name=".View.ui.activity.QuestionActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
             android:screenOrientation="portrait" />
@@ -87,7 +87,7 @@
             android:name=".View.ui.begin.language"
             android:exported="false" />
         <activity
-            android:name=".View.MainActivity"
+            android:name=".View.ui.activity.MainActivity"
             android:exported="false">
             <intent-filter>
                 <action android:name="FLUTTER_NOTIFICATION_CLICK" />
@@ -96,10 +96,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.LoginActivity"
+            android:name=".View.ui.activity.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".View.SignUpActivity"
+            android:name=".View.ui.activity.SignUpActivity"
             android:exported="false" />
         <activity
             android:name=".View.ui.begin.welcomehome"

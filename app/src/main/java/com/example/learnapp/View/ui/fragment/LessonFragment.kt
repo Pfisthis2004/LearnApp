@@ -16,24 +16,20 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.R
 import com.example.learnapp.Repository.LevelRepostitory
-import com.example.learnapp.View.QuestionActivity
+import com.example.learnapp.View.ui.activity.QuestionActivity
 import com.example.learnapp.View.ui.adapter.ChapterAdapter
 import com.example.learnapp.View.ui.bottomsheet.NotificationBottomSheet
 import com.example.learnapp.ViewModel.LessonViewModel
 import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.FragmentLessonBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class LessonFragment : Fragment() {
     private lateinit var chapterAdapter: ChapterAdapter

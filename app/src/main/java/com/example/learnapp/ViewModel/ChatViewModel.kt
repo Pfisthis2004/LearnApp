@@ -14,7 +14,7 @@ import com.example.learnapp.Repository.ChatRepository
 import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
-    private val repository = ChatRepository()
+    public val repository = ChatRepository()
     private val _historyList = MutableLiveData<List<HistoryItem>>()
     val historyList: LiveData<List<HistoryItem>> get() = _historyList
     private val _chatMessages = MutableLiveData<MutableList<ChatMessage>>(mutableListOf())
@@ -39,7 +39,7 @@ class ChatViewModel : ViewModel() {
         _isLoading.value = true
         val header = config.openingHeader
         // 1. HIỆN TIN NHẮN USER TRƯỚC (Dùng item_mess_user)
-        addMessageToUI(ChatMessage(text = header, sender = "USER"))
+//        addMessageToUI(ChatMessage(text = header, sender = "USER"))
 
         viewModelScope.launch {
             // 2. Gửi Header này lên Gemini để AI phản hồi theo Setting
@@ -59,6 +59,13 @@ class ChatViewModel : ViewModel() {
         _isLoading.value = true
 
         viewModelScope.launch {
+            val formattedText = repository.formatTextWithAi(userText)
+
+            // 3. Nếu text sau khi format khác text thô, cập nhật lại tin nhắn đó trong UI
+            // (Bạn có thể bỏ qua bước này nếu thấy không cần thiết)
+            if (formattedText != userText) {
+                updateLastUserMessage(formattedText)
+            }
             try {
                 val historyContext = getLimitedHistory()
                 val response = repository.fetchChatResponse(userText, config, historyContext)
@@ -96,6 +103,21 @@ class ChatViewModel : ViewModel() {
         val currentList = _chatMessages.value?.toMutableList() ?: mutableListOf()
         currentList.add(message)
         _chatMessages.postValue(currentList)
+    }
+    private fun updateLastUserMessage(newText: String) {
+        val currentList = _chatMessages.value?.toMutableList() ?: return
+
+        // Tìm index của tin nhắn cuối cùng mà sender là "USER"
+        val lastUserMsgIndex = currentList.indexOfLast { it.sender == "USER" }
+
+        if (lastUserMsgIndex != -1) {
+            // Cập nhật nội dung mới
+            val updatedMsg = currentList[lastUserMsgIndex].copy(text = newText)
+            currentList[lastUserMsgIndex] = updatedMsg
+
+            // Cập nhật lại LiveData để UI tự động refresh
+            _chatMessages.postValue(currentList)
+        }
     }
     private fun getLimitedHistory(): String {
         val allMessages = _chatMessages.value ?: return ""

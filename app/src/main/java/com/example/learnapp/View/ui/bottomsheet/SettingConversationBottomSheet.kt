@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.example.learnapp.Model.Chat.ChatConfig
 import com.example.learnapp.R
-import com.example.learnapp.View.SreenChatActivity
+import com.example.learnapp.View.ui.activity.SreenChatActivity
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.BottomSettingConverBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

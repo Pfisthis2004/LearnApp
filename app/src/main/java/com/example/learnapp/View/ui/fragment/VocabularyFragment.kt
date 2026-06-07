@@ -12,10 +12,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.learnapp.Model.Vocabulary
 import com.example.learnapp.R
-import com.example.learnapp.View.DetailVocabActivity
+import com.example.learnapp.View.ui.activity.DetailVocabActivity
 import com.example.learnapp.View.ui.adapter.VocabAdapter
 import com.example.learnapp.ViewModel.VocabViewModel
-import com.example.learnapp.databinding.ActivityDetailVocabBinding
 import com.example.learnapp.databinding.FragmentVocabularyBinding
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
@@ -77,7 +76,8 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
                 }
             },
             onVolumeClick = { word ->
-                speakOut(word) // Gọi hàm phát âm
+                speakOut(word)
+                Log.d("testvocab","{$word}")// Gọi hàm phát âm
             },
             onItemClick = { vocab ->
                 // Gọi hàm hiện Popup thay vì Intent
@@ -112,6 +112,7 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
         // Truyền trực tiếp đối tượng, Activity sẽ nhận lại đúng y hệt
         intent.putExtra("VOCAB_DATA", vocab)
         startActivity(intent)
+        speakOut(vocab.vocab)
     }
     private fun setupTabListeners() {
         binding.tabAll.setOnClickListener {

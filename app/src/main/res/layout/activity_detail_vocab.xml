@@ -9,7 +9,7 @@
     android:layout_marginRight="5dp"
     android:padding="16dp"
     android:background="@drawable/bg_vocab_tab"
-    tools:context=".View.DetailVocabActivity">
+    tools:context=".View.ui.activity.DetailVocabActivity">
   <Button
       android:id="@+id/btnback"
       android:layout_width="40dp"

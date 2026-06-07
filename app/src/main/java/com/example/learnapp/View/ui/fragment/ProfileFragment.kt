@@ -9,15 +9,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.R
-import com.example.learnapp.View.SettingActivity
+import com.example.learnapp.View.ui.activity.SettingActivity
 import com.example.learnapp.View.ui.adapter.DayAdapter
 import com.example.learnapp.ViewModel.UserViewModel
-import com.example.learnapp.databinding.FragmentLessonBinding
 import com.example.learnapp.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {

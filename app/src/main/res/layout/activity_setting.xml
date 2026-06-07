@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorSurface"
     android:orientation="vertical"
-    tools:context=".View.SettingActivity">
+    tools:context=".View.ui.activity.SettingActivity">
 
     <!-- TOOLBAR -->
     <com.google.android.material.appbar.MaterialToolbar

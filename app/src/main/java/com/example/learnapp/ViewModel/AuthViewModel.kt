@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.learnapp.Model.Status
 import com.example.learnapp.Repository.AuthRepository
-import com.example.learnapp.View.SettingActivity
 
 class AuthViewModel : ViewModel() {
     private val repository = AuthRepository()

@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.learnapp.View.MainActivity
+import com.example.learnapp.View.ui.activity.MainActivity
 import com.example.learnapp.databinding.ActivityStartStudyingBinding
 import com.google.firebase.auth.FirebaseAuth
 

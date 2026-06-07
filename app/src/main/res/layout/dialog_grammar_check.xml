@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialogcheck"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="32dp">
+
+    <!-- Thanh kéo đặc trưng của Bottom Sheet (Drag Handle) -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#E2E8F0"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Tiêu đề Dialog chính -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Grammar Correction"
+        android:textStyle="bold"
+        android:textColor="#0F172A"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif-medium" />
+
+    <!-- Phụ đề nhỏ tinh tế -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chúng tôi tìm thấy một vài đề xuất tối ưu ngữ pháp."
+        android:textColor="#64748B"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Card Bản Gốc (Nền đỏ Pastel mềm mại, viền đỏ nhạt) -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1.2dp"
+        app:strokeColor="#FEE2E2"
+        app:cardBackgroundColor="#FEF2F2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Badge Bản Gốc chữ đỏ đậm, phân tách rõ ràng -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BẢN GỐC"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#EF4444"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Nội dung câu gốc -->
+            <TextView
+                android:id="@+id/tvOriginal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="I am honestly quiet through this, because I have been waiting for this movie overall."
+                android:textColor="#1E293B"
+                android:textSize="16sp"
+                android:lineSpacingMultiplier="1.2" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Card Đã Sửa (Nền xanh lá Pastel dịu nhẹ, viền xanh nhạt) -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1.2dp"
+        app:strokeColor="#DCFCE7"
+        app:cardBackgroundColor="#F0FDF4">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Badge Đã Sửa chữ xanh lá nổi bật -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ĐÃ SỬA"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#22C55E"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Nội dung câu đã sửa lỗi -->
+            <TextView
+                android:id="@+id/tvCorrected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="I am honestly quite silent during this, because I have been waiting for this movie."
+                android:textColor="#1E293B"
+                android:textSize="16sp"
+                android:lineSpacingMultiplier="1.2" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Nút Tiếp tục màu Indigo rực rỡ và bo tròn thời thượng -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnApply"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Tiếp tục hội thoại"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="16dp"
+        app:backgroundTint="#4F46E5"
+        android:elevation="0dp"
+        app:rippleColor="#30FFFFFF" />
+
+</LinearLayout>

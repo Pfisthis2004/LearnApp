@@ -1,7 +1,6 @@
 package com.example.learnapp.View.ui.adapter
 
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Lesson
-import com.example.learnapp.Model.QuestionType
 import com.example.learnapp.R
-import com.example.learnapp.View.QuestionActivity
-import com.example.learnapp.View.SpeakingQuestionActivity
+import com.example.learnapp.View.ui.activity.QuestionActivity
 
 class LessonAdapter(
     private var lessons: MutableList<Lesson>,

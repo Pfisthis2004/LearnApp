@@ -5,6 +5,7 @@ import com.example.learnapp.BuildConfig
 import com.example.learnapp.Model.Chat.AIResponse
 import com.example.learnapp.Model.Chat.AISelectionResponse
 import com.example.learnapp.Model.Chat.ChatConfig
+import com.example.learnapp.Model.Chat.GrammarResult
 import com.example.learnapp.Model.Chat.ScenarioOption
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.generationConfig
@@ -94,10 +95,6 @@ class GeminiManager() {
             result.options
         }
     }
-
-    /**
-     * 3. Vòng lặp hội thoại & Kiểm tra mục tiêu
-     */
     /**
      * 3. Vòng lặp hội thoại & Kiểm tra mục tiêu
      */
@@ -161,24 +158,24 @@ class GeminiManager() {
             
             $proficiencyGuideline
             
-            # IMPORTANT LEVEL ADAPTATION
+          # IMPORTANT LEVEL ADAPTATION
             - The conversation difficulty, vocabulary complexity, correction strictness, and scoring MUST adapt dynamically based on the provided CEFR guidelines.
-            - Advanced mode requires immediate technical/logical pressure. Do not waste turns on casual pleasantries.
             
-            # GOAL MANAGEMENT (QUAN TRỌNG)
-            - User's Goals to achieve: [${config.goals.joinToString(", ")}]
-            - Current Goal Status: (Evaluated from the chat history)
+            # GOAL MANAGEMENT (QUAN TRỌNG - CHỈ USER THỰC HIỆN)
+            - Goals to achieve: [${config.goals.joinToString(", ")}]
+            - STRICT ROLE: These goals belong EXCLUSIVELY to the USER. You (the Bot) are NOT allowed to perform these actions yourself. 
+            - YOUR ROLE: Your ONLY job is to ask questions, introduce context, or provide scenarios that force the USER to demonstrate these goals.
+            - SCENARIO CONTROL: Lead the conversation so the user has the opportunity to achieve the FIRST uncompleted goal.
+            - EVALUATION: Only mark a goal as 'true' if the user performs it in their input. Never mark it 'true' based on your own words.
             
-            # STRATEGY: ONE STEP AT A TIME
-            1. **FOCUS**: At each turn, focus strictly on guiding the user to accomplish the FIRST uncompleted goal from the list.
+            # STRATEGY: FACILITATION
+            1. **LEAD, DON'T DO**: If the goal is "Ask about price", do not say the price. Ask the user something like "How can I help you today?" to prompt them to ask for the price.
             2. **STRICT EVALUATION**: Mark a goal as true ONLY if the user explicitly and fully performs the action. Do not guess or complete it for them.
-            3. **GUIDANCE**: If the user goes off-topic, gently but firmly steer them back to the current target goal.
-            4. **TRANSITION**: Do not rush. Only advance to the next goal after the current one is fully satisfied.
+            3. **TRANSITION**: Only advance to the next goal after the user has fully satisfied the current one.
     
             # HUMAN-LIKE RULES (BẮT BUỘC)
             1. **NO REPETITION**: Never use standard template responses like "Oh, that's great" or "I see". Reply directly to the user's specific content.
-            2. **NATURAL FILLERS**: Use conversational fillers like "Well," "Actually," "To be honest," "You know," or "From a critical standpoint..." to sound authentic.
-            3. **DRIVE THE TALK**: Always introduce a fresh point or a targeted question based on the role context to keep the flow moving.
+            2. **DRIVE THE TALK**: Always introduce a fresh point or a targeted question based on the role context to keep the flow moving.
             
             # OUTPUT FORMAT RULES
             1. Language: ALWAYS reply in English for the "reply" field.
@@ -377,7 +374,55 @@ class GeminiManager() {
         executeWithRetry {
             val response = getGenerativeModel().generateContent(finalPrompt)
             val cleanJson = cleanJsonResponse(response.text)
+            Log.d("GEMINI_RAW", "Data: $cleanJson")
             gson.fromJson(cleanJson, AIResponse::class.java)
+        }
+    }
+    suspend fun checkGrammar(
+        userText: String,
+        context: String, // Ví dụ: "In a job interview, talking about strength"
+        history: String  // 3-4 câu gần nhất
+    ): GrammarResult? = withContext(Dispatchers.IO) {
+        val prompt = """
+        Analyze the following user input within the provided context.
+        
+        Context: "$context"
+        Recent History:
+        $history
+        
+        User's sentence: "$userText"
+        
+        Task:
+        1. Correct the grammar and vocabulary usage to be natural and appropriate for this specific context.
+        2. If the sentence is grammatically correct but unnatural for the situation, suggest a more "native" phrasing.
+        
+        Return ONLY a JSON object with this format: 
+        {
+            "original": "$userText", 
+            "corrected": "câu hoàn chỉnh phù hợp ngữ cảnh", 
+            "errors": ["từ sai hoặc từ không phù hợp"], 
+            "fixes": ["từ thay thế hoặc sửa lỗi"]
+        }
+    """.trimIndent()
+
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(prompt)
+            val cleanJson = cleanJsonResponse(response.text)
+            gson.fromJson(cleanJson, GrammarResult::class.java)
+        }
+    }
+    suspend fun formatTextWithAi(rawText: String): String? = withContext(Dispatchers.IO) {
+        val prompt = "Fix ONLY the capitalization and punctuation for this sentence: \"$rawText\". Do not correct grammar or change words. Return ONLY a JSON object: {\"formatted_text\": \"your fixed text here\"}"
+
+        executeWithRetry {
+            val response = getGenerativeModel().generateContent(prompt)
+            val cleanJson = cleanJsonResponse(response.text)
+
+            // Parse trực tiếp thành một Map
+            val map = gson.fromJson(cleanJson, Map::class.java)
+
+            // Lấy giá trị ra từ key
+            map["formatted_text"]?.toString()
         }
     }
     private suspend fun <T> executeWithRetry(block: suspend () -> T): T? {
@@ -392,6 +437,7 @@ class GeminiManager() {
                         errorMsg.contains("Quota") ||
                         errorMsg.contains("503") ||
                         errorMsg.contains("UNAVAILABLE") ||
+                        errorMsg.contains("403")||
                         errorMsg.contains("demand")
 
                 if (isRetryableError) {

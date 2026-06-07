@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:background="?attr/selectableItemBackground"
     android:gravity="end"
     android:padding="8dp">
 
-    <!-- Bong bóng hội thoại user -->
     <TextView
         android:id="@+id/tvUserMessage"
         android:layout_width="wrap_content"
@@ -17,4 +17,5 @@
         android:text="User message here..."
         android:textColor="@android:color/black"
         android:layout_marginBottom="12dp"/>
+
 </LinearLayout>

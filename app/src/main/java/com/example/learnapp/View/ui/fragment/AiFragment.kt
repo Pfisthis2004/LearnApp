@@ -13,18 +13,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Chat.HistoryItem
 import com.example.learnapp.R
-import com.example.learnapp.View.AIResultActivity
+import com.example.learnapp.View.ui.activity.AIResultActivity
 import com.example.learnapp.View.ui.bottomsheet.CreateConversationBottomSheet
 import com.example.learnapp.View.ui.adapter.HistoryAdapter
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.FragmentAiBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class AiFragment : Fragment() {
 

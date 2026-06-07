@@ -2,18 +2,13 @@ package com.example.learnapp.View.ui.adapter
 
 import android.content.Intent
 import android.view.LayoutInflater
-import com.example.learnapp.R
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.learnapp.Model.Article
-import com.example.learnapp.View.DetailArticleActivity
+import com.example.learnapp.View.ui.activity.DetailArticleActivity
 import com.example.learnapp.databinding.ItemArticleBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class ArticleAdapter(private var articleList: List<Article>) :
     RecyclerView.Adapter<ArticleAdapter.ArticleViewHolder>() {
