@@ -39,20 +39,14 @@ class QuestionViewModel(
     private var lastLessonId: String? = null
     private var nextLessonId: String = ""
     fun loadQuestions(lessonId: String) {
-        // KIỂM TRA: Nếu đã load đúng Lesson này rồi và danh sách câu hỏi không rỗng thì KHÔNG load nữa
         if (lessonId == lastLessonId && _questions.value != null && _questions.value!!.isNotEmpty()) {
-            Log.d(TAG, "Questions for $lessonId already loaded. Skipping.")
             return
         }
-
-        Log.d(TAG, "Loading questions for lessonId=$lessonId")
         repository.getQuestions(lessonId) { list ->
-            Log.d(TAG, "Loaded ${list.size} questions")
             _questions.value = list
             _currentIndex.value = 0
             _correctCount = 0
             lastLessonId = lessonId // Cập nhật ID bài học vừa load thành công
-            Log.d(TAG, "Reset currentIndex=0, correctCount=0")
         }
     }
     fun addWordToOrdering(word: String) {
@@ -72,7 +66,6 @@ class QuestionViewModel(
     }
     fun nextQuestion() {
         val newIndex = (_currentIndex.value ?: 0) + 1
-        Log.d(TAG, "Moving to next question: index=$newIndex")
         _currentIndex.value = newIndex
     }
     fun setLessonInfo(lesson: Lesson) {
@@ -87,33 +80,24 @@ class QuestionViewModel(
     fun checkAnswer(userInput: String) {
         val index = _currentIndex.value ?: 0
         val question = _questions.value?.getOrNull(index)
-
-        Log.d(TAG, "Checking answer for question index=$index, userInput=$userInput")
-
         question?.let {
             val handler = getHandlerForType(it.type)
             val res: ResultState = handler.checkAnswer(userInput, it)
             _result.value = res
-
-            Log.d(TAG, "Result for question ${it.id}: $res")
-
             when (res) {
                 is ResultState.QuizResult -> {
                     if (res.correct > 0) {
                         _correctCount++
-                        Log.d(TAG, "QuizResult correct. Total correctCount=$_correctCount")
                     }
                 }
                 is ResultState.SpeakingResult -> {
                     if (res.isCorrect) {
                         _correctCount++
-                        Log.d(TAG, "SpeakingResult correct. Total correctCount=$_correctCount")
                     }
                 }
                 is ResultState.FillBlankResult -> {
                     if (res.isCorrect) {
                         _correctCount++
-                        Log.d(TAG, "FillBlankResult correct. Total correctCount=$_correctCount")
                     }
                 }
                 is ResultState.OrderingResult -> {
@@ -124,9 +108,21 @@ class QuestionViewModel(
             }
         } ?: Log.w(TAG, "No question found at index=$index")
     }
+    // Trong QuestionViewModel.kt
+    fun checkOrderingAnswer(userSelectedWords: List<String>) {
+        val index = _currentIndex.value ?: 0
+        val question = _questions.value?.getOrNull(index) ?: return
 
+        val handler = OrderingHandler()
+        val res = handler.checkOrderingAnswer(userSelectedWords, question)
+
+        _result.value = res
+
+        if (res is ResultState.OrderingResult && res.isCorrect) {
+            _correctCount++
+        }
+    }
     private fun getHandlerForType(type: QuestionType?): QuestionHandler {
-        Log.d(TAG, "Getting handler for type=$type")
         return when (type) {
             QuestionType.MULTIPLE_CHOICE -> QuizHandler()
             QuestionType.SPEAKING -> SpeakingHandler()

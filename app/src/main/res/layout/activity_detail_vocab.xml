@@ -9,7 +9,7 @@
     android:layout_marginRight="5dp"
     android:padding="16dp"
     android:background="@drawable/bg_vocab_tab"
-    tools:context=".View.DetailVocabActivity">
+    tools:context=".View.ui.activity.DetailVocabActivity">
   <Button
       android:id="@+id/btnback"
       android:layout_width="40dp"
@@ -118,7 +118,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginEnd="50dp"
+
         >
 
       <TextView
@@ -144,7 +144,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="40dp"
+
         >
 
       <TextView
@@ -164,8 +165,73 @@
           android:textSize="18sp"
           android:textColor="@android:color/black"/>
     </LinearLayout>
+
   </LinearLayout>
+  <!-- Khung hiển thị kết quả chấm điểm phát âm -->
 
 
+    <ImageButton
+        android:id="@+id/recordMic"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:src="@drawable/mic_icon"
+        android:scaleType="fitCenter"
+        android:padding="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bogoctron"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="8dp" />
+  <LinearLayout
+      android:id="@+id/layoutResult"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:background="@drawable/bogoctron"
+      android:padding="16dp"
+      android:layout_margin="16dp"
+      android:elevation="4dp"
+      android:visibility="visible"
+      >
 
+    <TextView
+        android:id="@+id/tvScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Độ chính xác: 0%"
+        android:textStyle="bold"
+        android:textColor="#2E7D32"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"/>
+
+
+    <TextView
+        android:id="@+id/tvFeedback"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Phản hồi chi tiết sẽ hiển thị ở đây."
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"/>
+    <TextView
+        android:id="@+id/tvSpeak2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="phản hồi phát âm"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"/>
+    <TextView
+        android:id="@+id/tvIPA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="phản hồi phát âm"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"/>
+  </LinearLayout>
 </LinearLayout>

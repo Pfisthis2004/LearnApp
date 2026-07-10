@@ -2,6 +2,7 @@ package com.example.learnapp.Repository
 
 import android.util.Log
 import com.example.learnapp.Model.Chat.ChatConfig
+import com.example.learnapp.Model.Chat.GrammarResult
 import com.example.learnapp.Model.Chat.HistoryItem
 import com.example.learnapp.Utils.GeminiManager
 import com.google.firebase.auth.FirebaseAuth
@@ -38,7 +39,6 @@ class ChatRepository {
                 onResult(list)
             }
     }
-
     fun saveHistory(item: HistoryItem) {
         val userId = auth.currentUser?.uid ?: return
         db.collection("users").document(userId)
@@ -72,7 +72,18 @@ class ChatRepository {
 
     suspend fun fetchSuggestion(config: ChatConfig, history: String,goal: List<Boolean>) =
         geminiManager.getSuggestion(config, history,goal )
-
+    suspend fun checkGrammar(
+        userText: String,
+        context: String,
+        history: String
+    ): GrammarResult? {
+        return geminiManager.checkGrammar(userText, context, history)
+    }
     suspend fun fetchFinalAnalysis(config: ChatConfig, history: String) =
         geminiManager.generateFinalAnalysis(config, history)
+    // Trong ChatRepository.kt
+    suspend fun formatTextWithAi(rawText: String): String {
+        // Gọi hàm từ GeminiManager
+        return geminiManager.formatTextWithAi(rawText) ?: rawText
+    }
 }

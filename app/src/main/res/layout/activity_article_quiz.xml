@@ -4,8 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".View.ArticleQuizActivity">
-
+    tools:context=".View.ui.activity.ArticleQuizActivity">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
     <!-- LinearLayout gốc được đưa vào trong FrameLayout -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -106,7 +109,6 @@
             android:id="@+id/btnCheck"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="80dp"
             android:backgroundTint="#08A7FD"
             android:text="Check"
             android:textAllCaps="false"
@@ -115,6 +117,7 @@
             android:textStyle="bold"
             app:cornerRadius="12dp" />
     </LinearLayout>
+    </ScrollView>
     <include
         android:id="@+id/includeResult"
         layout="@layout/result_question"

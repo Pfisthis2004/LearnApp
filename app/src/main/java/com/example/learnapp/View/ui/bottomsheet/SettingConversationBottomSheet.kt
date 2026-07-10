@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.example.learnapp.Model.Chat.ChatConfig
 import com.example.learnapp.R
-import com.example.learnapp.View.SreenChatActivity
+import com.example.learnapp.View.ui.activity.SreenChatActivity
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.BottomSettingConverBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -16,8 +16,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class SettingConversationBottomSheet(private val config: ChatConfig) : BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSettingConverBinding
-
-    // Sử dụng activityViewModels để dùng chung instance ChatViewModel với Activity
     private val viewModel: ChatViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -27,14 +25,8 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 1. Đổ dữ liệu từ Gemini vào UI
         updateUIFromGemini()
-
-        // 2. Xử lý sự kiện thay đổi lựa chọn của người dùng
         setupListeners()
-
-        // 3. Nút Khởi tạo
         binding.btnCreate.setOnClickListener {
             startChatFlow()
         }
@@ -72,13 +64,17 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
         // 1. Xác định vai
         val aiIndex = if (binding.rbBotrole1.isChecked) 0 else 1
         val userIndex = if (aiIndex == 0) 1 else 0
-
+        val selectedLevel = when (binding.rgLevel.checkedRadioButtonId) {
+            R.id.rbLevelIntermediate -> "Intermediate"
+            R.id.rbLevelAdvanced -> "Advanced"
+            else -> "Beginner"
+        }
         // 2. Cập nhật header
         val updatedHeader = config.openingHeader
             .replace("[Role0]", config.roles[0])
             .replace("[Role1]", config.roles[1])
 
-        // 3. Tạo finalConfig (Giữ nguyên cấu trúc logic của bạn)
+        // 3. Tạo finalConfig
         val finalConfig = config.copy(
             title = config.title,
             description = this.config.description,
@@ -87,15 +83,13 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
             goals = config.goals_for_roles[userIndex],
             personality = if (binding.rbBotCheerful.isChecked) "Cheerful" else "Serious",
             attitude = if (binding.rbBotAgree.isChecked) "Supportive" else "Challenging",
+            level = selectedLevel,
             openingHeader = updatedHeader
         )
 
-        // 4. CHỈ SỬA Ở ĐÂY: Đồng bộ hóa với ViewModel nếu cần hoặc mở màn hình Chat
-        // Vì SreenChatActivity sẽ tự khởi tạo một ViewModel mới, ta truyền config qua Intent
         binding.root.postDelayed({
             val intent = Intent(requireContext(), SreenChatActivity::class.java).apply {
                 putExtra("CONFIG_KEY", finalConfig)
-                // Xóa flag cũ để tránh chồng lấp nếu cần
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
             startActivity(intent)

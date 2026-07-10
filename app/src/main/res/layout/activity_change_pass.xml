@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorSurface"
-    tools:context=".View.ChangePass">
+    tools:context=".View.ui.activity.ChangePass">
 
     <!-- HEADER -->
     <LinearLayout

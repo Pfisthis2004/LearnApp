@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.learnapp.R
-import com.example.learnapp.View.LoginActivity
-import com.example.learnapp.View.MainActivity
+import com.example.learnapp.View.ui.activity.LoginActivity
+import com.example.learnapp.View.ui.activity.MainActivity
 import com.example.learnapp.databinding.ActivitySplashBinding
 import com.google.firebase.auth.FirebaseAuth
 

@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".View.LoginActivity"
+    tools:context=".View.ui.activity.LoginActivity"
     android:padding="20dp">
 
     <!-- Header với nút Back và Light Mode -->
@@ -169,7 +169,7 @@
     <!-- Nút Google -->
     <Button
         android:id="@+id/btnGoogle"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Đăng nhập bằng Google"
         android:textSize="20sp"
@@ -177,11 +177,10 @@
         android:textStyle="bold"
         android:backgroundTint="@color/colorDivider"
         android:paddingVertical="10dp"
-        android:drawableLeft="@drawable/icongoogle"
-        android:drawablePadding="12dp"
         app:layout_constraintTop_toBottomOf="@id/orDivider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <!-- Điều khoản -->
     <TextView

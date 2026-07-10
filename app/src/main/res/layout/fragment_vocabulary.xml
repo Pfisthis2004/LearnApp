@@ -97,13 +97,24 @@
                     android:textSize="13sp"/>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
+    </LinearLayout>
+    <EditText
+        android:id="@+id/edtfind"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tìm kiếm"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/bogoc"
+        android:textColor="@android:color/black"
+        android:textColorHint="#8E8E93"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="30dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_vocab_tab"
         android:backgroundTint="@color/colorDivider"

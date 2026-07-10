@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.learnapp.View.LoginActivity
-import com.example.learnapp.View.SignUpActivity
+import com.example.learnapp.View.ui.activity.LoginActivity
+import com.example.learnapp.View.ui.activity.SignUpActivity
 import com.example.learnapp.databinding.ActivityWelcomehomeBinding
 
 class welcomehome : AppCompatActivity() {

@@ -3,6 +3,8 @@ package com.example.learnapp.View.ui.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,10 +14,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.learnapp.Model.Vocabulary
 import com.example.learnapp.R
-import com.example.learnapp.View.DetailVocabActivity
+import com.example.learnapp.View.ui.activity.DetailVocabActivity
 import com.example.learnapp.View.ui.adapter.VocabAdapter
 import com.example.learnapp.ViewModel.VocabViewModel
-import com.example.learnapp.databinding.ActivityDetailVocabBinding
 import com.example.learnapp.databinding.FragmentVocabularyBinding
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
@@ -27,6 +28,7 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
     private val pendingChanges = mutableMapOf<String, Boolean>()
     private var isShowingAll = true
     private var tts: TextToSpeech? = null
+    private var allVocabularyList: List<Vocabulary> = emptyList()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,6 +52,7 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
 
         // 4. Xử lý sự kiện Tabs
         setupTabListeners()
+        setupSearchFunctionality()
     }
 
     private fun setupRecyclerView() {
@@ -77,7 +80,8 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
                 }
             },
             onVolumeClick = { word ->
-                speakOut(word) // Gọi hàm phát âm
+                speakOut(word)
+                Log.d("testvocab","{$word}")// Gọi hàm phát âm
             },
             onItemClick = { vocab ->
                 // Gọi hàm hiện Popup thay vì Intent
@@ -93,58 +97,19 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private fun observeData() {
         viewModel.vocabList.observe(viewLifecycleOwner) { list ->
+            allVocabularyList = list
             // Luôn cập nhật Header số lượng
             binding.countWord.text = list.size.toString()
             binding.favWord.text = list.count { it.isFavorite }.toString()
-
-            // Hiển thị dữ liệu dựa trên Tab hiện tại (Mặc định là All khi mới vào)
-            if (pendingChanges.isEmpty()) {
-                if (isShowingAll) {
-                    adapter.updateData(list)
-                } else {
-                    adapter.updateData(list.filter { it.isFavorite })
-                }
-            }
+            val currentQuery = binding.edtfind.text.toString()
+            filterVocabulary(currentQuery)
         }
     }
     private fun showVocabDetailDialog(vocab: Vocabulary) {
-        // 1. Khởi tạo Binding cho layout popup
-        val dialogBinding = ActivityDetailVocabBinding.inflate(layoutInflater)
-        val dialog = android.app.Dialog(requireContext())
-        dialog.setContentView(dialogBinding.root)
-
-        // 3. Đổ dữ liệu vào các view của Popup
-        dialogBinding.apply {
-            tvcontext.text = vocab.vocab
-            tvTrans.text = vocab.translation
-            tvExample.text = vocab.example.ifEmpty { "Không có ví dụ" }
-            tvLevelValue.text = vocab.levelId
-            val chapterNumber = vocab.chapterId.substringAfterLast("ch").filter { it.isDigit() }
-            tvReviewsValue.text = chapterNumber.ifEmpty { "1" }
-            val lessonNumber = vocab.lessonId.substringAfterLast("l").filter { it.isDigit() }
-            tvlessonvalue.text = lessonNumber.ifEmpty { "1" }
-
-            // Nút quay lại (đóng popup)
-            btnback.setOnClickListener {
-                dialog.dismiss()
-            }
-        }
-
-        // 4. Cấu hình để Dialog hiện giữa màn hình và có nền trong suốt (bo góc)
-        dialog.window?.apply {
-            setBackgroundDrawableResource(android.R.color.transparent)
-
-            // --- DÒNG QUAN TRỌNG NHẤT ĐÂY ---
-            setWindowAnimations(R.style.DialogAnimation)
-
-            setLayout(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            setDimAmount(0.7f)
-        }
-
-        dialog.show()
+        val intent = Intent(requireContext(), DetailVocabActivity::class.java)
+        // Truyền trực tiếp đối tượng, Activity sẽ nhận lại đúng y hệt
+        intent.putExtra("VOCAB_DATA", vocab)
+        startActivity(intent)
         speakOut(vocab.vocab)
     }
     private fun setupTabListeners() {
@@ -176,6 +141,31 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
         } else {
             adapter.updateData(currentList.filter { it.isFavorite })
         }
+    }
+    private fun setupSearchFunctionality() {
+        binding.edtfind.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString().trim().lowercase()
+                filterVocabulary(query)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+    private fun filterVocabulary(query: String) {
+        // Lấy danh sách nguồn dựa trên tab đang chọn
+        val sourceList = if (isShowingAll) allVocabularyList else allVocabularyList.filter { it.isFavorite }
+
+        // Lọc theo từ khóa
+        val filteredList = if (query.isEmpty()) {
+            sourceList
+        } else {
+            sourceList.filter { it.vocab.lowercase().contains(query) }
+        }
+
+        adapter.updateData(filteredList)
     }
     override fun onDestroyView() {
         // Lưu ý: Lấy userId TRƯỚC khi view bị hủy hoàn toàn

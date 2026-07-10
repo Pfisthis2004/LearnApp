@@ -4,26 +4,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/ai_fragment_backgroud"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="20dp">
 
+        <!-- Header -->
         <TextView
             android:id="@+id/tvCongrats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bài học hoàn tất!"
+            android:text="Kết quả đánh giá"
             android:textColor="@color/white"
-            android:textSize="26sp"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginTop="16dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <TextView
+            android:id="@+id/tvLevelBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Level: Intermediate"
+            android:textColor="#FFD700"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            app:layout_constraintTop_toBottomOf="@id/tvCongrats"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Score -->
         <FrameLayout
             android:id="@+id/scoreContainer"
             android:layout_width="180dp"
@@ -45,8 +60,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/tvFinalScore"
                     android:layout_width="wrap_content"
@@ -55,6 +71,7 @@
                     android:textColor="@color/white"
                     android:textSize="44sp"
                     android:textStyle="bold" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -64,131 +81,217 @@
             </LinearLayout>
         </FrameLayout>
 
+        <!-- Feedback -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardGoals"
+            android:id="@+id/cardAnalysis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="16dp"
+            android:layout_marginTop="20dp"
             app:cardBackgroundColor="#CCFFFFFF"
+            app:cardCornerRadius="16dp"
             app:layout_constraintTop_toBottomOf="@id/scoreContainer">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvOverallFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="..."
+                    android:textColor="#333"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Goals -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardGoals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="#CCFFFFFF"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintTop_toBottomOf="@id/cardAnalysis">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Chi tiết mục tiêu"
-                    android:textStyle="bold"
+                    android:textColor="@color/black"
                     android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:textStyle="bold" />
+
                 <TextView
                     android:id="@+id/tvGoalsSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="✅ Mục tiêu 1"
+                    android:text=""
                     android:textColor="#444444" />
+
             </LinearLayout>
+
         </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:id="@+id/tvHighlightLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Điểm nổi bật"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@id/cardGoals"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardHighlights"
+        <!-- Main Content -->
+        <LinearLayout
+            android:id="@+id/linear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="#4343AB"
-            app:layout_constraintTop_toBottomOf="@id/tvHighlightLabel">
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/cardGoals">
 
-            <LinearLayout
+            <!-- Grammar -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngữ pháp (Grammar)"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                />
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvGrammarErrors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    android:visibility="gone"/>
+
+
+
+            <!-- Vocabulary -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Từ vựng (Vocabulary)"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexVocabSuggestions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginTop="8dp"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:alignItems="flex_start" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bạn phát âm rất tốt các âm"
-                    android:textColor="#B0B0C0"
-                    android:textSize="13sp"/>
-                <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/flexGoodSounds"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:flexWrap="wrap" />
+            <!-- Pronunciation -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Phát âm (Pronunciation)"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bạn cần cố gắng hơn ở các âm"
-                    android:textColor="#B0B0C0"
-                    android:textSize="13sp"
-                    android:layout_marginTop="16dp"/>
-                <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/flexImproveSounds"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:flexWrap="wrap" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardGrammar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="#4343AB"
-            app:layout_constraintTop_toBottomOf="@id/cardHighlights">
-            <LinearLayout
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexPronunciationFocus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Các lỗi ngữ pháp bạn gặp"
-                    android:textColor="#B0B0C0"
-                    android:textSize="13sp"/>
-                <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/flexGrammarErrors"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:flexWrap="wrap" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                android:layout_marginTop="8dp"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:alignItems="flex_start" />
 
+            <!-- Improve Sounds -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Bạn cần cố gắng hơn ở các âm"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexImproveSounds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:alignItems="flex_start" />
+
+            <!-- Good Sounds -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Bạn phát âm rất tốt các âm"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexGoodSounds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:alignItems="flex_start" />
+
+            <!-- Grammar Errors -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Các lỗi ngữ pháp bạn gặp"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexGrammarErrors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:alignItems="flex_start" />
+
+        </LinearLayout>
+
+        <!-- Button -->
         <Button
             android:id="@+id/btnHome"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="16dp"
-            android:text="HOÀN THÀNH"
+            android:layout_marginTop="30dp"
             android:backgroundTint="#4CAF50"
+            android:text="HOÀN THÀNH"
             app:cornerRadius="28dp"
-            app:layout_constraintTop_toBottomOf="@id/cardGrammar"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/linear"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>

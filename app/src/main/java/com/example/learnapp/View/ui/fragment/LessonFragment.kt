@@ -16,24 +16,20 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.learnapp.R
 import com.example.learnapp.Repository.LevelRepostitory
-import com.example.learnapp.View.QuestionActivity
+import com.example.learnapp.View.ui.activity.QuestionActivity
 import com.example.learnapp.View.ui.adapter.ChapterAdapter
 import com.example.learnapp.View.ui.bottomsheet.NotificationBottomSheet
 import com.example.learnapp.ViewModel.LessonViewModel
 import com.example.learnapp.ViewModel.UserViewModel
 import com.example.learnapp.databinding.FragmentLessonBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class LessonFragment : Fragment() {
     private lateinit var chapterAdapter: ChapterAdapter
@@ -158,10 +154,19 @@ class LessonFragment : Fragment() {
         val imgDetail = dialogView.findViewById<ImageView>(R.id.imgStreakDetail)
         val tvTitle = dialogView.findViewById<TextView>(R.id.tvStreakTitle)
         val btnClose = dialogView.findViewById<Button>(R.id.btnStreakClose)
+        val tvGoodjob = dialogView.findViewById<TextView>(R.id.tvgoodjobs)
 
         // Dùng Glide load ảnh trong Dialog cho "mượt"
         Glide.with(this).load(R.raw.fire).into(imgDetail)
-        tvTitle.text = "$streakCount Ngày Liên Tiếp!"
+        if (streakCount > 0) {
+            Glide.with(this).load(R.raw.fire).into(imgDetail)
+            tvTitle.text = "$streakCount Ngày Liên Tiếp!"
+            tvGoodjob.text = "Bạn đang làm rất tốt! \nHãy tiếp tục duy trì việc học mỗi ngày nhé."
+        } else {
+            Glide.with(this).load(R.raw.zerostreaks).into(imgDetail)
+            tvTitle.text = "Hiện tại chưa có chuỗi \nhọc tập."
+            tvGoodjob.text= "Hãy làm bài tập để bắt đầu chuỗi nhé!"
+        }
 
         btnClose.setOnClickListener { dialog.dismiss() }
 

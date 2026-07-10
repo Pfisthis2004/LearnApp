@@ -18,7 +18,6 @@ class TextToSpeechManager(context: Context) : TextToSpeech.OnInitListener {
                 Log.e("TTS", "Ngôn ngữ không hỗ trợ")
             } else {
                 isReady = true
-                // Có thể chỉnh tốc độ nói (0.8 - 1.0 là vừa phải)
                 tts?.setSpeechRate(0.9f)
             }
         } else {
@@ -32,7 +31,7 @@ class TextToSpeechManager(context: Context) : TextToSpeech.OnInitListener {
         }
     }
     fun stop() {
-        tts?.stop() // Dừng phát ngay lập tức
+        tts?.stop()
     }
     fun shutDown() {
         tts?.stop()

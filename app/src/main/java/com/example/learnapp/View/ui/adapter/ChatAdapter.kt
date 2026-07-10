@@ -12,7 +12,8 @@ import com.example.learnapp.Model.Chat.ChatMessage
 import com.example.learnapp.R
 
 class ChatAdapter(private val config: ChatConfig,
-                  private val onSpeakClick: (String) -> Unit)
+                  private val onSpeakClick: (String) -> Unit,
+                  private val onGrammarClick: (String) -> Unit)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var messages = mutableListOf<ChatMessage>()
@@ -77,7 +78,7 @@ class ChatAdapter(private val config: ChatConfig,
             is UserViewHolder -> {
                 val msgIndex = position - 1
                 if (msgIndex in messages.indices) {
-                    holder.bind(messages[msgIndex])
+                    holder.bind(messages[msgIndex], onGrammarClick)
                     // Nếu muốn tin nhắn User cũng bay lên thì chèn ở đây luôn
                     setAnimation(holder.itemView, position)
                 }
@@ -103,7 +104,6 @@ class ChatAdapter(private val config: ChatConfig,
             // 2. Chỉ setup RecyclerView con khi nó chưa có Adapter
             if (rvObjectives.adapter == null) {
                 rvObjectives.layoutManager = LinearLayoutManager(itemView.context)
-//                rvObjectives.setHasFixedSize(true) // Giúp RecyclerView tính toán kích thước nhanh hơn
                 rvObjectives.adapter = GoalsAdapter(config.goals, status)
             } else {
                 // 3. Nếu đã có, chỉ cần cập nhật trạng thái của mảng Boolean
@@ -150,8 +150,11 @@ class ChatAdapter(private val config: ChatConfig,
 
     inner class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val tvUserMessage = view.findViewById<TextView>(R.id.tvUserMessage)
-        fun bind(message: ChatMessage) {
+        fun bind(message: ChatMessage, onGrammarClick: (String) -> Unit) {
             tvUserMessage.text = message.text
+            itemView.setOnClickListener {
+                onGrammarClick(message.text)
+            }
         }
     }
 }

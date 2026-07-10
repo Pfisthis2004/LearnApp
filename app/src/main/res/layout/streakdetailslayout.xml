@@ -22,15 +22,19 @@
         android:layout_marginTop="15dp"
         android:text=" Chuoi 0 Streak!"
         android:textColor="#FF9800"
+        android:singleLine="false"
+        android:gravity="center"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/tvgoodjobs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="Bạn đang làm rất tốt! \nHãy tiếp tục duy trì việc học mỗi ngày nhé."
+        android:singleLine="false"
+        android:text="Chúc mừng đã có chuỗi"
         android:textColor="#666666" />
 
     <Button
