@@ -31,6 +31,7 @@ import com.example.learnapp.View.ui.adapter.ChatAdapter
 import com.example.learnapp.ViewModel.ChatViewModel
 import com.example.learnapp.databinding.ActivitySreenChatBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SreenChatActivity : AppCompatActivity() {
@@ -59,9 +60,13 @@ class SreenChatActivity : AppCompatActivity() {
             setupHelpButton()
 
             // 2. Bắt đầu hội thoại nếu là lần đầu vào màn hình
-            if (viewModel.chatMessages.value.isNullOrEmpty()) {
-                viewModel.startConversation(config)
-            }
+            binding.root.postDelayed({
+
+                if (viewModel.chatMessages.value.isNullOrEmpty()) {
+                    viewModel.startConversation(config)
+                }
+
+            }, 1000)
         }
 
         observeChatLogic()
@@ -176,19 +181,23 @@ class SreenChatActivity : AppCompatActivity() {
             }
         }
 
-        // 2. Quản lý trạng thái mục tiêu (GỘP LẠI)
+        // 2. Quản lý trạng thái mục tiêu
         viewModel.goalStatus.observe(this) { status ->
             if (status == null) return@observe
 
             chatAdapter.updateGoalStatus(status)
 
-            // Chỉ gọi phân tích khi: có mục tiêu, tất cả xong, và chưa đang chuyển màn
             if (status.isNotEmpty() && status.all { it } && !isNavigatingToResult) {
-                // Vô hiệu hóa nút bấm để tránh gửi tin nhắn khi đang tổng kết
                 binding.recordButton.isEnabled = false
                 binding.instructionText.text = "Đang tổng kết bài học..."
 
-                currentConfig?.let { viewModel.finishAndAnalyze(it) }
+                lifecycleScope.launch {
+                    delay(4000)
+
+                    currentConfig?.let {
+                        viewModel.finishAndAnalyze(it)
+                    }
+                }
             }
         }
 
@@ -201,14 +210,12 @@ class SreenChatActivity : AppCompatActivity() {
                 binding.root.postDelayed({
                     val intent = Intent(this, AIResultActivity::class.java).apply {
                         putExtra("SCORE", analysis.score)
-                        putExtra("FEEDBACK", analysis.reply) // Gửi feedback
-                        putExtra("LEVEL", analysis.level)    // Gửi level
+                        putExtra("FEEDBACK", analysis.reply)
+                        putExtra("LEVEL", analysis.level)
 
                         putStringArrayListExtra("GOOD_SOUNDS", ArrayList(analysis.good_sounds))
                         putStringArrayListExtra("IMPROVE_SOUNDS", ArrayList(analysis.improve_sounds))
                         putStringArrayListExtra("GRAMMAR_ERRORS", ArrayList(analysis.grammar_errors))
-
-                        // Gửi thêm các field mới
                         putStringArrayListExtra("VOCAB_SUGGESTIONS", ArrayList(analysis.vocab_suggestions ?: emptyList()))
                         putStringArrayListExtra("PRONUNCIATION_FOCUS", ArrayList(analysis.pronunciation_focus ?: emptyList()))
 
@@ -267,14 +274,12 @@ class SreenChatActivity : AppCompatActivity() {
         val tvOriginal = view.findViewById<TextView>(R.id.tvOriginal)
         val tvCorrected = view.findViewById<TextView>(R.id.tvCorrected)
 
-        // Sử dụng màu từ R.color (đã có trong file xml của bạn)
+
         var originalSpannable = SpannableString(result.original)
         for (errorWord in result.errors) {
             originalSpannable = highlightText(originalSpannable, errorWord, true)
         }
         tvOriginal.text = originalSpannable
-
-        // Xử lý câu sửa: "I went to school yesterday." -> "went" màu xanh
         var correctedSpannable = SpannableString(result.corrected)
         for (fixWord in result.fixes) {
             correctedSpannable = highlightText(correctedSpannable, fixWord, false)

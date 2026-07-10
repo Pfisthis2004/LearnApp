@@ -154,10 +154,19 @@ class LessonFragment : Fragment() {
         val imgDetail = dialogView.findViewById<ImageView>(R.id.imgStreakDetail)
         val tvTitle = dialogView.findViewById<TextView>(R.id.tvStreakTitle)
         val btnClose = dialogView.findViewById<Button>(R.id.btnStreakClose)
+        val tvGoodjob = dialogView.findViewById<TextView>(R.id.tvgoodjobs)
 
         // Dùng Glide load ảnh trong Dialog cho "mượt"
         Glide.with(this).load(R.raw.fire).into(imgDetail)
-        tvTitle.text = "$streakCount Ngày Liên Tiếp!"
+        if (streakCount > 0) {
+            Glide.with(this).load(R.raw.fire).into(imgDetail)
+            tvTitle.text = "$streakCount Ngày Liên Tiếp!"
+            tvGoodjob.text = "Bạn đang làm rất tốt! \nHãy tiếp tục duy trì việc học mỗi ngày nhé."
+        } else {
+            Glide.with(this).load(R.raw.zerostreaks).into(imgDetail)
+            tvTitle.text = "Hiện tại chưa có chuỗi \nhọc tập."
+            tvGoodjob.text= "Hãy làm bài tập để bắt đầu chuỗi nhé!"
+        }
 
         btnClose.setOnClickListener { dialog.dismiss() }
 

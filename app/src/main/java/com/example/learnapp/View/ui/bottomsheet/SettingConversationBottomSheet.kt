@@ -16,8 +16,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class SettingConversationBottomSheet(private val config: ChatConfig) : BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSettingConverBinding
-
-    // Sử dụng activityViewModels để dùng chung instance ChatViewModel với Activity
     private val viewModel: ChatViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -27,14 +25,8 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 1. Đổ dữ liệu từ Gemini vào UI
         updateUIFromGemini()
-
-        // 2. Xử lý sự kiện thay đổi lựa chọn của người dùng
         setupListeners()
-
-        // 3. Nút Khởi tạo
         binding.btnCreate.setOnClickListener {
             startChatFlow()
         }
@@ -82,7 +74,7 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
             .replace("[Role0]", config.roles[0])
             .replace("[Role1]", config.roles[1])
 
-        // 3. Tạo finalConfig (Giữ nguyên cấu trúc logic của bạn)
+        // 3. Tạo finalConfig
         val finalConfig = config.copy(
             title = config.title,
             description = this.config.description,
@@ -95,12 +87,9 @@ class SettingConversationBottomSheet(private val config: ChatConfig) : BottomShe
             openingHeader = updatedHeader
         )
 
-        // 4. CHỈ SỬA Ở ĐÂY: Đồng bộ hóa với ViewModel nếu cần hoặc mở màn hình Chat
-        // Vì SreenChatActivity sẽ tự khởi tạo một ViewModel mới, ta truyền config qua Intent
         binding.root.postDelayed({
             val intent = Intent(requireContext(), SreenChatActivity::class.java).apply {
                 putExtra("CONFIG_KEY", finalConfig)
-                // Xóa flag cũ để tránh chồng lấp nếu cần
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
             startActivity(intent)

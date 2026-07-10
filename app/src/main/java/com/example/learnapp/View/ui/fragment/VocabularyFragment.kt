@@ -3,6 +3,8 @@ package com.example.learnapp.View.ui.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -26,6 +28,7 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
     private val pendingChanges = mutableMapOf<String, Boolean>()
     private var isShowingAll = true
     private var tts: TextToSpeech? = null
+    private var allVocabularyList: List<Vocabulary> = emptyList()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,6 +52,7 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
 
         // 4. Xử lý sự kiện Tabs
         setupTabListeners()
+        setupSearchFunctionality()
     }
 
     private fun setupRecyclerView() {
@@ -93,18 +97,12 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private fun observeData() {
         viewModel.vocabList.observe(viewLifecycleOwner) { list ->
+            allVocabularyList = list
             // Luôn cập nhật Header số lượng
             binding.countWord.text = list.size.toString()
             binding.favWord.text = list.count { it.isFavorite }.toString()
-
-            // Hiển thị dữ liệu dựa trên Tab hiện tại (Mặc định là All khi mới vào)
-            if (pendingChanges.isEmpty()) {
-                if (isShowingAll) {
-                    adapter.updateData(list)
-                } else {
-                    adapter.updateData(list.filter { it.isFavorite })
-                }
-            }
+            val currentQuery = binding.edtfind.text.toString()
+            filterVocabulary(currentQuery)
         }
     }
     private fun showVocabDetailDialog(vocab: Vocabulary) {
@@ -143,6 +141,31 @@ class VocabularyFragment : Fragment(), TextToSpeech.OnInitListener {
         } else {
             adapter.updateData(currentList.filter { it.isFavorite })
         }
+    }
+    private fun setupSearchFunctionality() {
+        binding.edtfind.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString().trim().lowercase()
+                filterVocabulary(query)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+    private fun filterVocabulary(query: String) {
+        // Lấy danh sách nguồn dựa trên tab đang chọn
+        val sourceList = if (isShowingAll) allVocabularyList else allVocabularyList.filter { it.isFavorite }
+
+        // Lọc theo từ khóa
+        val filteredList = if (query.isEmpty()) {
+            sourceList
+        } else {
+            sourceList.filter { it.vocab.lowercase().contains(query) }
+        }
+
+        adapter.updateData(filteredList)
     }
     override fun onDestroyView() {
         // Lưu ý: Lấy userId TRƯỚC khi view bị hủy hoàn toàn

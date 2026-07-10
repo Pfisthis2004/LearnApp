@@ -17,8 +17,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class CreateConversationBottomSheet : BottomSheetDialogFragment() {
     private var _binding: BottomCreateConverBinding? = null
     private val binding get() = _binding!!
-
-    // SỬ DỤNG VIEWMODEL: Thay vì geminiManager trực tiếp
     private val viewModel: ChatViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -38,7 +36,6 @@ class CreateConversationBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupUI() {
-        // Xử lý giới hạn từ (Giữ nguyên logic của bạn)
         var isUpdating = false
         binding.etInput.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -57,15 +54,12 @@ class CreateConversationBottomSheet : BottomSheetDialogFragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Nút Tạo: Chỉ gửi yêu cầu tới ViewModel
         binding.btnCreate.setOnClickListener {
             val userIdea = binding.etInput.text.toString().trim()
             if (userIdea.isEmpty()) {
                 Toast.makeText(context, "Hãy nhập ý tưởng của bạn nhé!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            // Gọi hàm trong ViewModel (Bạn cần thêm hàm createScenarios vào ChatViewModel)
             viewModel.createScenarios(userIdea)
         }
     }
@@ -83,15 +77,11 @@ class CreateConversationBottomSheet : BottomSheetDialogFragment() {
                 val intent = Intent(requireContext(), ChooseScenarioActivity::class.java)
                 intent.putParcelableArrayListExtra("SCENARIOS", ArrayList(options))
                 startActivity(intent)
-
-                // Sau khi chuyển màn, xóa dữ liệu trong ViewModel để tránh việc
-                // quay lại màn hình này nó tự động nhảy sang ChooseScenario lần nữa
                 viewModel.clearScenarios()
                 dismiss()
             }
         }
 
-        // Quan sát lỗi (Sử dụng biến _error đã thêm trước đó)
         viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()

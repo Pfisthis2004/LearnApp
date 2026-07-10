@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.learnapp.R
 import com.example.learnapp.View.ui.activity.MainActivity
@@ -18,15 +19,13 @@ class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        // Trong MessagingService.kt
         val prefs = getSharedPreferences("LearnAppPrefs", Context.MODE_PRIVATE)
         prefs.edit().putBoolean("has_new_notification", true).commit() // Dùng commit()
-        val title = remoteMessage.data["title"] ?: "LangGo"
+        val title = remoteMessage.data["title"] ?: "LearnApp"
         val body = remoteMessage.data["body"] ?: "Thông báo mới"
         showNotification(title, body)
     }
 
-    // Trong MessagingService.kt
     private fun showNotification(title: String, message: String) {
         val channelId = "learn_app_channel"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

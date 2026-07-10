@@ -109,7 +109,6 @@
             android:id="@+id/btnCheck"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="80dp"
             android:backgroundTint="#08A7FD"
             android:text="Check"
             android:textAllCaps="false"

@@ -271,17 +271,17 @@ class QuestionActivity : AppCompatActivity() {
         viewModel.finishLesson(nextLessonId)
 
         binding.includeResult.tvScore.text = "Điểm: $scorePercent%"
-        binding.includeResult.tvStars.text = "Thưởng: $xp XP"
+        binding.includeResult.tvStars.text = "+$xp XP"
 
-        val questions = viewModel.questions.value ?: emptyList()
-        Log.d("QuestionActivity", "Tổng số câu hỏi nhận được: ${questions.size}")
-        Log.d("DEBUG_DATA", "--- KIỂM TRA MAPPING FIRESTORE ---")
-        questions.forEachIndexed { index, q ->
-            Log.d("DEBUG_DATA", "Câu số ${index + 1}:")
-            Log.d("DEBUG_DATA", " > ID: ${q.id}") // Xem ID có lấy được không
-            Log.d("DEBUG_DATA", " > Vocab thô: '${q.vocab}'") // Đây là điểm mấu chốt
-            Log.d("DEBUG_DATA", " > Is Vocab Empty: ${q.vocab.isEmpty()}")
-        }
+//        val questions = viewModel.questions.value ?: emptyList()
+//        Log.d("QuestionActivity", "Tổng số câu hỏi nhận được: ${questions.size}")
+//        Log.d("DEBUG_DATA", "--- KIỂM TRA MAPPING FIRESTORE ---")
+//        questions.forEachIndexed { index, q ->
+//            Log.d("DEBUG_DATA", "Câu số ${index + 1}:")
+//            Log.d("DEBUG_DATA", " > ID: ${q.id}") // Xem ID có lấy được không
+//            Log.d("DEBUG_DATA", " > Vocab thô: '${q.vocab}'") // Đây là điểm mấu chốt
+//            Log.d("DEBUG_DATA", " > Is Vocab Empty: ${q.vocab.isEmpty()}")
+//        }
         val listVocabToSave = viewModel.questions.value?.filter { it.vocab.isNotEmpty() }?.map { q ->
             Vocabulary(
                 vocab = q.vocab,
@@ -332,19 +332,14 @@ class QuestionActivity : AppCompatActivity() {
         val selected = viewModel.selectedOrderingWords.value ?: mutableListOf()
         val currentQuestion = viewModel.questions.value?.getOrNull(viewModel.currentIndex.value ?: 0) ?: return
 
-        // Định nghĩa Regex tìm cụm gạch dưới (2 dấu trở lên)
         val placeholderRegex = Regex("_{2,}")
-
-        // --- BƯỚC 1: HIỂN THỊ TV_PROMPT ---
         var displayPrompt = currentQuestion.prompt
         selected.forEach { word ->
-            // Thay thế lần lượt từng cụm gạch bằng [từ]
             displayPrompt = displayPrompt.replaceFirst(placeholderRegex, "[$word]")
 
         }
         binding.tvPrompt.text = displayPrompt
 
-        // --- BƯỚC 2: HIỂN THỊ CÁC TỪ ĐÃ CHỌN ---
         selected.forEach { word ->
             val btn = createWordButton(word, isSelected = true) {
                 viewModel.removeWordFromOrdering(word)
@@ -353,14 +348,12 @@ class QuestionActivity : AppCompatActivity() {
             binding.flexSelectedWords.addView(btn)
         }
 
-        // --- BƯỚC 3: HIỂN THỊ CÁC TỪ CÒN LẠI ---
         val tempSelected = selected.toMutableList()
         available.forEach { word ->
             if (tempSelected.contains(word)) {
                 tempSelected.remove(word)
             } else {
                 val btn = createWordButton(word, isSelected = false) {
-                    // SỬA TẠI ĐÂY: Đếm số ô trống bằng Regex thay vì split
                     val totalBlanks = placeholderRegex.findAll(currentQuestion.prompt).count()
 
                     if (selected.size < totalBlanks) {
@@ -375,7 +368,6 @@ class QuestionActivity : AppCompatActivity() {
         }
     }
     private fun createWordButton(text: String, isSelected: Boolean = false, onClick: () -> Unit): View {
-        // Sử dụng Style chuẩn của Material Design
         val styleAttr = if (isSelected) {
             com.google.android.material.R.attr.materialButtonStyle
         } else {
@@ -393,11 +385,10 @@ class QuestionActivity : AppCompatActivity() {
         val result = StringBuilder()
 
         for (i in parts.indices) {
-            result.append(parts[i]) // Thêm phần văn bản cố định (đã bao gồm khoảng trắng cần thiết)
+            result.append(parts[i])
 
             if (i < userAnswers.size) {
                 val word = userAnswers[i]
-                // Chỉ thêm từ vào, KHÔNG thêm khoảng trắng cứng ở đây
                 result.append(word)
             }
         }

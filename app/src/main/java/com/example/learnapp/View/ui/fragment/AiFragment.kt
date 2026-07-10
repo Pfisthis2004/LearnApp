@@ -124,7 +124,7 @@ class AiFragment : Fragment() {
     private fun showDeleteDialog(historyItem: HistoryItem) {
         AlertDialog.Builder(requireContext())
             .setTitle("Xác nhận xóa")
-            .setMessage("Bạn có chắc chắn muốn xóa bài học '${historyItem.lessonTitle}' không?")
+            .setMessage("Bạn có chắc chắn muốn xóa bài nói '${historyItem.lessonTitle}' không?")
             .setPositiveButton("OK") { dialog, _ ->
                 // GỌI HÀM XÓA CỦA BẠN Ở ĐÂY
                 viewModel.deleteHistory(historyItem)

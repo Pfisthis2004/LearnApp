@@ -38,17 +38,11 @@ class ChatViewModel : ViewModel() {
     fun startConversation(config: ChatConfig) {
         _isLoading.value = true
         val header = config.openingHeader
-        // 1. HIỆN TIN NHẮN USER TRƯỚC (Dùng item_mess_user)
-//        addMessageToUI(ChatMessage(text = header, sender = "USER"))
-
         viewModelScope.launch {
-            // 2. Gửi Header này lên Gemini để AI phản hồi theo Setting
             val response = repository.fetchChatResponse(header, config, "")
             _isLoading.postValue(false)
 
             response?.let {
-//                // Lưu vào history để lần sau AI không quên vai
-//                conversationHistory += "User: $header\nAI: ${it.reply}\n"
                 processAIResponse(it)
             }
         }
@@ -60,9 +54,6 @@ class ChatViewModel : ViewModel() {
 
         viewModelScope.launch {
             val formattedText = repository.formatTextWithAi(userText)
-
-            // 3. Nếu text sau khi format khác text thô, cập nhật lại tin nhắn đó trong UI
-            // (Bạn có thể bỏ qua bước này nếu thấy không cần thiết)
             if (formattedText != userText) {
                 updateLastUserMessage(formattedText)
             }
@@ -73,11 +64,9 @@ class ChatViewModel : ViewModel() {
                 if (response != null) {
                     processAIResponse(response)
                 } else {
-                    // Trường hợp API trả về null (có thể do lỗi server AI)
                     _errorMessage.postValue("AI không phản hồi, vui lòng thử lại.")
                 }
             } catch (e: Exception) {
-                // Trường hợp mất mạng hoặc crash logic
                 _errorMessage.postValue("Lỗi kết nối: ${e.localizedMessage}")
             } finally {
                 _isLoading.postValue(false)
@@ -99,15 +88,12 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun addMessageToUI(message: ChatMessage) {
-        // Tạo list mới để trigger observer của RecyclerView
         val currentList = _chatMessages.value?.toMutableList() ?: mutableListOf()
         currentList.add(message)
         _chatMessages.postValue(currentList)
     }
     private fun updateLastUserMessage(newText: String) {
         val currentList = _chatMessages.value?.toMutableList() ?: return
-
-        // Tìm index của tin nhắn cuối cùng mà sender là "USER"
         val lastUserMsgIndex = currentList.indexOfLast { it.sender == "USER" }
 
         if (lastUserMsgIndex != -1) {
@@ -115,14 +101,13 @@ class ChatViewModel : ViewModel() {
             val updatedMsg = currentList[lastUserMsgIndex].copy(text = newText)
             currentList[lastUserMsgIndex] = updatedMsg
 
-            // Cập nhật lại LiveData để UI tự động refresh
             _chatMessages.postValue(currentList)
         }
     }
     private fun getLimitedHistory(): String {
         val allMessages = _chatMessages.value ?: return ""
         // Lấy 6 tin nhắn cuối cùng
-        val limited = allMessages.takeLast(6)
+        val limited = allMessages.takeLast(10)
         return limited.joinToString("\n") { msg ->
             val englishOnly = msg.text.split("|")[0].trim()
             "${msg.sender}: $englishOnly"
@@ -151,9 +136,7 @@ class ChatViewModel : ViewModel() {
             val limitHistory = _chatMessages.value?.takeLast(10)?.joinToString("\n") {
                 "${it.sender}: ${it.text}"
             } ?: ""
-            // Lấy danh sách trạng thái mục tiêu hiện tại (Ví dụ: [true, false, false])
             val currentGoalStatus = _goalStatus.value ?: emptyList()
-            // Gọi Repository và truyền List<Boolean> vào
             val result = repository.fetchSuggestion(config, limitHistory, currentGoalStatus)
 
             _suggestionText.postValue(result ?: "Không thể nhận được gợi ý.")
@@ -164,7 +147,7 @@ class ChatViewModel : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val result = repository.generateScenarios(idea) // repository gọi geminiManager.generateTwoScenarios
+                val result = repository.generateScenarios(idea)
                 _scenarios.postValue(result)
             } catch (e: Exception) {
                 _errorMessage.postValue("Không thể tạo kịch bản: ${e.message}")
@@ -197,7 +180,6 @@ class ChatViewModel : ViewModel() {
             _historyList.postValue(list)
         }
     }
-    // Hàm để xóa gợi ý sau khi đã dùng
     fun clearSuggestion() {
         _suggestionText.value = null
     }

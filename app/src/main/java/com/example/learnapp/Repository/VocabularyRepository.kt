@@ -13,8 +13,6 @@ import kotlinx.coroutines.tasks.await
 
 class VocabularyRepository {
     private val db = FirebaseFirestore.getInstance()
-
-    // Lắng nghe dữ liệu realtime từ Firestore
     fun getVocabularies(userId: String): Flow<List<Vocabulary>> = callbackFlow {
         val vocabRef = db.collection("users").document(userId).collection("vocabularies")
             .orderBy("createdAt", Query.Direction.DESCENDING)
@@ -29,7 +27,7 @@ class VocabularyRepository {
         }
         awaitClose { registration.remove() }
     }
-    // Trong VocabularyRepository.kt
+
     suspend fun getAllVocabListOnce(userId: String): List<Vocabulary> {
         return try {
             db.collection("users").document(userId)
@@ -46,13 +44,13 @@ class VocabularyRepository {
             val userVocabRef = db.collection("users").document(userId).collection("vocabularies")
 
             list.forEach { vocab ->
-                val docRef = userVocabRef.document() // Firestore tự tạo ID
+                val docRef = userVocabRef.document()
                 batch.set(docRef, vocab.copy(id = docRef.id))
             }
             batch.commit().await() // Sử dụng .await() từ coroutines-play-services
     }
     suspend fun updateMultipleFavorites(userId: String, changes: Map<String, Boolean>) {
-        val batch = db.batch() // Khởi tạo Batch
+        val batch = db.batch()
         val userVocabRef = db.collection("users").document(userId).collection("vocabularies")
 
         changes.forEach { (id, isFavorite) ->
@@ -79,6 +77,14 @@ class VocabularyRepository {
             "i'm great, thanks" -> "aɪm ɡreɪt θæŋks"
             "how's it going" -> "haʊz ɪt ˈɡoʊɪŋ"
             "and you" -> "ænd juː"
+            "organised" -> "ˈôrɡəˌnīzd"
+            "polite" -> "pəˈlīt"
+            "tidy" -> "ˈtīdē"
+            "friendly" -> "ˈfren(d)lē"
+            "funny" -> "ˈfənē"
+            "to relocate" -> "to͞o rēˈlōˌkāt"
+            "to pursue something" -> "to͞o pərˈso͞o ˈsəmˌTHiNG"
+            "helpful" -> "ˈhelpf(ə)l"
             "what about you" -> "wʌt əˈbaʊt juː"
             "not bad, thanks" -> "nɒt bæd θæŋks"
             "where are you from" -> "wer ɑːr juː frʌm"
@@ -131,6 +137,7 @@ class VocabularyRepository {
             targetIpaWords = getLocalIpa(targetWord).replace("/", "").split("\\s+".toRegex())
         )
     }
+    // Thuật toán Levenshtein Distance để đo khoảng cách chỉnh sửa
     private fun calculateSimilarityPercentage(str1: String, str2: String): Int {
         val s1 = str1.trim().lowercase()
         val s2 = str2.trim().lowercase()

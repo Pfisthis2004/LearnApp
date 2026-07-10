@@ -39,7 +39,6 @@ class ChatRepository {
                 onResult(list)
             }
     }
-
     fun saveHistory(item: HistoryItem) {
         val userId = auth.currentUser?.uid ?: return
         db.collection("users").document(userId)
