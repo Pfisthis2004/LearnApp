@@ -1,11 +1,10 @@
 # LearnApp - Ứng dụng Học tập Thông minh tích hợp AI
 
 LearnApp là một ứng dụng Android hiện đại được thiết kế để hỗ trợ người dùng học ngoại ngữ (tiếng Anh) một cách hiệu quả thông qua các bài học, từ vựng và đặc biệt là khả năng tương tác với trí tuệ nhân tạo (AI).
+
 ## 📱 Giao diện ứng dụng
 
-<p align="center">
-  <img src="images/learnapp-showcase.png" alt="LearnApp Showcase" width="100%">
-</p>
+![LearnApp](screenshots/Giao_Dien_Mau.png)
 
 ## 🌟 Tính năng chính
 
